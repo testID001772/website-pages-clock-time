@@ -88,8 +88,8 @@ const trackSchema = z.object({
 });
 
 /**
- * Create or update a track, then return the refreshed library (same shape as
- * the news composer's save) so the editor never has to refetch by hand.
+ * Create or update a track, then return the refreshed library — saves are
+ * self-contained, so the editor never has to refetch by hand.
  */
 export const saveTrack = createServerFn({ method: "POST" })
   .middleware([authMiddleware])

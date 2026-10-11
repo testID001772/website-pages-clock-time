@@ -2,13 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { GatePage } from "@/components/chrome/gate-page";
 import { MusicEditor } from "@/components/music/music-editor";
-import { NewsComposer } from "@/components/news/news-composer";
 import { useTheme } from "@/components/theme-provider";
 import { BACKGROUND_MAX_CHARS, isDefaultBackground, resolveBackgroundUrl } from "@/lib/background";
 import { compressImage, sampleAverageColor } from "@/lib/image";
 import { useLocale } from "@/lib/i18n";
-import type { NewsPost } from "@/lib/news";
-import { listAllNews } from "@/lib/server/news";
 import { getMyProfile, listMembers, setMemberRole } from "@/lib/server/profiles";
 import { updateSiteSettings } from "@/lib/server/site";
 import {
@@ -28,7 +25,6 @@ function Admin() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [draft, setDraft] = useState<SiteSettings>(settings);
   const [members, setMembers] = useState<Profile[]>([]);
-  const [news, setNews] = useState<NewsPost[]>([]);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -44,11 +40,6 @@ function Admin() {
         if (isStaff(p.role)) {
           try {
             setMembers(await listMembers());
-          } catch {
-            /* ignore */
-          }
-          try {
-            setNews(await listAllNews());
           } catch {
             /* ignore */
           }
@@ -256,10 +247,6 @@ function Admin() {
         <h2 className="text-2xl font-semibold tracking-tight">{t.music.title}</h2>
         <p className="mt-2 text-sm text-muted">{t.music.subtitle}</p>
         <MusicEditor />
-      </section>
-
-      <section className="glass mt-4 rounded-[32px] p-6 sm:p-8">
-        <NewsComposer posts={news} onChange={setNews} />
       </section>
 
       <section className="glass mt-4 rounded-[32px] p-6 sm:p-8">

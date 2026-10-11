@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Moon, Newspaper, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { LanguagePicker } from "@/components/chrome/language-picker";
 import { InstallPrompt } from "@/components/chrome/install-prompt";
 import { MusicPicker } from "@/components/chrome/music-picker";
@@ -25,11 +25,6 @@ export function AppChrome({ hideAuth = false }: { hideAuth?: boolean }) {
     <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-end gap-3 p-4 sm:p-5">
       <UpdateBanner />
       <div className="pointer-events-auto flex shrink-0 items-center justify-end gap-2">
-        <Link to="/news" className="icon-btn glass" aria-label={t.nav.news}>
-          <Newspaper className="size-4" />
-          <span className="hidden sm:inline">{t.nav.news}</span>
-        </Link>
-
         <button
           type="button"
           className="icon-btn glass"

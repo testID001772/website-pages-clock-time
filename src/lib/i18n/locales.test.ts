@@ -84,8 +84,6 @@ describe("locales", () => {
       "home.partyElapsed": [5, 4, 3, 2026],
       "home.startCountingTo": ["2027"],
       "home.srCountdown": [110, 20, 37, 2027],
-      "news.postedOn": ["Sep 21, 2026"],
-      "news.by": ["Ada"],
       "dashboard.welcome": ["Ada"],
       "dashboard.yearPassed": ["69.63"],
       "admin.backgroundBlur": [4],

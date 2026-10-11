@@ -95,7 +95,7 @@ export const getMyProfile = createServerFn({ method: "GET" })
   .handler(async ({ context }) => ensureProfile(context.userId));
 
 /**
- * Staff gate for other server-function modules (news, appearance): make sure the
+ * Staff gate for other server-function modules (appearance, music): make sure the
  * caller HAS a profile row first — `ensureProfile` is what hands the first
  * account the owner role — then require admin/owner. Throws `ADMIN_REQUIRED`,
  * which `serverErrorText` maps to a localized message.
