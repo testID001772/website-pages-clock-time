@@ -1,4 +1,11 @@
-export const UNITS = ["years", "months", "days", "hours", "minutes", "seconds"] as const;
+/**
+ * The units the clock renders, longest first. `years` is deliberately absent:
+ * the countdown targets the next New Year (always < 12 months away), so a
+ * years block could only ever read 00. The split below still computes on a
+ * year anchor — that is what makes "2 months 20 days" correct instead of a
+ * naive day count.
+ */
+export const UNITS = ["months", "days", "hours", "minutes", "seconds"] as const;
 export type Unit = (typeof UNITS)[number];
 
 export function nextNewYear(from: Date) {
@@ -32,11 +39,15 @@ function addMonthsClamped(date: Date, months: number) {
 }
 
 /**
- * Calendar-aware split of [from, to): full years, then full months, then
- * the exact day/time remainder. Past ranges clamp to zero.
+ * Calendar-aware split of [from, to): full months, then the exact day/time
+ * remainder. Past ranges clamp to zero.
+ *
+ * The year step is internal only — it anchors the month arithmetic (and keeps
+ * month lengths right across a leap day). Years are not part of the result
+ * because the UI has no years unit; see `UNITS`.
  */
 export function splitRange(from: Date, to: Date) {
-  const zero = { years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0, tenths: 0 };
+  const zero = { months: 0, days: 0, hours: 0, minutes: 0, seconds: 0, tenths: 0 };
   if (to.getTime() <= from.getTime()) return zero;
   let years = to.getFullYear() - from.getFullYear();
   if (addYearsClamped(from, years).getTime() > to.getTime()) years -= 1;
@@ -52,7 +63,6 @@ export function splitRange(from: Date, to: Date) {
   const ms = to.getTime() - anchor.getTime();
   const total = Math.floor(ms / 1000);
   return {
-    years,
     months,
     days: Math.floor(total / 86400),
     hours: Math.floor((total / 3600) % 24),

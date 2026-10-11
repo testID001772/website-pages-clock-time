@@ -190,3 +190,69 @@ test("create, edit, publish and delete round-trip", async () => {
     await db.close();
   }
 });
+
+test("the rebrand migration rewrites legacy seed rows and is idempotent", async () => {
+  const db = await migratedDb();
+  try {
+    // Simulate a database that ran the ORIGINAL seed (pre-rename): put the old
+    // brand back, exactly where 0006 expects to find it.
+    await db.query(`
+      update news_posts set
+        title = replace(title, 'Clock Time', 'System Space'),
+        summary = replace(summary, 'Clock Time', 'System Space'),
+        body = replace(body, 'Clock Time', 'System Space'),
+        author_name = replace(author_name, 'Clock Time', 'System Space')
+      where id in ('welcome-v2', 'install-on-your-phone')
+    `);
+    await db.query("update news_posts set title = 'System Space v2 is live' where id = 'welcome-v2'");
+    // A post a staff member wrote must never be touched by the rebrand.
+    await db.query(
+      `insert into news_posts (id, title, tag, published, author_name)
+       values ('staff-post', 'System Space is my favourite', 'note', true, 'Ada')`,
+    );
+
+    // Scoped to the seeded ids: the staff post below also mentions the old
+    // name, and the rebrand must leave it alone.
+    const legacy = await db.query(
+      `select count(*)::int as n from news_posts
+       where id in ('welcome-v2', 'install-on-your-phone')
+         and (title like '%System Space%' or author_name like '%System Space%')`,
+    );
+    assert.equal(legacy.rows[0].n, 2, "two legacy rows to rebrand");
+
+    const migration = await readFile(join(MIGRATIONS_DIR, "0006_rebrand.sql"), "utf8");
+    await db.exec(migration);
+
+    const rebranded = await db.query(
+      "select id, title, author_name from news_posts where id in ('welcome-v2', 'install-on-your-phone') order by id",
+    );
+    // Ordered by id: 'install-on-your-phone' sorts before 'welcome-v2'.
+    assert.deepEqual(rebranded.rows.map((r) => r.title), [
+      "Install Clock Time on your phone",
+      "Clock Time v1 is live",
+    ]);
+    for (const row of rebranded.rows) assert.equal(row.author_name, "Clock Time");
+
+    const staff = await db.query("select title from news_posts where id = 'staff-post'");
+    assert.equal(staff.rows[0].title, "System Space is my favourite", "staff posts untouched");
+
+    // Second run changes nothing (the guard makes it a no-op).
+    await db.exec(migration);
+    const after = await db.query("select count(*)::int as n from news_posts where author_name = 'Clock Time'");
+    assert.equal(after.rows[0].n, 4, "still four seeded bylines, no double edit");
+  } finally {
+    await db.close();
+  }
+});
+
+test("no shipped seed text is left on the old brand", async () => {
+  const db = await migratedDb();
+  try {
+    const { rows } = await db.query(
+      "select id from news_posts where title like '%System Space%' or body like '%System Space%' or author_name like '%System Space%'",
+    );
+    assert.deepEqual(rows, [], "the seeded feed speaks the current brand");
+  } finally {
+    await db.close();
+  }
+});

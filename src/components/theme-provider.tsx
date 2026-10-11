@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { LEGACY_PREF_PREFIX, readPref, writePref } from "@/lib/prefs";
 import { getPublicSettings } from "@/lib/server/site";
 import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/types";
 import { hexToRgb } from "@/lib/utils";
@@ -41,17 +42,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
-    window.localStorage.removeItem("system-space-lights");
-    window.localStorage.removeItem("system-space-layers");
-    const storedSpace = window.localStorage.getItem("system-space-space");
+    // Feature flags dropped before the rename — their stored values are
+    // deleted rather than migrated (`readPref` only adopts keys we still read).
+    window.localStorage.removeItem(`${LEGACY_PREF_PREFIX}lights`);
+    window.localStorage.removeItem(`${LEGACY_PREF_PREFIX}layers`);
+    const storedSpace = readPref("space");
     if (storedSpace === "off" || storedSpace === "on") setSpaceState(storedSpace);
-    const storedMotion = window.localStorage.getItem("system-space-motion");
+    const storedMotion = readPref("motion");
     if (storedMotion === "off" || storedMotion === "on") {
       setMotionState(storedMotion);
     } else if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setMotionState("off");
     }
-    const storedTheme = window.localStorage.getItem("system-space-theme");
+    const storedTheme = readPref("theme");
     if (storedTheme === "light" || storedTheme === "dark") {
       setThemeState(storedTheme);
     } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
@@ -75,17 +78,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       space,
       setSpace: (next) => {
         setSpaceState(next);
-        window.localStorage.setItem("system-space-space", next);
+        writePref("space", next);
       },
       motion,
       setMotion: (next) => {
         setMotionState(next);
-        window.localStorage.setItem("system-space-motion", next);
+        writePref("motion", next);
       },
       theme,
       setTheme: (next) => {
         setThemeState(next);
-        window.localStorage.setItem("system-space-theme", next);
+        writePref("theme", next);
       },
       refreshSettings: async () => {
         try {

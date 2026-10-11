@@ -5,7 +5,7 @@ import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { ThemeProvider } from "@/components/theme-provider";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "System Space";
+const APP_NAME = "Clock Time";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -17,7 +17,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "System Space — a cinematic countdown to New Year with glass controls, event countdowns, and member orbits.",
+          "Clock Time — a cinematic countdown to New Year with glass controls, event countdowns, and member orbits.",
       },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },

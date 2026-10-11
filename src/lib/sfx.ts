@@ -2,10 +2,11 @@
  * Tiny synthesized UI sound effects — Web Audio oscillators, no audio files.
  *
  * Effects follow the site's audio intent: when background music is muted
- * (`system-space-music === "false"` in localStorage), effects stay silent
- * too. The AudioContext is created lazily inside the first gesture-driven
- * call, so autoplay policies never block it and SSR never touches it.
+ * (`clock-time-music === "false"` in localStorage), effects stay silent too.
+ * The AudioContext is created lazily inside the first gesture-driven call, so
+ * autoplay policies never block it and SSR never touches it.
  */
+import { readPref } from "./prefs";
 
 export type SfxName = "click" | "pop" | "open" | "close" | "chime";
 
@@ -31,9 +32,12 @@ export function getAudioContext(): AudioContext | null {
   return audioCtx();
 }
 
+/** `clock-time-music`, exported so the music picker shares one key. */
+export const MUSIC_PREF = "music";
+
 function sfxEnabled(): boolean {
   if (typeof window === "undefined") return false;
-  return window.localStorage.getItem("system-space-music") !== "false";
+  return readPref(MUSIC_PREF) !== "false";
 }
 
 type Tone = {

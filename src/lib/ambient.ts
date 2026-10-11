@@ -4,7 +4,7 @@
  * strict mobile proxies), while code always plays. Four soft chords
  * (Am9 → Fmaj9 → Cmaj7 → G6) crossfade on a slow loop under a drifting
  * low-pass filter — quiet enough to sit under the UI. Follows the same
- * mute intent as the SFX (`system-space-music` in localStorage).
+ * mute intent as the SFX (`clock-time-music` in localStorage).
  */
 import { getAudioContext } from "./sfx";
 

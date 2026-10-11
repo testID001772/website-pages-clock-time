@@ -98,7 +98,7 @@ export function HomeView({ news = [] }: { news?: NewsPost[] }) {
         if (p.seconds === 0) {
           setSr(t.home.srCountdown(p.days, p.hours, p.minutes, targetRef.current.getFullYear()));
         }
-        document.title = `${p.months}mo ${p.days}d ${pad2(p.hours)}:${pad2(p.minutes)}:${pad2(p.seconds)} · System Space`;
+        document.title = `${p.months}mo ${p.days}d ${pad2(p.hours)}:${pad2(p.minutes)}:${pad2(p.seconds)} · Clock Time`;
       }
     };
 

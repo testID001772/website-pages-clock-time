@@ -100,7 +100,6 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
             className="num text-xl tabular-nums"
             role="timer"
             aria-label={t.event.timerAria(
-              main.parts.years,
               main.parts.months,
               main.parts.days,
               main.parts.hours,

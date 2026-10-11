@@ -19,7 +19,6 @@ export const de: Dictionary = {
 
   countdown: {
     units: {
-      years: "Jahre",
       months: "Monate",
       days: "Tage",
       hours: "Stunden",
@@ -27,14 +26,13 @@ export const de: Dictionary = {
       seconds: "Sekunden",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} Jahre ${months} Monaten ${days} Tage ${hours} Stunden ${minutes} Minuten ${seconds} Sekunden`,
+      `${months} Monaten ${days} Tage ${hours} Stunden ${minutes} Minuten ${seconds} Sekunden`,
   },
   event: {
     label: "Demnächst",
@@ -42,8 +40,8 @@ export const de: Dictionary = {
     outNow: "Jetzt erhältlich",
     more: (count: number) => `Weitere Releases (${count})`,
     less: "Weniger anzeigen",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `Noch ${years} Jahre, ${months} Monate, ${days} Tage, ${hours} Stunden und ${minutes} Minuten bis zur Veröffentlichung`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `Noch ${months} Monate, ${days} Tage, ${hours} Stunden und ${minutes} Minuten bis zur Veröffentlichung`,
   },
 
   playlist: {
@@ -78,7 +76,7 @@ export const de: Dictionary = {
   auth: {
     loginTitle: "Anmelden",
     registerTitle: "Konto erstellen",
-    loginSubtitle: "Willkommen zurück in System Space. Dein Orbit ist gespeichert.",
+    loginSubtitle: "Willkommen zurück in Clock Time. Dein Orbit ist gespeichert.",
     registerSubtitle: "Werde Mitglied. Das erste Konto wird Inhaber.",
     name: "Name",
     namePlaceholder: "Dein Name",
@@ -118,7 +116,7 @@ export const de: Dictionary = {
     adminBlurb: "Hintergrund, Weichzeichner und Glas.",
     roleTitle: "Rolle",
     roleBlurb:
-      "Mitglieder erkunden System Space. Admins formen den Himmel. Inhaber haben die Schlüssel.",
+      "Mitglieder erkunden Clock Time. Admins formen den Himmel. Inhaber haben die Schlüssel.",
   },
   settings: {
     title: "Konto",
@@ -177,7 +175,7 @@ export const de: Dictionary = {
   },
   news: {
     title: "Neuigkeiten",
-    subtitle: "Ankündigungen, Releases und Updates aus dem System Space.",
+    subtitle: "Ankündigungen, Releases und Updates aus dem Clock Time.",
     latestTitle: "Neueste Meldungen",
     allNews: "Alle Meldungen",
     readMore: "Weiterlesen",

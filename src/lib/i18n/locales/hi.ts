@@ -19,7 +19,6 @@ export const hi: Dictionary = {
 
   countdown: {
     units: {
-      years: "वर्ष",
       months: "महीने",
       days: "दिन",
       hours: "घंटे",
@@ -27,13 +26,12 @@ export const hi: Dictionary = {
       seconds: "सेकंड",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
-    ) => `${years} वर्ष ${months} महीने ${days} दिन ${hours} घंटे ${minutes} मिनट ${seconds} सेकंड`,
+    ) => `${months} महीने ${days} दिन ${hours} घंटे ${minutes} मिनट ${seconds} सेकंड`,
   },
   event: {
     label: "आगामी",
@@ -41,8 +39,8 @@ export const hi: Dictionary = {
     outNow: "अभी उपलब्ध",
     more: (count: number) => `और रिलीज़ (${count})`,
     less: "कम दिखाएँ",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `रिलीज़ से पहले ${years} वर्ष, ${months} महीने, ${days} दिन, ${hours} घंटे और ${minutes} मिनट शेष`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `रिलीज़ से पहले ${months} महीने, ${days} दिन, ${hours} घंटे और ${minutes} मिनट शेष`,
   },
 
   playlist: {
@@ -77,7 +75,7 @@ export const hi: Dictionary = {
   auth: {
     loginTitle: "लॉग इन",
     registerTitle: "खाता बनाएँ",
-    loginSubtitle: "System Space में वापसी। आपकी कक्षा सहेजी है।",
+    loginSubtitle: "Clock Time में वापसी। आपकी कक्षा सहेजी है।",
     registerSubtitle: "सदस्य बनें। पहला खाता स्वामी बनेगा।",
     name: "नाम",
     namePlaceholder: "आपका नाम",
@@ -116,7 +114,7 @@ export const hi: Dictionary = {
     admin: "एडमिन",
     adminBlurb: "पृष्ठभूमि, धुंधलापन और काँच।",
     roleTitle: "भूमिका",
-    roleBlurb: "सदस्य System Space खोजते हैं। एडमिन आसमान सँवारते हैं। स्वामी चाबियाँ रखते हैं।",
+    roleBlurb: "सदस्य Clock Time खोजते हैं। एडमिन आसमान सँवारते हैं। स्वामी चाबियाँ रखते हैं।",
   },
   settings: {
     title: "खाता",
@@ -174,7 +172,7 @@ export const hi: Dictionary = {
   },
   news: {
     title: "समाचार",
-    subtitle: "System Space के ऐलान, रिलीज़ और अपडेट।",
+    subtitle: "Clock Time के ऐलान, रिलीज़ और अपडेट।",
     latestTitle: "ताज़ा समाचार",
     allNews: "सभी समाचार",
     readMore: "और पढ़ें",

@@ -21,7 +21,6 @@ export const en = {
 
   countdown: {
     units: {
-      years: "Years",
       months: "Months",
       days: "Days",
       hours: "Hours",
@@ -29,14 +28,13 @@ export const en = {
       seconds: "Seconds",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} years ${months} months ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`,
+      `${months} months ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`,
   },
   event: {
     label: "Coming up",
@@ -44,8 +42,8 @@ export const en = {
     outNow: "Out now",
     more: (count: number) => `More releases (${count})`,
     less: "Show less",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `${years} years, ${months} months, ${days} days, ${hours} hours and ${minutes} minutes until the release`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `${months} months, ${days} days, ${hours} hours and ${minutes} minutes until the release`,
   },
   playlist: {
     title: "Playlist",
@@ -79,7 +77,7 @@ export const en = {
   auth: {
     loginTitle: "Log in",
     registerTitle: "Create account",
-    loginSubtitle: "Return to System Space. Your orbit is saved.",
+    loginSubtitle: "Return to Clock Time. Your orbit is saved.",
     registerSubtitle: "Join as a member. The first account becomes owner.",
     name: "Name",
     namePlaceholder: "Your name",
@@ -118,7 +116,7 @@ export const en = {
     admin: "Admin",
     adminBlurb: "Background, blur, and glass.",
     roleTitle: "Role",
-    roleBlurb: "Members explore System Space. Admins shape the sky. Owners hold the keys.",
+    roleBlurb: "Members explore Clock Time. Admins shape the sky. Owners hold the keys.",
   },
   settings: {
     title: "Account",
@@ -176,7 +174,7 @@ export const en = {
   },
   news: {
     title: "News",
-    subtitle: "Announcements, releases and updates from System Space.",
+    subtitle: "Announcements, releases and updates from Clock Time.",
     latestTitle: "Latest news",
     allNews: "All news",
     readMore: "Read more",

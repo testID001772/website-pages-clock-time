@@ -1,6 +1,6 @@
 {
-  "name": "System Space — Countdown",
-  "short_name": "System Space",
+  "name": "Clock Time — Countdown",
+  "short_name": "Clock Time",
   "description": "A cinematic countdown to New Year, game releases and a 100-track ambient playlist.",
   "start_url": "/",
   "scope": "/",

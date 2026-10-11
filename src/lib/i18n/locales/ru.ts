@@ -19,7 +19,6 @@ export const ru: Dictionary = {
 
   countdown: {
     units: {
-      years: "Лет",
       months: "Месяцев",
       days: "Дней",
       hours: "Часов",
@@ -27,14 +26,13 @@ export const ru: Dictionary = {
       seconds: "Секунд",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} лет ${months} месяцев ${days} дней ${hours} часов ${minutes} минут ${seconds} секунд`,
+      `${months} месяцев ${days} дней ${hours} часов ${minutes} минут ${seconds} секунд`,
   },
   event: {
     label: "Скоро",
@@ -42,8 +40,8 @@ export const ru: Dictionary = {
     outNow: "Уже вышла",
     more: (count: number) => `Ещё релизы (${count})`,
     less: "Показать меньше",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `До релиза осталось ${years} г. ${months} мес. ${days} д. ${hours} ч. ${minutes} мин.`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `До релиза осталось ${months} мес. ${days} д. ${hours} ч. ${minutes} мин.`,
   },
 
   playlist: {
@@ -78,7 +76,7 @@ export const ru: Dictionary = {
   auth: {
     loginTitle: "Войти",
     registerTitle: "Создать аккаунт",
-    loginSubtitle: "С возвращением в System Space. Ваша орбита сохранена.",
+    loginSubtitle: "С возвращением в Clock Time. Ваша орбита сохранена.",
     registerSubtitle: "Станьте участником. Первый аккаунт станет владельцем.",
     name: "Имя",
     namePlaceholder: "Ваше имя",
@@ -117,7 +115,7 @@ export const ru: Dictionary = {
     admin: "Админ",
     adminBlurb: "Фон, размытие и стекло.",
     roleTitle: "Роль",
-    roleBlurb: "Участники исследуют System Space. Админы формируют небо. Владельцы держат ключи.",
+    roleBlurb: "Участники исследуют Clock Time. Админы формируют небо. Владельцы держат ключи.",
   },
   settings: {
     title: "Аккаунт",
@@ -175,7 +173,7 @@ export const ru: Dictionary = {
   },
   news: {
     title: "Новости",
-    subtitle: "Объявления, релизы и обновления System Space.",
+    subtitle: "Объявления, релизы и обновления Clock Time.",
     latestTitle: "Последние новости",
     allNews: "Все новости",
     readMore: "Читать дальше",

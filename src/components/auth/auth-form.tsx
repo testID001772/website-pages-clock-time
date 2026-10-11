@@ -112,7 +112,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </div>
 
         <section className="glass mt-6 rounded-[32px] p-6 sm:p-8 lg:mt-0">
-          <p className="text-xs font-medium tracking-[0.28em] text-muted uppercase">System Space</p>
+          <p className="text-xs font-medium tracking-[0.28em] text-muted uppercase">Clock Time</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">{title}</h1>
           <p className="mt-2 text-sm text-muted">{subtitle}</p>
 

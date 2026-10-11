@@ -19,7 +19,6 @@ export const zh: Dictionary = {
 
   countdown: {
     units: {
-      years: "年",
       months: "个月",
       days: "天",
       hours: "小时",
@@ -27,13 +26,12 @@ export const zh: Dictionary = {
       seconds: "秒",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
-    ) => `${years}年${months}个月${days}天${hours}小时${minutes}分${seconds}秒`,
+    ) => `${months}个月${days}天${hours}小时${minutes}分${seconds}秒`,
   },
   event: {
     label: "即将到来",
@@ -41,8 +39,8 @@ export const zh: Dictionary = {
     outNow: "现已推出",
     more: (count: number) => `更多发售（${count}）`,
     less: "收起",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `距离发售还有 ${years} 年 ${months} 个月 ${days} 天 ${hours} 小时 ${minutes} 分钟`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `距离发售还有 ${months} 个月 ${days} 天 ${hours} 小时 ${minutes} 分钟`,
   },
 
   playlist: {
@@ -77,7 +75,7 @@ export const zh: Dictionary = {
   auth: {
     loginTitle: "登录",
     registerTitle: "创建账号",
-    loginSubtitle: "回到 System Space，你的轨道已保存。",
+    loginSubtitle: "回到 Clock Time，你的轨道已保存。",
     registerSubtitle: "加入成为成员，首个账号将成为所有者。",
     name: "姓名",
     namePlaceholder: "你的名字",
@@ -116,7 +114,7 @@ export const zh: Dictionary = {
     admin: "管理",
     adminBlurb: "背景、模糊和玻璃。",
     roleTitle: "角色",
-    roleBlurb: "成员探索 System Space，管理员塑造天空，所有者掌管钥匙。",
+    roleBlurb: "成员探索 Clock Time，管理员塑造天空，所有者掌管钥匙。",
   },
   settings: {
     title: "账号",
@@ -174,7 +172,7 @@ export const zh: Dictionary = {
   },
   news: {
     title: "新闻",
-    subtitle: "System Space 的公告、发布与更新。",
+    subtitle: "Clock Time 的公告、发布与更新。",
     latestTitle: "最新消息",
     allNews: "全部新闻",
     readMore: "阅读全文",

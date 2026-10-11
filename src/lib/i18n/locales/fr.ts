@@ -19,7 +19,6 @@ export const fr: Dictionary = {
 
   countdown: {
     units: {
-      years: "Ans",
       months: "Mois",
       days: "Jours",
       hours: "Heures",
@@ -27,14 +26,13 @@ export const fr: Dictionary = {
       seconds: "Secondes",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} ans ${months} mois ${days} jours ${hours} heures ${minutes} minutes ${seconds} secondes`,
+      `${months} mois ${days} jours ${hours} heures ${minutes} minutes ${seconds} secondes`,
   },
   event: {
     label: "À venir",
@@ -42,8 +40,8 @@ export const fr: Dictionary = {
     outNow: "Déjà disponible",
     more: (count: number) => `Plus de sorties (${count})`,
     less: "Afficher moins",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `${years} ans, ${months} mois, ${days} jours, ${hours} heures et ${minutes} minutes avant la sortie`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `${months} mois, ${days} jours, ${hours} heures et ${minutes} minutes avant la sortie`,
   },
 
   playlist: {
@@ -78,7 +76,7 @@ export const fr: Dictionary = {
   auth: {
     loginTitle: "Se connecter",
     registerTitle: "Créer un compte",
-    loginSubtitle: "Revenez dans System Space. Votre orbite est sauvegardée.",
+    loginSubtitle: "Revenez dans Clock Time. Votre orbite est sauvegardée.",
     registerSubtitle: "Rejoignez comme membre. Le premier compte devient propriétaire.",
     name: "Nom",
     namePlaceholder: "Votre nom",
@@ -118,7 +116,7 @@ export const fr: Dictionary = {
     adminBlurb: "Fond, flou et verre.",
     roleTitle: "Rôle",
     roleBlurb:
-      "Les membres explorent System Space. Les admins façonnent le ciel. Les propriétaires gardent les clés.",
+      "Les membres explorent Clock Time. Les admins façonnent le ciel. Les propriétaires gardent les clés.",
   },
   settings: {
     title: "Compte",
@@ -177,7 +175,7 @@ export const fr: Dictionary = {
   },
   news: {
     title: "Actualités",
-    subtitle: "Annonces, sorties et mises à jour de System Space.",
+    subtitle: "Annonces, sorties et mises à jour de Clock Time.",
     latestTitle: "Dernières actualités",
     allNews: "Toutes les actualités",
     readMore: "Lire la suite",

@@ -2,6 +2,8 @@ import { Pause, Play, Radio, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { startAmbient, stopAmbient } from "@/lib/ambient";
 import { useLocale } from "@/lib/i18n";
+import { readPref, writePref } from "@/lib/prefs";
+import { MUSIC_PREF } from "@/lib/sfx";
 import { PLAYLIST_TRACKS } from "@/lib/playlist-tracks";
 import { playSfx } from "@/lib/sfx";
 
@@ -12,7 +14,7 @@ const fmt = (seconds: number) =>
  * Music button + playlist panel. Track 0 is the live generative ambience
  * (no file); the other 100 are mp3s in /public/music (see
  * scripts/generate-music.mjs). Play state follows the shared audio intent
- * (`system-space-music`), so unpausing also re-enables the UI sound
+ * (`clock-time-music`), so unpausing also re-enables the UI sound
  * effects. If an mp3 fails to load, playback falls back to the live
  * ambience and the row is flagged.
  */
@@ -35,7 +37,7 @@ export function MusicPicker() {
   const retriedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    const intent = localStorage.getItem("system-space-music") !== "false";
+    const intent = readPref(MUSIC_PREF) !== "false";
     intentRef.current = intent;
     setMusicOn(intent);
     if (intent) startAmbient();
@@ -114,7 +116,7 @@ export function MusicPicker() {
     if (!intentRef.current) {
       intentRef.current = true;
       setMusicOn(true);
-      localStorage.setItem("system-space-music", "true");
+      writePref(MUSIC_PREF, "true");
     }
     const audio = audioRef.current;
     if (id === null) {
@@ -165,7 +167,7 @@ export function MusicPicker() {
     playSfx("click");
     intentRef.current = next;
     setMusicOn(next);
-    localStorage.setItem("system-space-music", String(next));
+    writePref(MUSIC_PREF, String(next));
     const audio = audioRef.current;
     if (next) {
       if (currentRef.current === null) startAmbient();

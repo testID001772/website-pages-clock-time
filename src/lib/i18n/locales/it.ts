@@ -19,7 +19,6 @@ export const it: Dictionary = {
 
   countdown: {
     units: {
-      years: "Anni",
       months: "Mesi",
       days: "Giorni",
       hours: "Ore",
@@ -27,14 +26,13 @@ export const it: Dictionary = {
       seconds: "Secondi",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} anni ${months} mesi ${days} giorni ${hours} ore ${minutes} minuti ${seconds} secondi`,
+      `${months} mesi ${days} giorni ${hours} ore ${minutes} minuti ${seconds} secondi`,
   },
   event: {
     label: "In arrivo",
@@ -42,8 +40,8 @@ export const it: Dictionary = {
     outNow: "Già disponibile",
     more: (count: number) => `Altre uscite (${count})`,
     less: "Mostra meno",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `${years} anni, ${months} mesi, ${days} giorni, ${hours} ore e ${minutes} minuti all'uscita`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `${months} mesi, ${days} giorni, ${hours} ore e ${minutes} minuti all'uscita`,
   },
 
   playlist: {
@@ -78,7 +76,7 @@ export const it: Dictionary = {
   auth: {
     loginTitle: "Accedi",
     registerTitle: "Crea account",
-    loginSubtitle: "Torna in System Space. La tua orbita è salva.",
+    loginSubtitle: "Torna in Clock Time. La tua orbita è salva.",
     registerSubtitle: "Unisciti come membro. Il primo account diventa proprietario.",
     name: "Nome",
     namePlaceholder: "Il tuo nome",
@@ -118,7 +116,7 @@ export const it: Dictionary = {
     adminBlurb: "Sfondo, sfocatura e vetro.",
     roleTitle: "Ruolo",
     roleBlurb:
-      "I membri esplorano System Space. Gli admin plasmano il cielo. I proprietari tengono le chiavi.",
+      "I membri esplorano Clock Time. Gli admin plasmano il cielo. I proprietari tengono le chiavi.",
   },
   settings: {
     title: "Account",
@@ -177,7 +175,7 @@ export const it: Dictionary = {
   },
   news: {
     title: "Notizie",
-    subtitle: "Annunci, uscite e aggiornamenti da System Space.",
+    subtitle: "Annunci, uscite e aggiornamenti da Clock Time.",
     latestTitle: "Ultime notizie",
     allNews: "Tutte le notizie",
     readMore: "Leggi tutto",

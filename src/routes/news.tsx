@@ -17,10 +17,10 @@ export const Route = createFileRoute("/news")({
   loader: () => listNews(),
   head: () => ({
     meta: [
-      { title: "News · System Space" },
+      { title: "News · Clock Time" },
       {
         name: "description",
-        content: "Announcements, releases and updates from System Space.",
+        content: "Announcements, releases and updates from Clock Time.",
       },
     ],
   }),

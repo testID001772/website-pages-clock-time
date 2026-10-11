@@ -19,7 +19,6 @@ export const pt: Dictionary = {
 
   countdown: {
     units: {
-      years: "Anos",
       months: "Meses",
       days: "Dias",
       hours: "Horas",
@@ -27,14 +26,13 @@ export const pt: Dictionary = {
       seconds: "Segundos",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} anos ${months} meses ${days} dias ${hours} horas ${minutes} minutos ${seconds} segundos`,
+      `${months} meses ${days} dias ${hours} horas ${minutes} minutos ${seconds} segundos`,
   },
   event: {
     label: "Em breve",
@@ -42,8 +40,8 @@ export const pt: Dictionary = {
     outNow: "Já disponível",
     more: (count: number) => `Mais lançamentos (${count})`,
     less: "Mostrar menos",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `${years} anos, ${months} meses, ${days} dias, ${hours} horas e ${minutes} minutos para o lançamento`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `${months} meses, ${days} dias, ${hours} horas e ${minutes} minutos para o lançamento`,
   },
 
   playlist: {
@@ -78,7 +76,7 @@ export const pt: Dictionary = {
   auth: {
     loginTitle: "Entrar",
     registerTitle: "Criar conta",
-    loginSubtitle: "Volte para System Space. Sua órbita está salva.",
+    loginSubtitle: "Volte para Clock Time. Sua órbita está salva.",
     registerSubtitle: "Junte-se como membro. A primeira conta vira proprietária.",
     name: "Nome",
     namePlaceholder: "Seu nome",
@@ -117,7 +115,7 @@ export const pt: Dictionary = {
     admin: "Admin",
     adminBlurb: "Fundo, desfoque e vidro.",
     roleTitle: "Função",
-    roleBlurb: "Membros exploram o System Space. Admins moldam o céu. Donos guardam as chaves.",
+    roleBlurb: "Membros exploram o Clock Time. Admins moldam o céu. Donos guardam as chaves.",
   },
   settings: {
     title: "Conta",
@@ -175,7 +173,7 @@ export const pt: Dictionary = {
   },
   news: {
     title: "Notícias",
-    subtitle: "Anúncios, lançamentos e novidades do System Space.",
+    subtitle: "Anúncios, lançamentos e novidades do Clock Time.",
     latestTitle: "Últimas notícias",
     allNews: "Todas as notícias",
     readMore: "Ler mais",

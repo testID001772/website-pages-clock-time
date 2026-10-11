@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { readPref, writePref } from "@/lib/prefs";
 import { ar } from "./locales/ar";
 import { de } from "./locales/de";
 import { en } from "./locales/en";
@@ -56,7 +57,7 @@ const DIRS: Record<Locale, "ltr" | "rtl"> = {
   zh: "ltr",
 };
 
-const STORAGE_KEY = "system-space-locale";
+const LOCALE_PREF = "locale";
 
 type LocaleCtx = {
   locale: Locale;
@@ -71,7 +72,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("en");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const stored = readPref(LOCALE_PREF);
     if (stored && (LOCALES as readonly string[]).includes(stored)) {
       setLocaleState(stored as Locale);
     }
@@ -88,7 +89,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       setLocale: (next) => {
         if (!(LOCALES as readonly string[]).includes(next)) return;
         setLocaleState(next);
-        window.localStorage.setItem(STORAGE_KEY, next);
+        writePref(LOCALE_PREF, next);
       },
       t: dictionaries[locale],
     }),

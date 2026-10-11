@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 import { appEnvPlugin } from "./scripts/app-env-plugin.mjs";
 
 /**
- * Vite config for the System Space countdown app.
+ * Vite config for the Clock Time countdown app.
  *
  * Three plugins, in order:
  *  - `tailwindcss()` — Tailwind v4; `src/styles.css` is the only CSS entry and

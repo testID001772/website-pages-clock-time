@@ -19,7 +19,6 @@ export const ar: Dictionary = {
 
   countdown: {
     units: {
-      years: "سنوات",
       months: "أشهر",
       days: "أيام",
       hours: "ساعات",
@@ -27,14 +26,13 @@ export const ar: Dictionary = {
       seconds: "ثوانٍ",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} سنوات ${months} أشهر ${days} أيام ${hours} ساعات ${minutes} دقائق ${seconds} ثوانٍ`,
+      `${months} أشهر ${days} أيام ${hours} ساعات ${minutes} دقائق ${seconds} ثوانٍ`,
   },
   event: {
     label: "الحدث القادم",
@@ -42,8 +40,8 @@ export const ar: Dictionary = {
     outNow: "متاح الآن",
     more: (count: number) => `المزيد من الإصدارات (${count})`,
     less: "عرض أقل",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `متبقٍ ${years} سنوات و${months} أشهر و${days} أيام و${hours} ساعات و${minutes} دقيقة على الإصدار`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `متبقٍ ${months} أشهر و${days} أيام و${hours} ساعات و${minutes} دقيقة على الإصدار`,
   },
 
   playlist: {
@@ -78,7 +76,7 @@ export const ar: Dictionary = {
   auth: {
     loginTitle: "تسجيل الدخول",
     registerTitle: "إنشاء حساب",
-    loginSubtitle: "عد إلى System Space. مدارك محفوظ.",
+    loginSubtitle: "عد إلى Clock Time. مدارك محفوظ.",
     registerSubtitle: "انضم كعضو. أول حساب يصبح المالك.",
     name: "الاسم",
     namePlaceholder: "اسمك",
@@ -117,7 +115,7 @@ export const ar: Dictionary = {
     admin: "الإدارة",
     adminBlurb: "الخلفية والضبابية والزجاج.",
     roleTitle: "الدور",
-    roleBlurb: "الأعضاء يستكشفون System Space. والمشرفون يشكلون السماء. والمالكون يحملون المفاتيح.",
+    roleBlurb: "الأعضاء يستكشفون Clock Time. والمشرفون يشكلون السماء. والمالكون يحملون المفاتيح.",
   },
   settings: {
     title: "الحساب",
@@ -176,7 +174,7 @@ export const ar: Dictionary = {
   },
   news: {
     title: "الأخبار",
-    subtitle: "إعلانات وإصدارات وتحديثات من System Space.",
+    subtitle: "إعلانات وإصدارات وتحديثات من Clock Time.",
     latestTitle: "آخر الأخبار",
     allNews: "كل الأخبار",
     readMore: "اقرأ المزيد",

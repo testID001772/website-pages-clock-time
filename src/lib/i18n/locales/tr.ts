@@ -19,7 +19,6 @@ export const tr: Dictionary = {
 
   countdown: {
     units: {
-      years: "Yıl",
       months: "Ay",
       days: "Gün",
       hours: "Saat",
@@ -27,13 +26,12 @@ export const tr: Dictionary = {
       seconds: "Saniye",
     },
     ariaLabel: (
-      years: number,
       months: number,
       days: number,
       hours: string,
       minutes: string,
       seconds: string,
-    ) => `${years} yıl ${months} ay ${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`,
+    ) => `${months} ay ${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`,
   },
   event: {
     label: "Yakında",
@@ -41,8 +39,8 @@ export const tr: Dictionary = {
     outNow: "Şimdi satışta",
     more: (count: number) => `Daha fazla çıkış (${count})`,
     less: "Daha az göster",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `Yayına ${years} yıl, ${months} ay, ${days} gün, ${hours} saat ve ${minutes} dakika kaldı`,
+    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+      `Yayına ${months} ay, ${days} gün, ${hours} saat ve ${minutes} dakika kaldı`,
   },
 
   playlist: {
@@ -77,7 +75,7 @@ export const tr: Dictionary = {
   auth: {
     loginTitle: "Giriş yap",
     registerTitle: "Hesap oluştur",
-    loginSubtitle: "System Space'e dön. Yörüngen kaydedildi.",
+    loginSubtitle: "Clock Time'e dön. Yörüngen kaydedildi.",
     registerSubtitle: "Üye olarak katıl. İlk hesap sahip olur.",
     name: "Ad",
     namePlaceholder: "Adın",
@@ -117,7 +115,7 @@ export const tr: Dictionary = {
     adminBlurb: "Arka plan, bulanıklık ve cam.",
     roleTitle: "Rol",
     roleBlurb:
-      "Üyeler System Space'i keşfeder. Yöneticiler gökyüzünü şekillendirir. Sahipler anahtarları tutar.",
+      "Üyeler Clock Time'i keşfeder. Yöneticiler gökyüzünü şekillendirir. Sahipler anahtarları tutar.",
   },
   settings: {
     title: "Hesap",
@@ -176,7 +174,7 @@ export const tr: Dictionary = {
   },
   news: {
     title: "Haberler",
-    subtitle: "System Space duyuruları, sürümleri ve güncellemeleri.",
+    subtitle: "Clock Time duyuruları, sürümleri ve güncellemeleri.",
     latestTitle: "Son haberler",
     allNews: "Tüm haberler",
     readMore: "Devamını oku",
