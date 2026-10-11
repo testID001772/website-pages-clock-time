@@ -3,11 +3,20 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { LocaleProvider } from "@/lib/i18n";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { ThemeProvider } from "@/components/theme-provider";
+import { getPublicSettings } from "@/lib/server/site";
+import { DEFAULT_SETTINGS } from "@/lib/types";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "Clock Time";
 
 export const Route = createRootRoute({
+  /**
+   * Site settings are fetched on the server for the first paint, so the
+   * background image and glass values are in the HTML before hydration. Never
+   * throws — an unreachable database degrades to the defaults.
+   */
+  loader: () => getPublicSettings().catch(() => DEFAULT_SETTINGS),
+  staleTime: 5 * 60_000,
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -31,7 +40,12 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
     ],
   }),
-  component: () => (
+  component: RootComponent,
+});
+
+function RootComponent() {
+  const initialSettings = Route.useLoaderData();
+  return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
@@ -39,7 +53,7 @@ export const Route = createRootRoute({
       <body>
         <PreviewHostBridge />
         <AuthProvider>
-          <ThemeProvider>
+          <ThemeProvider initialSettings={initialSettings}>
             <LocaleProvider>
               <Outlet />
             </LocaleProvider>
@@ -48,5 +62,5 @@ export const Route = createRootRoute({
         <Scripts />
       </body>
     </html>
-  ),
-});
+  );
+}

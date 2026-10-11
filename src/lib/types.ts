@@ -14,6 +14,8 @@ export type Profile = {
 
 export type SiteSettings = {
   backgroundUrl: string | null;
+  /** Admin opt-out: `false` hides the background image entirely. */
+  backgroundEnabled: boolean;
   backgroundBlur: number;
   glassBlur: number;
   glassOpacity: number;
@@ -23,6 +25,7 @@ export type SiteSettings = {
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   backgroundUrl: null,
+  backgroundEnabled: true,
   backgroundBlur: 0,
   glassBlur: 12,
   glassOpacity: 20,

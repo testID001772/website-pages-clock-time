@@ -192,12 +192,40 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
   inset: 0;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   filter: blur(var(--bg-blur));
+  /* The blur samples past the edges; the over-scale hides that fringe. */
   transform: scale(1.08);
 }
 
 .space-bg-custom[hidden] {
   display: none;
+}
+
+/* Scrim between the image and the content: an arbitrary upload can be bright
+   or busy, and the countdown/glass chrome needs contrast on top of it. */
+.space-bg-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(18 8 42 / 0.62) 0%,
+    rgb(18 8 42 / 0.45) 45%,
+    rgb(18 8 42 / 0.7) 100%
+  );
+}
+
+.space-bg-scrim[hidden] {
+  display: none;
+}
+
+html[data-theme="light"] .space-bg-scrim {
+  background: linear-gradient(
+    180deg,
+    rgb(242 239 255 / 0.68) 0%,
+    rgb(242 239 255 / 0.5) 45%,
+    rgb(242 239 255 / 0.72) 100%
+  );
 }
 
 .space-content {

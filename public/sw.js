@@ -9,8 +9,15 @@
  *   answered with the full 200 body (accepted by media elements), so a
  *   track keeps working offline once it has been played.
  */
-const VERSION = "clock-time-v3";
-const SHELL = ["/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/favicon.svg"];
+const VERSION = "clock-time-v4";
+const SHELL = [
+  "/",
+  "/background.jpg",
+  "/manifest.webmanifest",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/favicon.svg",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

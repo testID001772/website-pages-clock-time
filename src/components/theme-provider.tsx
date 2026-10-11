@@ -35,8 +35,20 @@ function applyCssVars(
   root.style.setProperty("--glass-alpha", String(settings.glassOpacity / 100));
 }
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
+/**
+ * `initialSettings` comes from the root route loader, so the first server paint
+ * already carries the real background image and glass values. Without it the
+ * stage renders the bare gradient until `getPublicSettings()` resolves — which
+ * is what "the background image doesn't show" looked like.
+ */
+export function ThemeProvider({
+  children,
+  initialSettings,
+}: {
+  children: ReactNode;
+  initialSettings?: SiteSettings;
+}) {
+  const [settings, setSettings] = useState<SiteSettings>(initialSettings ?? DEFAULT_SETTINGS);
   const [space, setSpaceState] = useState<"on" | "off">("on");
   const [motion, setMotionState] = useState<"on" | "off">("on");
   const [theme, setThemeState] = useState<"dark" | "light">("dark");
@@ -63,9 +75,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       // Migration: space-off used to mean white mode; keep that look.
       setThemeState("light");
     }
+    // Refresh once on the client: covers a database blip in the loader and a
+    // long-lived open tab. Failure keeps whatever we already have.
     void getPublicSettings()
       .then(setSettings)
-      .catch(() => setSettings(DEFAULT_SETTINGS));
+      .catch(() => undefined);
   }, []);
 
   useEffect(() => {

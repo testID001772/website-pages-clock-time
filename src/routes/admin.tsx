@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { GatePage } from "@/components/chrome/gate-page";
 import { NewsComposer } from "@/components/news/news-composer";
 import { useTheme } from "@/components/theme-provider";
+import { BACKGROUND_MAX_CHARS, isDefaultBackground, resolveBackgroundUrl } from "@/lib/background";
 import { compressImage, sampleAverageColor } from "@/lib/image";
 import { useLocale } from "@/lib/i18n";
 import type { NewsPost } from "@/lib/news";
@@ -55,6 +56,9 @@ function Admin() {
       .catch(() => setProfile(null));
   }, []);
 
+  /** What the stage will actually paint for the current draft. */
+  const preview = resolveBackgroundUrl(draft);
+
   function patch(next: Partial<SiteSettings>) {
     const merged = { ...draft, ...next };
     setDraft(merged);
@@ -65,7 +69,13 @@ function Admin() {
     if (!file) return;
     setError(null);
     try {
-      const url = await compressImage(file, { maxEdge: 1920, maxBytes: 1_500_000, quality: 0.8 });
+      // The URL is inlined into every server-rendered page, so the budget is
+      // what we are willing to ship as HTML — the stage blurs it anyway.
+      const url = await compressImage(file, {
+        maxEdge: 1920,
+        maxBytes: BACKGROUND_MAX_CHARS,
+        quality: 0.8,
+      });
       let color = draft.glassColor;
       if (draft.glassAuto) color = await sampleAverageColor(url);
       patch({ backgroundUrl: url, glassColor: color });
@@ -147,12 +157,32 @@ function Admin() {
                 </button>
               ) : null}
             </div>
-            {draft.backgroundUrl ? (
-              <div
-                className="mt-4 h-28 overflow-hidden rounded-[22px] bg-cover bg-center"
-                style={{ backgroundImage: `url(${draft.backgroundUrl})`, filter: `blur(${draft.backgroundBlur}px)` }}
+            <div
+              className="mt-4 flex h-28 items-center justify-center overflow-hidden rounded-[22px] bg-cover bg-center"
+              style={
+                preview
+                  ? {
+                      backgroundImage: `url("${preview}")`,
+                      filter: `blur(${draft.backgroundBlur}px)`,
+                    }
+                  : undefined
+              }
+            >
+              {preview ? null : (
+                <span className="px-4 text-center text-xs text-muted">{t.admin.noBackground}</span>
+              )}
+            </div>
+            <label className="mt-3 flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={draft.backgroundEnabled}
+                onChange={(e) => patch({ backgroundEnabled: e.target.checked })}
               />
-            ) : null}
+              {t.admin.showBackground}
+              {isDefaultBackground(draft) ? (
+                <span className="text-xs text-muted">· {t.admin.defaultImage}</span>
+              ) : null}
+            </label>
           </div>
 
           <label className="field">
