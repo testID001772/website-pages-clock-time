@@ -6,9 +6,12 @@ import type { Dictionary } from "./i18n";
  * importable from both the client bundle and a server function; the SQL lives in
  * `@/lib/server/music`.
  *
- * The app ships **no** tracks: the old 100-entry generated manifest pointed at
- * mp3s that were never in the repository, so every one of them failed to play.
- * Staff add real tracks in the editor and they are stored in `music_tracks`.
+ * The app ships three short starter tracks (`scripts/generate-music.mjs` writes
+ * `public/music/*.mp3`, `migrations/0009_music_seed.sql` seeds the rows). The
+ * old 100-entry generated manifest is gone: it pointed at mp3s that were never
+ * in the repository, so every one of them failed to play. Staff add, rename,
+ * reorder and delete tracks in the admin music editor; everything lives in
+ * `music_tracks`.
  */
 
 export type MusicTrack = {

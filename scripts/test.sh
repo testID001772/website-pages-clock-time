@@ -57,6 +57,7 @@ check "pwa icon"                 200 "$(code /icon-192.png)"
 check "default background"        200 "$(code /background.jpg)"
 check "favicon"                   200 "$(code /favicon.svg)"
 check "music api 404"            404 "$(code /api/music/does-not-exist)"
+check "starter track"            200 "$(code /music/first-light.mp3)"
 
 # --- Auth stack, read-only: bogus sign-in must 401 (proves API + DB read) ---
 bogus="nouser-$(date +%s)-$RANDOM@example.com"

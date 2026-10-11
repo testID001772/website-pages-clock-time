@@ -15,6 +15,7 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { test } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
+import { parseMp3Duration, readSeedRows, readTrackDurations, TRACKS } from "./generate-music.mjs";
 import { pendingMigrations } from "./migration-plan.mjs";
 import { projectRoot } from "./with-app-env.mjs";
 
@@ -45,20 +46,60 @@ const LIST_SQL = `
   limit 200
 `;
 
-test("the library starts empty — no seeded tracks", async () => {
+test("the library ships exactly the starter tracks", async () => {
   const db = await migratedDb();
   const rows = await db.query(LIST_SQL);
-  assert.equal(rows.rows.length, 0, "a fresh database must ship zero tracks");
+  assert.deepEqual(
+    rows.rows.map((row) => row.id),
+    TRACKS.map((track) => track.id),
+    "a fresh database must ship the starter tracks in playlist order",
+  );
+  assert.equal(rows.rows.length, 3, "a small starter set, not a wall of tracks");
   await db.close();
 });
 
-test("the generated 100-track manifest and its generator are gone", async () => {
-  for (const gone of ["src/lib/playlist-tracks.ts", "scripts/generate-music.mjs"]) {
-    await assert.rejects(
-      stat(join(ROOT, gone)),
-      `expected ${gone} to be removed — the app ships no playlist of dead mp3 links`,
+test("no shipped track is a dead link", async () => {
+  const db = await migratedDb();
+  const rows = await db.query(LIST_SQL);
+  const durations = readTrackDurations();
+  for (const row of rows.rows) {
+    assert.ok(
+      row.source.startsWith("/music/"),
+      `${row.id} must point at a shipped file, not ${row.source.slice(0, 32)}`,
+    );
+    const file = row.source.replace("/music/", "");
+    const size = (await stat(join(ROOT, "public/music", file))).size;
+    assert.ok(size > 10_000, `${file} looks empty (${size} bytes)`);
+    const seconds = durations[file];
+    assert.ok(seconds !== null, `${file} must be a readable mp3`);
+    assert.ok(
+      Math.abs(seconds - row.seconds) <= 1,
+      `${row.id}: row says ${row.seconds}s, file holds ${seconds?.toFixed(1)}s`,
     );
   }
+  await db.close();
+});
+
+test("the seed migration, the generator recipes and the rows agree", async () => {
+  const rows = readSeedRows();
+  assert.equal(Object.keys(rows).length, TRACKS.length);
+  for (const track of TRACKS) {
+    const row = rows[track.id];
+    assert.ok(row, `${track.id} is missing from migrations/0009_music_seed.sql`);
+    assert.equal(row.title, track.title);
+    assert.equal(row.artist, track.artist);
+    assert.equal(row.source, `/music/${track.file}`);
+    assert.equal(row.seconds, track.seconds);
+  }
+  const bytes = await readFile(join(ROOT, "public/music", TRACKS[0].file));
+  assert.ok(parseMp3Duration(bytes) > 25, "a starter track must hold real audio");
+});
+
+test("the generated 100-track manifest stays gone", async () => {
+  await assert.rejects(
+    stat(join(ROOT, "src/lib/playlist-tracks.ts")),
+    "expected src/lib/playlist-tracks.ts to be removed — it listed 100 mp3s that never existed",
+  );
 });
 
 test("a track inserted the way the editor does comes back in playlist order", async () => {
@@ -75,15 +116,18 @@ test("a track inserted the way the editor does comes back in playlist order", as
     ["t-first", "First", "", "https://cdn.example.com/song.mp3", 0, 1],
   );
   const rows = await db.query(LIST_SQL);
+  // The hand-added rows keep their own relative order alongside the starters.
   assert.deepEqual(
-    rows.rows.map((row) => [row.id, row.sort_order, row.seconds]),
+    rows.rows
+      .filter((row) => ["t-first", "t-second"].includes(row.id))
+      .map((row) => [row.id, row.sort_order, row.seconds]),
     [
       ["t-first", 1, 0],
       ["t-second", 2, 24],
     ],
   );
   // `artist` defaults to "" — the column is never null for the UI.
-  assert.equal(rows.rows[0].artist, "");
+  assert.equal(rows.rows.find((row) => row.id === "t-first").artist, "");
   await db.close();
 });
 
@@ -119,7 +163,7 @@ test("the check constraints reject a track the editor could not render", async (
   await assert.rejects(insert("ok", "", 21_601), /check|violates/i);
   await insert("Long Enough", "", 2_000); // the boundaries themselves are fine
   const rows = await db.query("select count(*) as n from music_tracks");
-  assert.equal(Number(rows.rows[0].n), 1);
+  assert.equal(Number(rows.rows[0].n), 1 + TRACKS.length);
   await db.close();
 });
 
@@ -154,9 +198,13 @@ test("move-up swaps neighbours by rewriting the whole order", async () => {
     await db.query("update music_tracks set sort_order = $1 where id = $2", [position + 1, id]);
   }
   const rows = await db.query(LIST_SQL);
-  assert.deepEqual(rows.rows.map((row) => row.id), ["b", "a", "c"]);
+  const added = rows.rows.map((row) => row.id).filter((id) => ["a", "b", "c"].includes(id));
+  assert.deepEqual(added, ["b", "a", "c"]);
   await db.query("delete from music_tracks where id = 'b'");
   const after = await db.query(LIST_SQL);
-  assert.deepEqual(after.rows.map((row) => row.id), ["a", "c"]);
+  assert.deepEqual(
+    after.rows.map((row) => row.id).filter((id) => ["a", "b", "c"].includes(id)),
+    ["a", "c"],
+  );
   await db.close();
 });

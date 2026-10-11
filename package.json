@@ -16,6 +16,7 @@
     "start": "node .output/server/index.mjs",
     "db:migrate": "node scripts/migrate.mjs",
     "icons": "node scripts/generate-icons.mjs",
+    "music": "node scripts/generate-music.mjs",
     "build:dev": "node scripts/with-app-env.mjs vite build --mode development",
     "preview": "node scripts/with-app-env.mjs vite preview",
     "preview:restart": "node scripts/preview.mjs restart",
