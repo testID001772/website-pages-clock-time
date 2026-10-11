@@ -2,25 +2,26 @@ import { Pause, Play, Radio, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { startAmbient, stopAmbient } from "@/lib/ambient";
 import { useLocale } from "@/lib/i18n";
+import { trackDurationLabel, trackLabel, type MusicTrack } from "@/lib/music";
 import { readPref, writePref } from "@/lib/prefs";
-import { MUSIC_PREF } from "@/lib/sfx";
-import { PLAYLIST_TRACKS } from "@/lib/playlist-tracks";
-import { playSfx } from "@/lib/sfx";
+import { listTracks } from "@/lib/server/music";
+import { MUSIC_PREF, playSfx } from "@/lib/sfx";
 
 const fmt = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 
 /**
- * Music button + playlist panel. Track 0 is the live generative ambience
- * (no file); the other 100 are mp3s in /public/music (see
- * scripts/generate-music.mjs). Play state follows the shared audio intent
- * (`clock-time-music`), so unpausing also re-enables the UI sound
- * effects. If an mp3 fails to load, playback falls back to the live
- * ambience and the row is flagged.
+ * Music button + playlist panel. The first row is the live generative ambience
+ * (no file); below it is the library staff maintain in the admin music editor —
+ * the app ships no tracks of its own. Play state follows the shared audio
+ * intent (`clock-time-music`), so unpausing also re-enables the UI sound
+ * effects. If a track fails to load, playback falls back to the live ambience
+ * and the row is flagged.
  */
 export function MusicPicker() {
   const { t } = useLocale();
   const [open, setOpen] = useState(false);
+  const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [musicOn, setMusicOn] = useState(true);
   /** null = the live generative ambience. */
   const [currentId, setCurrentId] = useState<string | null>(null);
@@ -33,10 +34,18 @@ export function MusicPicker() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const playRef = useRef<(id: string | null) => void>(() => undefined);
+  /** Latest library, readable from the audio handlers registered once. */
+  const tracksRef = useRef<MusicTrack[]>([]);
   /** Track ids that already got their one automatic retry. */
   const retriedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
+    let cancelled = false;
+    void listTracks()
+      .then((next) => {
+        if (!cancelled) setTracks(next);
+      })
+      .catch(() => undefined);
     const intent = readPref(MUSIC_PREF) !== "false";
     intentRef.current = intent;
     setMusicOn(intent);
@@ -77,12 +86,13 @@ export function MusicPicker() {
     audio.addEventListener("ended", () => {
       const id = currentRef.current;
       if (id === null) return;
-      const i = PLAYLIST_TRACKS.findIndex((track) => track.id === id);
-      const next = PLAYLIST_TRACKS[(i + 1) % PLAYLIST_TRACKS.length];
-      playRef.current(next.id);
+      const i = tracksRef.current.findIndex((track) => track.id === id);
+      const next = tracksRef.current[(i + 1) % tracksRef.current.length];
+      if (next) playRef.current(next.id);
     });
     audioRef.current = audio;
     return () => {
+      cancelled = true;
       audio.pause();
       audio.removeAttribute("src");
     };
@@ -111,7 +121,7 @@ export function MusicPicker() {
     setCurrentId(id);
     currentRef.current = id;
     setElapsed(0);
-    const track = PLAYLIST_TRACKS.find((item) => item.id === id);
+    const track = tracksRef.current.find((item) => item.id === id);
     setDuration(track?.seconds ?? 0);
     if (!intentRef.current) {
       intentRef.current = true;
@@ -127,10 +137,11 @@ export function MusicPicker() {
     }
     stopAmbient();
     if (!track || !audio) return;
-    audio.src = `/music/${track.file}`;
+    audio.src = track.url;
     void audio.play().catch(() => undefined);
   };
   playRef.current = play;
+  tracksRef.current = tracks;
 
   /** Click / tap on the seek bar jumps to that position. */
   const seekTo = (clientX: number, bar: HTMLElement) => {
@@ -179,6 +190,7 @@ export function MusicPicker() {
   };
 
   const rowClass = (current: boolean) => `music-option${current ? " current" : ""}`;
+  const currentTrack = currentId ? tracks.find((track) => track.id === currentId) : undefined;
 
   return (
     <div className="music-picker" ref={rootRef}>
@@ -205,7 +217,7 @@ export function MusicPicker() {
             </p>
             <div className="flex items-center gap-2">
               <span className="text-[0.65rem] tracking-wide text-muted">
-                {t.playlist.count(PLAYLIST_TRACKS.length)}
+                {t.playlist.count(tracks.length)}
               </span>
               <button
                 type="button"
@@ -222,7 +234,7 @@ export function MusicPicker() {
             <div className="now-playing">
               <div className="flex items-baseline justify-between gap-2">
                 <p className="music-title text-xs font-medium text-ink">
-                  {PLAYLIST_TRACKS.find((track) => track.id === currentId)?.title}
+                  {currentTrack ? trackLabel(currentTrack) : ""}
                 </p>
                 <p className="flex-none text-[0.65rem] tabular-nums text-muted">
                   {fmt(Math.min(elapsed, duration))} / {fmt(duration)}
@@ -268,7 +280,13 @@ export function MusicPicker() {
                 ) : null}
               </button>
             </li>
-            {PLAYLIST_TRACKS.map((track, i) => {
+            {tracks.length === 0 ? (
+              <li className="px-3 py-3">
+                <p className="text-xs text-muted">{t.playlist.empty}</p>
+                <p className="mt-1 text-[0.65rem] text-muted">{t.playlist.emptyHint}</p>
+              </li>
+            ) : null}
+            {tracks.map((track, i) => {
               const current = track.id === currentId;
               const failed = track.id === failedId;
               return (
@@ -284,7 +302,7 @@ export function MusicPicker() {
                       {failed ? "!" : String(i + 1).padStart(2, "0")}
                     </span>
                     <span className={`music-title${failed ? " text-muted" : ""}`}>
-                      {track.title}
+                      {trackLabel(track)}
                     </span>
                     <span className="flex flex-none items-center gap-2">
                       {current && musicOn ? (
@@ -298,11 +316,11 @@ export function MusicPicker() {
                         <span className="text-[0.65rem] font-bold tracking-[0.12em] text-sun uppercase">
                           {t.playlist.retry}
                         </span>
-                      ) : (
+                      ) : trackDurationLabel(track.seconds) ? (
                         <span className="text-[0.65rem] tabular-nums text-muted">
-                          {fmt(track.seconds)}
+                          {trackDurationLabel(track.seconds)}
                         </span>
-                      )}
+                      ) : null}
                     </span>
                   </button>
                 </li>

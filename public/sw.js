@@ -5,11 +5,10 @@
  * - App shell (/, manifest, icons): precached on install.
  * - Everything else on this origin: network-first — never stale while
  *   online (safe with the dev server's HMR), cache fallback offline.
- * - /music/*.mp3: cache-first after the first play. Range requests are
- *   answered with the full 200 body (accepted by media elements), so a
- *   track keeps working offline once it has been played.
+ * - /music/*.mp3 and /api/music/<id> (an uploaded track): cache-first after
+ *   the first play, so a track keeps working offline once it has been played.
  */
-const VERSION = "clock-time-v4";
+const VERSION = "clock-time-v5";
 const SHELL = [
   "/",
   "/background.jpg",
@@ -59,7 +58,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.startsWith("/music/")) {
+  if (url.pathname.startsWith("/music/") || url.pathname.startsWith("/api/music/")) {
     event.respondWith(
       musicStrategy(url.pathname).catch(() => caches.match("/").then((hit) => hit ?? Response.error())),
     );

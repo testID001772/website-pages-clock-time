@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { GatePage } from "@/components/chrome/gate-page";
+import { MusicEditor } from "@/components/music/music-editor";
 import { NewsComposer } from "@/components/news/news-composer";
 import { useTheme } from "@/components/theme-provider";
 import { BACKGROUND_MAX_CHARS, isDefaultBackground, resolveBackgroundUrl } from "@/lib/background";
@@ -249,6 +250,12 @@ function Admin() {
             </button>
           </div>
         </form>
+      </section>
+
+      <section id="music" className="glass mt-4 rounded-[32px] p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold tracking-tight">{t.music.title}</h2>
+        <p className="mt-2 text-sm text-muted">{t.music.subtitle}</p>
+        <MusicEditor />
       </section>
 
       <section className="glass mt-4 rounded-[32px] p-6 sm:p-8">

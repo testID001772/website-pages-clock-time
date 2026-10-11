@@ -53,6 +53,12 @@ export function serverErrorText(code: string, t: Dictionary): string | null {
       return t.errors.imageTooLarge;
     case "BACKGROUND_TOO_LARGE":
       return t.errors.backgroundTooLarge;
+    case "MUSIC_BAD_SOURCE":
+      return t.music.badFile;
+    case "MUSIC_TOO_LARGE":
+      return t.music.tooLarge;
+    case "MUSIC_LIMIT_REACHED":
+      return t.music.limitReached;
     default:
       return null;
   }
