@@ -1,0 +1,737 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-void: #070411;
+  --color-space: #12082a;
+  --color-nebula: #2a1458;
+  --color-ink: #f3efff;
+  --color-muted: #9b8ec4;
+  --color-line: #ffffff;
+  --color-sun: #ffd166;
+  --color-ice: #7eb8e8;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-void);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  img {
+    outline: 1px solid rgb(255 255 255 / 0.1);
+    outline-offset: -1px;
+  }
+}
+
+:root {
+  --bg-blur: 0px;
+  /* Pre-hydration glass: match DEFAULT_SETTINGS so the first paint already
+     shows real glass (the theme provider takes over with DB settings). */
+  --glass-blur: 12px;
+  --glass-rgb: 255, 255, 255;
+  --glass-alpha: 0.2;
+  --space-ms: 0.1s;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.space-root {
+  position: relative;
+  min-height: 100dvh;
+  color: var(--color-ink);
+}
+
+.space-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #2a1458 0%, transparent 55%),
+    radial-gradient(90% 60% at 80% 110%, #1a0b3d 0%, transparent 50%),
+    #12082a;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--space-ms) var(--ease),
+    visibility var(--space-ms) var(--ease);
+}
+
+/* Light theme: bright sky backdrop with dark content. Every data-theme
+   rule below only applies in white mode, independent of space on/off. */
+html[data-theme="light"] {
+  --color-void: #e9e6fa;
+  --color-space: #ddd6f3;
+  --color-nebula: #b9a8ee;
+  --color-ink: #241d4e;
+  --color-muted: #6f6694;
+  color-scheme: light;
+}
+
+html[data-theme="light"] .space-bg {
+  background:
+    radial-gradient(120% 80% at 50% -10%, #d9cfff 0%, transparent 55%),
+    radial-gradient(90% 60% at 80% 110%, #c3d4ff 0%, transparent 50%),
+    linear-gradient(180deg, #f2efff 0%, #e4e9ff 60%, #dfe4f7 100%);
+}
+
+html[data-theme="light"] .glass {
+  background: rgb(255 255 255 / 0.6);
+  box-shadow:
+    0 0 0 1px rgb(36 29 78 / 0.12),
+    0 8px 28px rgb(36 29 78 / 0.1);
+}
+
+html[data-theme="light"] .glass-strong {
+  background: rgb(255 255 255 / 0.78);
+}
+
+html[data-theme="light"] .lang-menu {
+  background: rgb(255 255 255);
+  box-shadow:
+    0 12px 40px rgb(36 29 78 / 0.18),
+    0 0 0 1px rgb(36 29 78 / 0.1);
+}
+
+html[data-theme="light"] .lang-option:hover {
+  background: rgb(36 29 78 / 0.07);
+}
+
+html[data-theme="light"] .lang-option.current {
+  background: rgb(36 29 78 / 0.1);
+}
+
+html[data-theme="light"] .btn-ghost {
+  background: rgb(255 255 255 / 0.6);
+  color: #241d4e;
+  box-shadow: 0 0 0 1px rgb(36 29 78 / 0.14);
+}
+
+html[data-theme="light"] .btn-ghost:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.85);
+}
+
+html[data-theme="light"] .btn-primary {
+  box-shadow: 0 0 0 1px rgb(36 29 78 / 0.12);
+}
+
+html[data-theme="light"] .icon-btn {
+  color: #241d4e;
+}
+
+html[data-theme="light"] .icon-btn:hover {
+  background: rgb(36 29 78 / 0.07);
+}
+
+html[data-theme="light"] .field input,
+html[data-theme="light"] .field textarea,
+html[data-theme="light"] .field select {
+  background: rgb(255 255 255 / 0.7);
+  box-shadow: 0 0 0 1px rgb(36 29 78 / 0.16);
+}
+
+html[data-theme="light"] .field input[type="range"] {
+  background: transparent;
+  box-shadow: none;
+  accent-color: #4a3f9e;
+}
+
+html[data-theme="light"] .num {
+  background-image: linear-gradient(180deg, #2b2358 0%, #4a3f9e 60%, #6a5cd0 100%);
+}
+
+html[data-theme="light"] .colon {
+  color: rgb(70 60 140 / 0.5);
+}
+
+/* Pale washes used for tracks, pills and rows become light-mode tints. */
+html[data-theme="light"] [class*="bg-white/"] {
+  background-color: rgb(36 29 78 / 0.08);
+}
+
+html[data-theme="light"] div[class*="bg-white/10"] > div {
+  background: linear-gradient(90deg, #4a90c4, #6a5cd0, #d18a3c) !important;
+}
+
+.space-bg-custom {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(var(--bg-blur));
+  transform: scale(1.08);
+}
+
+.space-bg-custom[hidden] {
+  display: none;
+}
+
+.space-content {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+}
+
+.glass {
+  background: rgb(var(--glass-rgb) / var(--glass-alpha));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.glass-strong {
+  background: rgb(var(--glass-rgb) / calc(var(--glass-alpha) + 0.06));
+}
+
+.lang-picker {
+  position: relative;
+}
+
+.lang-menu {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.15rem;
+  min-width: 15rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.4rem;
+  border-radius: 18px;
+  list-style: none;
+  /* Fully solid panel: anything behind (e.g. the bright hero clock) must not ghost through. */
+  background: rgb(18 8 42);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow:
+    0 12px 40px rgb(0 0 0 / 0.5),
+    0 0 0 1px rgb(255 255 255 / 0.12);
+}
+
+.lang-menu > li {
+  list-style: none;
+  min-width: 0;
+}
+
+.lang-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  text-align: start;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.lang-option:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.lang-option.current {
+  background: rgb(255 255 255 / 0.1);
+}
+
+.lang-option > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Crowded header: the language picker rests on small screens. */
+@media (max-width: 560px) {
+  .lang-picker {
+    display: none;
+  }
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0 0.95rem;
+  border-radius: var(--radius-pill);
+  border: 0;
+  color: #ece6ff;
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: transparent;
+  transition:
+    background 0.2s var(--ease),
+    transform 0.15s ease-out;
+}
+
+.icon-btn:hover {
+  background: rgb(var(--glass-rgb) / calc(var(--glass-alpha) + 0.08));
+}
+
+.icon-btn:active {
+  transform: scale(0.96);
+}
+
+.icon-btn:focus:not(:focus-visible),
+.btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.icon-btn:focus-visible,
+.btn:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #c9c0ff;
+  outline-offset: 3px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1.15rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background 0.2s var(--ease),
+    color 0.2s var(--ease),
+    transform 0.15s ease-out;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #f4f0ff;
+  color: #12082a;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #ffffff;
+}
+
+.btn-ghost {
+  background: rgb(255 255 255 / 0.06);
+  color: #ece6ff;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: start;
+}
+
+.field span,
+.field-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: rgb(8 4 22 / 0.45);
+  color: var(--color-ink);
+  font: inherit;
+  padding: 0.7rem 0.9rem;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12);
+}
+
+.field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.field input[type="range"] {
+  padding: 0;
+  min-height: 44px;
+  background: transparent;
+  box-shadow: none;
+  accent-color: #e8e2ff;
+}
+
+.field input[type="color"] {
+  padding: 0.25rem;
+  height: 44px;
+  cursor: pointer;
+}
+
+.countdown {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(0.2rem, 1.2vw, 0.9rem);
+  font-size: clamp(2.6rem, 10vw, 7.6rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  max-width: 100%;
+}
+
+.countdown.wide {
+  font-size: clamp(1.9rem, 8vw, 5.8rem);
+}
+
+.unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.num {
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  background-image: linear-gradient(180deg, #ffffff 0%, #d7d0ff 58%, #b7ade8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.unit-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: clamp(0.62rem, 1.5vw, 0.82rem);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-ink) 78%, var(--color-muted));
+}
+
+/* Music playlist panel (header popover). */
+.music-picker {
+  position: relative;
+}
+
+.music-menu {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 30;
+  width: min(20rem, calc(100vw - 2.5rem));
+  border-radius: 18px;
+  padding: 0.25rem;
+}
+
+.music-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  color: var(--color-ink);
+  text-align: start;
+  transition: background 0.15s var(--ease);
+}
+
+.music-option:hover {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.music-option.current {
+  background: rgb(255 255 255 / 0.09);
+}
+
+html[data-theme="light"] .music-option:hover {
+  background: rgb(36 29 78 / 0.07);
+}
+
+html[data-theme="light"] .music-option.current {
+  background: rgb(36 29 78 / 0.1);
+}
+
+.music-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "New version ready" pill (bottom center, above everything but menus). */
+.update-banner {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  pointer-events: auto;
+  animation: event-list-in 0.3s var(--ease);
+}
+
+/* Now-playing strip: title, elapsed/total time and a seek bar. */
+.now-playing {
+  padding: 0.5rem 0.75rem 0.4rem;
+}
+
+.now-bar {
+  height: 4px;
+  margin-top: 0.45rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.12);
+  cursor: pointer;
+}
+
+.now-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-ice), var(--color-sun));
+}
+
+.now-bar:focus-visible {
+  outline: 2px solid var(--color-sun);
+  outline-offset: 3px;
+}
+
+html[data-theme="light"] .now-bar {
+  background: rgb(36 29 78 / 0.15);
+}
+
+/* Now-playing equalizer bars. */
+.eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.eq span {
+  width: 3px;
+  border-radius: 1px;
+  background: var(--color-sun);
+  animation: eq-bounce 1s ease-in-out infinite alternate;
+}
+
+.eq span:nth-child(2) {
+  animation-delay: 0.25s;
+}
+
+.eq span:nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+@keyframes eq-bounce {
+  from {
+    height: 3px;
+  }
+  to {
+    height: 12px;
+  }
+}
+
+/* Expandable "More releases" list inside the event card. */
+.event-list {
+  animation: event-list-in 0.3s var(--ease);
+}
+
+/* The game the big timer is counting to. */
+.event-list button[aria-current="true"] {
+  background: rgb(255 255 255 / 0.08);
+}
+
+html[data-theme="light"] .event-list button[aria-current="true"] {
+  background: rgb(36 29 78 / 0.08);
+}
+
+@keyframes event-list-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The seconds digit pops on every tick (keyed by the clock). */
+.num.tick {
+  animation: tick-pop 0.45s var(--ease);
+}
+
+@keyframes tick-pop {
+  0% {
+    transform: scale(1.045);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.celebrate {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-content: center;
+  gap: 0.55rem;
+  padding: 2rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.celebrate h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 10vw, 6.4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  animation: pop 0.9s var(--ease) both;
+}
+
+.celebrate p {
+  margin: 0;
+  color: #d7d0ff;
+}
+
+.celebrate .btn {
+  pointer-events: auto;
+  margin: 1rem auto 0;
+}
+
+.fx {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.22;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.96);
+    opacity: 0;
+    filter: blur(8px);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .countdown {
+    flex-wrap: wrap;
+    gap: 0.55rem 0.8rem;
+    font-size: clamp(2.4rem, 18vw, 4.4rem);
+  }
+  .countdown.wide {
+    font-size: clamp(1.8rem, 14vw, 3.2rem);
+  }
+  .colon {
+    display: none;
+  }
+  .unit {
+    flex: 1 1 40%;
+  }
+}
+
+/* Motion off kills the ambient animations. Driven by the header toggle, which
+   defaults to the OS reduced-motion preference but stays user-overridable. */
+html[data-motion="off"] .colon,
+html[data-motion="off"] .celebrate h1,
+html[data-motion="off"] .eq span,
+html[data-motion="off"] .num.tick {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    --space-ms: 0.01s;
+  }
+}
