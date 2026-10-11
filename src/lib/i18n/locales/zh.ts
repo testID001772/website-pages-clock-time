@@ -54,6 +54,7 @@ export const zh: Dictionary = {
     count: (n: number) => `${n} 首曲目`,
     empty: "还没有曲目。",
     emptyHint: "请在管理编辑器中添加音乐。",
+    emptyAction: "打开音乐编辑器",
   },
 
   music: {

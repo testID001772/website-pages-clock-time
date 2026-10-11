@@ -56,6 +56,7 @@ export const en = {
     count: (n: number) => `${n} tracks`,
     empty: "No tracks yet.",
     emptyHint: "Add music in the admin editor.",
+    emptyAction: "Open the music editor",
   },
 
   music: {

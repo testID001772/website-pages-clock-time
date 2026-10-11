@@ -1,7 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
-  AUDIO_DATA_URL,
+  audioMimeForFile,
+  isAudioFile,
+  normalizeUploadSource,
+  UPLOAD_DATA_URL,
   AUDIO_URL,
   audioSourceError,
   isAudioSource,
@@ -100,9 +103,45 @@ describe("music library rules", () => {
     assert.equal(parseByteRange("bytes=0-10", 0), null);
   });
 
+  it("accepts what a phone calls an audio file", () => {
+    // A recorded voice note: `.m4a`, which browsers report as video/mp4.
+    assert.ok(isAudioFile("note.m4a", "video/mp4"));
+    assert.ok(isUploadedSource("data:video/mp4;base64,AAAA"));
+    assert.equal(audioMimeForFile("note.m4a", "video/mp4"), "video/mp4");
+  });
+
+  it("falls back to the extension when the browser cannot type the file", () => {
+    assert.ok(isAudioFile("song.mp3", ""));
+    assert.ok(isAudioFile("song.mp3", "application/octet-stream"));
+    assert.ok(isAudioFile("pad.WAV", ""));
+    assert.equal(audioMimeForFile("song.mp3", ""), "audio/mpeg");
+    assert.equal(audioMimeForFile("song.flac", ""), "audio/flac");
+  });
+
+  it("refuses files that are clearly not audio", () => {
+    assert.equal(isAudioFile("photo.jpg", "image/jpeg"), false);
+    assert.equal(isAudioFile("notes.txt", "text/plain"), false);
+    assert.equal(isAudioFile("archive.zip", ""), false);
+    assert.equal(isAudioFile("no-extension", ""), false);
+  });
+
+  it("re-labels an untyped upload so the server accepts it", () => {
+    assert.equal(
+      normalizeUploadSource("data:application/octet-stream;base64,QUJD", "track.m4a", ""),
+      "data:audio/mp4;base64,QUJD",
+    );
+    // An already-typed upload is left exactly as the browser produced it.
+    assert.equal(
+      normalizeUploadSource("data:audio/mpeg;base64,QUJD", "track.mp3", "audio/mpeg"),
+      "data:audio/mpeg;base64,QUJD",
+    );
+    assert.equal(normalizeUploadSource("data:image/png;base64,QUJD", "cat.png", "image/png"), null);
+    assert.equal(normalizeUploadSource("not-a-data-url", "track.mp3", ""), null);
+  });
+
   it("matches the storage format the editor writes", () => {
     const upload = `data:audio/wav;base64,${Buffer.from("RIFF").toString("base64")}`;
-    assert.ok(AUDIO_DATA_URL.test(upload));
+    assert.ok(UPLOAD_DATA_URL.test(upload));
     assert.ok(AUDIO_URL.test("/api/music/abc-123"));
   });
 });

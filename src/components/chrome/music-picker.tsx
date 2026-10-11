@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Pause, Play, Radio, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { startAmbient, stopAmbient } from "@/lib/ambient";
@@ -5,7 +6,9 @@ import { useLocale } from "@/lib/i18n";
 import { trackDurationLabel, trackLabel, type MusicTrack } from "@/lib/music";
 import { readPref, writePref } from "@/lib/prefs";
 import { listTracks } from "@/lib/server/music";
+import { getMyProfile } from "@/lib/server/profiles";
 import { MUSIC_PREF, playSfx } from "@/lib/sfx";
+import { isStaff } from "@/lib/types";
 
 const fmt = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
@@ -22,6 +25,8 @@ export function MusicPicker() {
   const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
+  /** True when the signed-in visitor is staff and the library is empty. */
+  const [canEdit, setCanEdit] = useState(false);
   const [musicOn, setMusicOn] = useState(true);
   /** null = the live generative ambience. */
   const [currentId, setCurrentId] = useState<string | null>(null);
@@ -40,12 +45,6 @@ export function MusicPicker() {
   const retriedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    let cancelled = false;
-    void listTracks()
-      .then((next) => {
-        if (!cancelled) setTracks(next);
-      })
-      .catch(() => undefined);
     const intent = readPref(MUSIC_PREF) !== "false";
     intentRef.current = intent;
     setMusicOn(intent);
@@ -92,11 +91,37 @@ export function MusicPicker() {
     });
     audioRef.current = audio;
     return () => {
-      cancelled = true;
       audio.pause();
       audio.removeAttribute("src");
     };
   }, []);
+
+  /**
+   * Load the library every time the panel opens — that is what makes a track
+   * added in the admin editor show up without reloading the page. An empty
+   * library additionally asks whether this visitor may add tracks, so staff
+   * get a link straight to the editor.
+   */
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    void listTracks()
+      .then((next) => {
+        if (cancelled) return;
+        tracksRef.current = next;
+        setTracks(next);
+        if (next.length > 0) return;
+        return getMyProfile()
+          .then((profile) => {
+            if (!cancelled) setCanEdit(isStaff(profile.role));
+          })
+          .catch(() => undefined);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -283,7 +308,18 @@ export function MusicPicker() {
             {tracks.length === 0 ? (
               <li className="px-3 py-3">
                 <p className="text-xs text-muted">{t.playlist.empty}</p>
-                <p className="mt-1 text-[0.65rem] text-muted">{t.playlist.emptyHint}</p>
+                {canEdit ? (
+                  <Link
+                    to="/admin"
+                    hash="music"
+                    className="mt-1 inline-block text-[0.65rem] text-ice underline"
+                    onClick={() => setOpen(false)}
+                  >
+                    {t.playlist.emptyAction}
+                  </Link>
+                ) : (
+                  <p className="mt-1 text-[0.65rem] text-muted">{t.playlist.emptyHint}</p>
+                )}
               </li>
             ) : null}
             {tracks.map((track, i) => {

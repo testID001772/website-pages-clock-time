@@ -54,6 +54,7 @@ export const hi: Dictionary = {
     count: (n: number) => `${n} ट्रैक`,
     empty: "अभी कोई ट्रैक नहीं।",
     emptyHint: "एडमिन एडिटर में संगीत जोड़ें।",
+    emptyAction: "संगीत एडिटर खोलें",
   },
 
   music: {

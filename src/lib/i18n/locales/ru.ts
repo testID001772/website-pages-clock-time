@@ -55,6 +55,7 @@ export const ru: Dictionary = {
     count: (n: number) => `треков: ${n}`,
     empty: "Треков пока нет.",
     emptyHint: "Добавьте музыку в админ-редакторе.",
+    emptyAction: "Открыть музыкальный редактор",
   },
 
   music: {

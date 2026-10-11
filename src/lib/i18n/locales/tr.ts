@@ -54,6 +54,7 @@ export const tr: Dictionary = {
     count: (n: number) => `${n} parça`,
     empty: "Henüz parça yok.",
     emptyHint: "Yönetici düzenleyicisinden müzik ekleyin.",
+    emptyAction: "Müzik düzenleyicisini aç",
   },
 
   music: {

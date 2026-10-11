@@ -46,8 +46,68 @@ export const MUSIC_LIMITS = {
   seconds: 21_600,
 } as const;
 
-/** Uploaded audio, as a data URL. */
-export const AUDIO_DATA_URL = /^data:audio\/[a-z0-9.+-]+;base64,[a-z0-9+/=\s]+$/i;
+/**
+ * Uploaded audio, as a data URL. `video/*` is allowed on purpose: browsers
+ * report `.m4a` (the usual phone voice-note/audio format) as `video/mp4`.
+ */
+export const UPLOAD_DATA_URL = /^data:(?:audio|video)\/[a-z0-9.+-]+;base64,[a-z0-9+/=\s]+$/i;
+/**
+ * Extensions we accept when the browser does not tell us a usable type, and the
+ * content type to stamp on the upload. This map is the single list of allowed
+ * extensions — a name that misses it is not accepted as audio.
+ */
+const MIME_BY_EXTENSION: Record<string, string> = {
+  mp3: "audio/mpeg",
+  m4a: "audio/mp4",
+  mp4: "audio/mp4",
+  aac: "audio/aac",
+  ogg: "audio/ogg",
+  oga: "audio/ogg",
+  opus: "audio/ogg",
+  wav: "audio/wav",
+  flac: "audio/flac",
+  weba: "audio/webm",
+  aiff: "audio/aiff",
+  aif: "audio/aiff",
+  wma: "audio/x-ms-wma",
+  mka: "audio/x-matroska",
+};
+
+function extensionOf(name: string): string {
+  const dot = name.lastIndexOf(".");
+  return dot === -1 ? "" : name.slice(dot + 1).toLowerCase();
+}
+
+/**
+ * The content type to store for a picked file, or `null` when it does not look
+ * like audio at all. Falls back to the file extension, because plenty of
+ * browsers hand over `""` (or `application/octet-stream`) for a local file.
+ */
+export function audioMimeForFile(name: string, type: string): string | null {
+  if (type.startsWith("audio/") || type.startsWith("video/")) return type;
+  return MIME_BY_EXTENSION[extensionOf(name)] ?? null;
+}
+
+/** True when a picked file may be uploaded as a track. */
+export function isAudioFile(name: string, type: string): boolean {
+  return audioMimeForFile(name, type) !== null;
+}
+
+/**
+ * The source to store for a picked file. A data URL the browser typed as audio
+ * is kept as-is; one it could not type (empty/octet-stream mime) is re-labelled
+ * from the extension so the server-side check accepts it. Returns `null` when
+ * the bytes cannot be turned into an acceptable audio data URL.
+ */
+export function normalizeUploadSource(dataUrl: string, name: string, type: string): string | null {
+  if (UPLOAD_DATA_URL.test(dataUrl)) return dataUrl;
+  const mime = audioMimeForFile(name, type);
+  const comma = dataUrl.indexOf(",");
+  if (!mime || comma === -1) return null;
+  const body = dataUrl.slice(comma + 1);
+  if (!/^[a-z0-9+/=\s]+$/i.test(body)) return null;
+  return `data:${mime};base64,${body}`;
+}
 /** A playable link: `http(s)://…` or a site path such as `/music/song.mp3`. */
 export const AUDIO_URL = /^(https?:\/\/[^\s<>"']+|\/[A-Za-z0-9._~\-/%+]*)$/;
 
@@ -55,7 +115,7 @@ export const AUDIO_URL = /^(https?:\/\/[^\s<>"']+|\/[A-Za-z0-9._~\-/%+]*)$/;
 export const MUSIC_API_PREFIX = "/api/music/";
 
 export function isUploadedSource(source: string): boolean {
-  return AUDIO_DATA_URL.test(source);
+  return UPLOAD_DATA_URL.test(source);
 }
 
 /** True when `source` may be stored and played. */

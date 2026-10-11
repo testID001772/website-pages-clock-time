@@ -12,7 +12,7 @@ import { readTrackSource } from "@/lib/server/music";
  *
  * Range requests are answered properly (206) so a track can be seeked.
  */
-const DATA_URL = /^data:([a-z0-9.+-]+\/[a-z0-9.+-]+);base64,([\s\S]*)$/i;
+const DATA_URL = /^data:((?:audio|video)\/[a-z0-9.+-]+);base64,([\s\S]*)$/i;
 
 export const Route = createFileRoute("/api/music/$id")({
   server: {

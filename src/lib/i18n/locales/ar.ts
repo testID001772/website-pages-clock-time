@@ -55,6 +55,7 @@ export const ar: Dictionary = {
     count: (n: number) => `${n} مقطعًا`,
     empty: "لا توجد مقاطع بعد.",
     emptyHint: "أضف موسيقى من محرّر المسؤول.",
+    emptyAction: "افتح محرّر الموسيقى",
   },
 
   music: {

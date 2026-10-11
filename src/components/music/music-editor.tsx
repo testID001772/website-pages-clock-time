@@ -1,7 +1,14 @@
 import { Check, ChevronDown, ChevronUp, Pause, Play, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocale } from "@/lib/i18n";
-import { MUSIC_LIMITS, trackDurationLabel, trackKindLabel, type MusicTrack } from "@/lib/music";
+import {
+  isAudioFile,
+  MUSIC_LIMITS,
+  normalizeUploadSource,
+  trackDurationLabel,
+  trackKindLabel,
+  type MusicTrack,
+} from "@/lib/music";
 import { deleteTrack, listTracks, moveTrack, saveTrack } from "@/lib/server/music";
 import { serverErrorText } from "@/lib/types";
 
@@ -127,7 +134,8 @@ export function MusicEditor() {
     let source = link.trim();
     let seconds = 0;
     if (file) {
-      if (!file.type.startsWith("audio/")) {
+      // `file.type` is empty for plenty of local files, so the extension counts.
+      if (!isAudioFile(file.name, file.type)) {
         setError(t.music.badFile);
         return;
       }
@@ -136,12 +144,13 @@ export function MusicEditor() {
         return;
       }
       const dataUrl = await readAsDataUrl(file);
-      if (!dataUrl) {
+      const upload = dataUrl ? normalizeUploadSource(dataUrl, file.name, file.type) : null;
+      if (!upload) {
         setError(t.music.badFile);
         return;
       }
-      source = dataUrl;
-      seconds = await probeDuration(dataUrl);
+      source = upload;
+      seconds = await probeDuration(upload);
     }
     if (!source) {
       setError(t.music.badFile);

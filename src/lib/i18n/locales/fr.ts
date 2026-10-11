@@ -55,6 +55,7 @@ export const fr: Dictionary = {
     count: (n: number) => `${n} titres`,
     empty: "Aucune piste pour l'instant.",
     emptyHint: "Ajoutez de la musique dans l'éditeur d'administration.",
+    emptyAction: "Ouvrir l'éditeur de musique",
   },
 
   music: {
