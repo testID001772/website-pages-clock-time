@@ -1,0 +1,23 @@
+# Build output (vite/rolldown client + SSR bundles, nitro server)
+dist/
+.output/
+.nitro/
+.vite/
+.tanstack/
+
+# Dependencies
+node_modules/
+
+# Sandbox tooling state (dev-server preview pid + logs, brand-pending marker)
+.grok/preview.pid
+.grok/preview.log
+.grok/og-pending
+
+# Local environment / database overrides
+.env
+.env.*
+!.env.example
+
+# Editor + OS noise
+.DS_Store
+*.log

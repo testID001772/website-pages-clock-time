@@ -50,6 +50,10 @@ check "login"                     200 "$(code /login)"
 check "dashboard (anon shell)"    200 "$(code /dashboard)"
 check "settings (anon shell)"     200 "$(code /settings)"
 check "admin (anon shell)"        200 "$(code /admin)"
+check "news"                     200 "$(code /news)"
+check "unknown path"             404 "$(code /no-such-route)"
+check "og card"                  200 "$(code /og.jpg)"
+check "pwa icon"                 200 "$(code /icon-192.png)"
 check "favicon"                   200 "$(code /favicon.svg)"
 
 # --- Auth stack, read-only: bogus sign-in must 401 (proves API + DB read) ---

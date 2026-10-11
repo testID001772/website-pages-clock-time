@@ -1,0 +1,50 @@
+import { fileURLToPath } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
+import viteReact from "@vitejs/plugin-react";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { defineConfig } from "vite";
+import { appEnvPlugin } from "./scripts/app-env-plugin.mjs";
+
+/**
+ * Vite config for the System Space countdown app.
+ *
+ * Three plugins, in order:
+ *  - `tailwindcss()` — Tailwind v4; `src/styles.css` is the only CSS entry and
+ *    `@import "tailwindcss"` is expanded here.
+ *  - `appEnvPlugin()` — dev-only `/__app-env`, which `scripts/check-auth-invariant.mjs`
+ *    reads to prove the running dev server resolved the same `VITE_AUTH_ENABLED`
+ *    the next build will (the plugin stays in the config, not in `dev` only, so a
+ *    Vite started outside `scripts/with-app-env.mjs` is still observable).
+ *  - `tanstackStart()` — SSR build, file-based routes (`src/routes` →
+ *    `src/routeTree.gen.ts`), server functions, `vite preview` SSR middleware.
+ *
+ * Ports are part of the contract with the sandbox tooling: the dev server owns
+ * :8080 (see `scripts/startup.sh`) and the built-output QA preview owns :8081
+ * (`scripts/preview.mjs` reads `preview.port` back out of this file). Both are
+ * strict, so a port already in use fails loudly instead of silently shifting to
+ * a port nobody is watching.
+ */
+export default defineConfig({
+  plugins: [tailwindcss(), appEnvPlugin(), tanstackStart(), viteReact()],
+  resolve: {
+    // `@/*` → `src/*`, matching tsconfig `paths`. Vite does not read tsconfig
+    // paths without a plugin, so the alias is declared here too.
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+  server: {
+    host: "0.0.0.0",
+    port: 8080,
+    strictPort: true,
+    // The sandbox serves the app through a proxied preview host, so the Host
+    // header is not localhost. Vite's host check would otherwise reject it.
+    allowedHosts: true,
+  },
+  preview: {
+    host: "0.0.0.0",
+    port: 8081,
+    strictPort: true,
+    allowedHosts: true,
+  },
+});

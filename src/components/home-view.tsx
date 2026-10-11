@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppChrome } from "@/components/chrome/app-chrome";
+import { NewsTeaser } from "@/components/news/news-teaser";
 import { CountdownClock } from "@/components/space/countdown-clock";
 import { EventCountdown } from "@/components/space/event-countdown";
 import { Fireworks } from "@/components/space/fireworks";
@@ -14,9 +15,10 @@ import {
   yearProgress,
 } from "@/lib/countdown";
 import { useLocale } from "@/lib/i18n";
+import type { NewsPost } from "@/lib/news";
 import { playSfx } from "@/lib/sfx";
 
-export function HomeView() {
+export function HomeView({ news = [] }: { news?: NewsPost[] }) {
   const { t, locale } = useLocale();
   // Render-time snapshot: the server paints the REAL countdown on first paint
   // (never 00s), and the tick effect below takes over live updates on mount.
@@ -187,6 +189,10 @@ export function HomeView() {
               {t.home.previewFinale}
             </button>
           ) : null}
+
+          <div className="flex justify-center">
+            <NewsTeaser posts={news} />
+          </div>
         </div>
       </main>
 

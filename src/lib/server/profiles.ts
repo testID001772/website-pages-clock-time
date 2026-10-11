@@ -94,6 +94,18 @@ export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => ensureProfile(context.userId));
 
+/**
+ * Staff gate for other server-function modules (news, appearance): make sure the
+ * caller HAS a profile row first — `ensureProfile` is what hands the first
+ * account the owner role — then require admin/owner. Throws `ADMIN_REQUIRED`,
+ * which `serverErrorText` maps to a localized message.
+ */
+export async function requireStaffProfile(userId: string): Promise<Profile> {
+  const me = await ensureProfile(userId);
+  if (me.role !== "admin" && me.role !== "owner") throw new Error("ADMIN_REQUIRED");
+  return me;
+}
+
 const profileUpdate = z.object({
   displayName: z.string().trim().min(1).max(80),
   bio: z.string().max(280),
@@ -123,10 +135,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
 export const listMembers = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const me = await ensureProfile(context.userId);
-    if (me.role !== "admin" && me.role !== "owner") {
-      throw new Error("ADMIN_REQUIRED");
-    }
+    await requireStaffProfile(context.userId);
     return loadMembers();
   });
 

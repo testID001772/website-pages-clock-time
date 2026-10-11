@@ -8,6 +8,7 @@ export function MemberNav({ role, current }: { role: Role | null; current: strin
   const { t } = useLocale();
   const links = [
     { to: "/", label: t.nav.home },
+    { to: "/news", label: t.nav.news },
     { to: "/dashboard", label: t.nav.dashboard },
     { to: "/settings", label: t.nav.account },
   ] as const;
