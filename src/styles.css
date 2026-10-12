@@ -119,6 +119,15 @@ html[data-theme="light"] .space-bg {
     linear-gradient(180deg, #f2efff 0%, #e4e9ff 60%, #dfe4f7 100%);
 }
 
+/* The photograph (a shipped backdrop or a staff upload) is the dark stage's:
+   it is an almost black image, so painting it in white mode buried the pale
+   gradient and left the light theme's dark ink on a black page. White mode
+   keeps the gradient above and skips the image — `display: none` also means the
+   browser never spends the ~1.6 MB on it. The dark theme is unchanged. */
+html[data-theme="light"] .space-bg-custom {
+  display: none;
+}
+
 html[data-theme="light"] .glass {
   box-shadow:
     0 0 0 1px rgb(36 29 78 / 0.12),
@@ -137,6 +146,10 @@ html[data-theme="light"] .lang-option:hover {
 
 html[data-theme="light"] .lang-option.current {
   background: rgb(36 29 78 / 0.1);
+}
+
+html[data-theme="light"] img {
+  outline-color: rgb(36 29 78 / 0.12);
 }
 
 html[data-theme="light"] .btn-ghost {
@@ -293,6 +306,15 @@ html[data-glass="on"] .glass-strong {
   background: rgb(255 255 255 / 0.1);
 }
 
+/* The menu is white in white mode, so its states tint towards the ink. */
+html[data-theme="light"] .lang-option:hover {
+  background: rgb(36 29 78 / 0.07);
+}
+
+html[data-theme="light"] .lang-option.current {
+  background: rgb(36 29 78 / 0.1);
+}
+
 .lang-option > span {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -345,6 +367,14 @@ textarea:focus-visible,
 select:focus-visible {
   outline: 2px solid #c9c0ff;
   outline-offset: 3px;
+}
+
+html[data-theme="light"] .icon-btn:focus-visible,
+html[data-theme="light"] .btn:focus-visible,
+html[data-theme="light"] input:focus-visible,
+html[data-theme="light"] textarea:focus-visible,
+html[data-theme="light"] select:focus-visible {
+  outline-color: #4a3f9e;
 }
 
 .btn {
@@ -675,6 +705,10 @@ html[data-theme="light"] .event-list button[aria-current="true"] {
 .celebrate p {
   margin: 0;
   color: #d7d0ff;
+}
+
+html[data-theme="light"] .celebrate p {
+  color: var(--color-muted);
 }
 
 .celebrate .btn {
