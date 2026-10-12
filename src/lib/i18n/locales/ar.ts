@@ -191,6 +191,10 @@ export const ar: Dictionary = {
     subtitle:
       "الخلفية والضبابية والزجاج. تبدأ القيم من 0px. الزجاج التلقائي يعاين الصورة المرفوعة.",
     background: "الخلفية",
+    shipped: "خلفيات جاهزة",
+    shippedFerricWash: "غسيل حديدي",
+    shippedSpaceNebula: "سديم فضائي",
+    shippedDefault: "الافتراضية",
     uploadImage: "رفع صورة",
     clear: "مسح",
     showBackground: "إظهار صورة الخلفية",

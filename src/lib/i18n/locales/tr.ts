@@ -191,6 +191,10 @@ export const tr: Dictionary = {
     subtitle:
       "Arka plan, bulanıklık ve cam. Değerler 0px'den başlar. Otomatik cam yüklemeyi örnekler.",
     background: "Arka plan",
+    shipped: "Hazır görseller",
+    shippedFerricWash: "Demir yıkaması",
+    shippedSpaceNebula: "Uzay bulutsusu",
+    shippedDefault: "Varsayılan",
     uploadImage: "Görsel yükle",
     clear: "Temizle",
     showBackground: "Arka plan resmini göster",

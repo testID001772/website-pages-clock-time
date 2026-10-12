@@ -21,7 +21,7 @@ import sharp from "sharp";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE = join(ROOT, "public/favicon.svg");
-const BRAND_BACKGROUND = "#12082a";
+const BRAND_BACKGROUND = "#050505";
 
 const sizes = [192, 512];
 

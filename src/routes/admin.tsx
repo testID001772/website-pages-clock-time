@@ -3,8 +3,16 @@ import { useEffect, useState, type FormEvent } from "react";
 import { GatePage } from "@/components/chrome/gate-page";
 import { MusicEditor } from "@/components/music/music-editor";
 import { useTheme } from "@/components/theme-provider";
-import { BACKGROUND_MAX_CHARS, isDefaultBackground, resolveBackgroundUrl } from "@/lib/background";
+import {
+  BACKGROUND_MAX_CHARS,
+  DEFAULT_BACKGROUND_URL,
+  SHIPPED_BACKGROUNDS,
+  isDefaultBackground,
+  resolveBackgroundUrl,
+  shippedBackgroundFor,
+} from "@/lib/background";
 import { compressImage, sampleAverageColor } from "@/lib/image";
+import { appUrl } from "@/lib/base-url";
 import { useLocale } from "@/lib/i18n";
 import { getMyProfile, listMembers, setMemberRole } from "@/lib/server/profiles";
 import { updateSiteSettings } from "@/lib/server/site";
@@ -28,6 +36,10 @@ function Admin() {
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const shippedLabels: Record<string, string> = {
+    "ferric-wash": t.admin.shippedFerricWash,
+    "space-nebula": t.admin.shippedSpaceNebula,
+  };
 
   useEffect(() => {
     setDraft(settings);
@@ -144,7 +156,19 @@ function Admin() {
                 />
               </label>
               {draft.backgroundUrl ? (
-                <button type="button" className="btn btn-ghost" onClick={() => patch({ backgroundUrl: null })}>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() =>
+                    // A shipped image is a choice, not an upload: "clear" puts
+                    // the default artwork back; a real upload clears to nothing.
+                    patch({
+                      backgroundUrl: shippedBackgroundFor(draft.backgroundUrl)
+                        ? DEFAULT_BACKGROUND_URL
+                        : null,
+                    })
+                  }
+                >
                   {t.admin.clear}
                 </button>
               ) : null}
@@ -164,7 +188,48 @@ function Admin() {
                 <span className="px-4 text-center text-xs text-muted">{t.admin.noBackground}</span>
               )}
             </div>
-            <label className="mt-3 flex items-center gap-2 text-sm">
+            <p className="mt-5 text-xs tracking-[0.16em] text-muted uppercase">
+              {t.admin.shipped}
+            </p>
+            <ul className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {SHIPPED_BACKGROUNDS.map((image) => {
+                const url = appUrl(image.url);
+                // `null` means "the shipped default", so the first entry also
+                // covers the untouched state.
+                const selected =
+                  draft.backgroundUrl === url ||
+                  (image.url === SHIPPED_BACKGROUNDS[0].url && draft.backgroundUrl === null);
+                return (
+                  <li key={image.id}>
+                    <button
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => patch({ backgroundUrl: url })}
+                      className={`block w-full overflow-hidden rounded-[18px] no-underline transition-shadow ${
+                        selected
+                          ? "shadow-[0_0_0_2px_var(--color-ice)]"
+                          : "shadow-[0_0_0_1px_rgb(255_255_255_/_0.12)]"
+                      }`}
+                    >
+                      <span
+                        className="block h-20 bg-cover bg-center"
+                        style={{ backgroundImage: `url("${url}")` }}
+                      />
+                      <span className="flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-ink">
+                        {shippedLabels[image.id] ?? image.id}
+                        {selected ? (
+                          <span className="text-[0.6rem] tracking-[0.14em] text-muted uppercase">
+                            {image.url === SHIPPED_BACKGROUNDS[0].url ? t.admin.shippedDefault : ""}
+                          </span>
+                        ) : null}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <label className="mt-4 flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
                 checked={draft.backgroundEnabled}

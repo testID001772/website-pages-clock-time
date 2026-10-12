@@ -192,6 +192,10 @@ export const fr: Dictionary = {
     subtitle:
       "Fond, flou et verre. Les valeurs partent de 0px. Le verre auto échantillonne l'image.",
     background: "Fond",
+    shipped: "Visuels intégrés",
+    shippedFerricWash: "Lavure ferrique",
+    shippedSpaceNebula: "Nébuleuse",
+    shippedDefault: "Par défaut",
     uploadImage: "Importer une image",
     clear: "Effacer",
     showBackground: "Afficher l'image de fond",

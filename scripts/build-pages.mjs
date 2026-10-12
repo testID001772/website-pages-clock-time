@@ -40,7 +40,8 @@ export function normalizeBase(raw) {
 /** Everything the deployed site needs, checked after the build. */
 const REQUIRED = [
   "index.html",
-  "background.jpg",
+  "ferric-wash.jpg",
+  "space-nebula.jpg",
   "manifest.webmanifest",
   "favicon.svg",
   "icon-192.png",

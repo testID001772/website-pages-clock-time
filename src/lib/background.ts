@@ -12,8 +12,35 @@ import type { SiteSettings } from "./types";
  *                           to the plain gradient.
  */
 
-/** The image the app ships with; served straight from `public/`. */
-export const DEFAULT_BACKGROUND_URL = appUrl("/background.jpg");
+/**
+ * The artwork the app ships with, in the order the admin panel offers it. Both
+ * are 8K JPEGs in `public/`, painted by the stage and picked in `/admin`.
+ *
+ * `id` is stable (the thumbnail key, and what a future migration would store);
+ * `url` is the site path, mounted under `BASE_URL` like every other asset.
+ */
+export const SHIPPED_BACKGROUNDS = [
+  /** Iron-oxide wash on near-black — the default, and what ships with the theme. */
+  { id: "ferric-wash", url: "/ferric-wash.jpg" },
+  /** The deep-space nebula. */
+  { id: "space-nebula", url: "/space-nebula.jpg" },
+] as const;
+
+export type ShippedBackgroundId = (typeof SHIPPED_BACKGROUNDS)[number]["id"];
+
+/** The image a fresh install paints; served straight from `public/`. */
+export const DEFAULT_BACKGROUND_URL = appUrl(SHIPPED_BACKGROUNDS[0].url);
+
+/**
+ * The shipped artwork a stored URL points at, or `null` when the URL is an
+ * upload (a data URL) or not one of ours.
+ */
+export function shippedBackgroundFor(
+  url: string | null | undefined,
+): (typeof SHIPPED_BACKGROUNDS)[number] | null {
+  if (!url) return null;
+  return SHIPPED_BACKGROUNDS.find((image) => appUrl(image.url) === url) ?? null;
+}
 
 /**
  * The image URL to paint, or `null` for the gradient-only look.

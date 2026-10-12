@@ -192,6 +192,10 @@ export const it: Dictionary = {
     subtitle:
       "Sfondo, sfocatura e vetro. I valori partono da 0px. Il vetro auto campiona l'immagine.",
     background: "Sfondo",
+    shipped: "Immagini incluse",
+    shippedFerricWash: "Lavaggio ferrico",
+    shippedSpaceNebula: "Nebulosa",
+    shippedDefault: "Predefinita",
     uploadImage: "Carica immagine",
     clear: "Cancella",
     showBackground: "Mostra immagine di sfondo",

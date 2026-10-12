@@ -2,8 +2,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-void: #070411;
-  --color-space: #12082a;
+  --color-void: #050505;
+  --color-space: #0b0b0b;
   --color-nebula: #2a1458;
   --color-ink: #f3efff;
   --color-muted: #9b8ec4;
@@ -83,7 +83,7 @@
   background:
     radial-gradient(120% 80% at 50% -10%, #2a1458 0%, transparent 55%),
     radial-gradient(90% 60% at 80% 110%, #1a0b3d 0%, transparent 50%),
-    #12082a;
+    #050505;
   opacity: 1;
   visibility: visible;
   transition:
@@ -358,7 +358,7 @@ select:focus-visible {
 
 .btn-primary {
   background: #f4f0ff;
-  color: #12082a;
+  color: #050505;
 }
 
 .btn-primary:hover:not(:disabled) {

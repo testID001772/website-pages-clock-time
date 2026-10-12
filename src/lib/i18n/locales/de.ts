@@ -192,6 +192,10 @@ export const de: Dictionary = {
     subtitle:
       "Hintergrund, Weichzeichner und Glas. Werte starten bei 0px. Auto-Glas übernimmt den Upload.",
     background: "Hintergrund",
+    shipped: "Mitgelieferte Motive",
+    shippedFerricWash: "Eisenwäsche",
+    shippedSpaceNebula: "Weltraumnebel",
+    shippedDefault: "Standard",
     uploadImage: "Bild hochladen",
     clear: "Leeren",
     showBackground: "Hintergrundbild anzeigen",

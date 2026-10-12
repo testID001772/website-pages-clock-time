@@ -9,7 +9,7 @@ describe("mount point", () => {
     assert.equal(BASE_URL, "/");
     assert.equal(ASSET_BASE, "/");
     assert.equal(STATIC_SITE, false, "a test run is never the static site build");
-    assert.equal(appUrl("/background.jpg"), "/background.jpg");
+    assert.equal(appUrl("/ferric-wash.jpg"), "/ferric-wash.jpg");
     assert.equal(appUrl("/api/music/"), "/api/music/");
   });
 
@@ -22,7 +22,7 @@ describe("mount point", () => {
 
   it("joins a GitHub project-site mount point exactly once", () => {
     const base = "/website-pages-clock-time-/";
-    assert.equal(joinBase(base, "/background.jpg"), `${base}background.jpg`);
+    assert.equal(joinBase(base, "/ferric-wash.jpg"), `${base}ferric-wash.jpg`);
     assert.equal(joinBase("/website-pages-clock-time-", "/favicon.svg"), `${base}favicon.svg`);
     assert.equal(joinBase("/", "/favicon.svg"), "/favicon.svg");
     assert.equal(appUrl("/music/first-light.mp3"), "/music/first-light.mp3");

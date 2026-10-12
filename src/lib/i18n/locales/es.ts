@@ -192,6 +192,10 @@ export const es: Dictionary = {
     subtitle:
       "Fondo, desenfoque y cristal. Los valores empiezan en 0px. El cristal auto muestrea la imagen.",
     background: "Fondo",
+    shipped: "Imágenes incluidas",
+    shippedFerricWash: "Lavado férrico",
+    shippedSpaceNebula: "Nebulosa",
+    shippedDefault: "Predeterminada",
     uploadImage: "Subir imagen",
     clear: "Borrar",
     showBackground: "Mostrar imagen de fondo",

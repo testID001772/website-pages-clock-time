@@ -17,7 +17,7 @@ const BASE = new URL(self.registration.scope).pathname;
 const VERSION = "clock-time-v6";
 const SHELL = [
   BASE,
-  `${BASE}background.jpg`,
+  `${BASE}ferric-wash.jpg`,
   `${BASE}manifest.webmanifest`,
   `${BASE}icon-192.png`,
   `${BASE}icon-512.png`,
