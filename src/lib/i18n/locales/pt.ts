@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Portuguese copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const pt: Dictionary = {
   chrome: {
+    glass: "Vidro",
+    useGlass: "Ativar o vidro dos cartões",
+    useSolid: "Desativar o vidro dos cartões",
     music: "Música",
     dashboard: "Painel",
     logIn: "Entrar",
@@ -188,7 +191,7 @@ export const pt: Dictionary = {
     deniedTitle: "Só admins",
     deniedBlurb: "Peça ao dono para promover sua órbita.",
     title: "Admin",
-    subtitle: "Fundo, desfoque e cartões. Valores começam em 0px. Os cartões são brancos no claro e pretos no escuro.",
+    subtitle: "Fundo, desfoque e cartões. Os valores começam em 0px. O vidro dos cartões é ativado no cabeçalho.",
     background: "Fundo",
     shipped: "Artes incluídas",
     shippedFerricWash: "Lavagem férrica",
@@ -203,7 +206,7 @@ export const pt: Dictionary = {
     glassBlur: (px: number) => `Desfoque de vidro · ${px}px`,
     glassFill: (value: number) => `Preenchimento de vidro · ${value}`,
     glassColor: "Cor do vidro",
-    colorAuto: "Os cartões seguem o tema",
+    colorAuto: "O vidro usa a cor do tema",
     imageError: "Não foi possível usar essa imagem.",
     saved: "Aparência salva para todos.",
     saveError: "Não foi possível salvar.",

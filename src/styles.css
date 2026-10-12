@@ -208,15 +208,30 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
   min-height: 100dvh;
 }
 
+/* Every card paints the theme's own colour first — black in dark, white in
+   light. Glass is a look the reader switches on (`html[data-glass="on"]`, the
+   GLASS chip in the header): the flat fill gives way to the staff-tuned
+   translucent one over the stage. Off is the default, so a first paint with no
+   JavaScript and no stored preference is already the finished look. */
 .glass {
-  background: rgb(var(--glass-rgb) / var(--glass-alpha));
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  background: var(--card-solid, #000000);
   box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
 }
 
 .glass-strong {
+  background: var(--card-solid, #000000);
+}
+
+html[data-glass="on"] .glass {
+  background: rgb(var(--glass-rgb) / var(--glass-alpha));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+html[data-glass="on"] .glass-strong {
   background: rgb(var(--glass-rgb) / calc(var(--glass-alpha) + 0.06));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 
 .lang-picker {

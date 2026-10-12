@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Italian copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const it: Dictionary = {
   chrome: {
+    glass: "Vetro",
+    useGlass: "Attiva il vetro delle schede",
+    useSolid: "Disattiva il vetro delle schede",
     music: "Musica",
     dashboard: "Pannello",
     logIn: "Accedi",
@@ -189,7 +192,7 @@ export const it: Dictionary = {
     deniedTitle: "Solo admin",
     deniedBlurb: "Chiedi al proprietario di promuovere la tua orbita.",
     title: "Admin",
-    subtitle: "Sfondo, sfocatura e schede. I valori partono da 0px. Le schede sono bianche in chiaro e nere in scuro.",
+    subtitle: "Sfondo, sfocatura e schede. I valori partono da 0px. Il vetro delle schede si attiva dall'intestazione.",
     background: "Sfondo",
     shipped: "Immagini incluse",
     shippedFerricWash: "Lavaggio ferrico",
@@ -204,7 +207,7 @@ export const it: Dictionary = {
     glassBlur: (px: number) => `Sfocatura vetro · ${px}px`,
     glassFill: (value: number) => `Riempimento vetro · ${value}`,
     glassColor: "Colore vetro",
-    colorAuto: "Le schede seguono il tema",
+    colorAuto: "Il vetro usa il colore del tema",
     imageError: "Immagine non utilizzabile.",
     saved: "Aspetto salvato per tutti.",
     saveError: "Salvataggio non riuscito.",

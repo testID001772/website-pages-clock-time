@@ -12,6 +12,9 @@ type ThemeCtx = {
   setMotion: (next: "on" | "off") => void;
   theme: "dark" | "light";
   setTheme: (next: "dark" | "light") => void;
+  /** Card look: `on` = the staff-tuned glass, `off` = the flat theme colour. */
+  glass: "on" | "off";
+  setGlass: (next: "on" | "off") => void;
   refreshSettings: () => Promise<void>;
   applySettings: (next: SiteSettings) => void;
 };
@@ -23,11 +26,15 @@ function applyCssVars(
   space: "on" | "off",
   motion: "on" | "off",
   theme: "dark" | "light",
+  glass: "on" | "off",
 ) {
   const root = document.documentElement;
   root.dataset.space = space;
   root.dataset.motion = motion;
   root.dataset.theme = theme;
+  // Cards are solid unless the reader turned glass on; the stylesheet keys off
+  // this attribute, so the whole card family moves together.
+  root.dataset.glass = glass;
   root.style.setProperty("--bg-blur", `${settings.backgroundBlur}px`);
   root.style.setProperty("--glass-blur", `${settings.glassBlur}px`);
   // Cards are the theme's own colour (black / white) unless staff picked one.
@@ -56,6 +63,7 @@ export function ThemeProvider({
   const [space, setSpaceState] = useState<"on" | "off">("on");
   const [motion, setMotionState] = useState<"on" | "off">("on");
   const [theme, setThemeState] = useState<"dark" | "light">("dark");
+  const [glass, setGlassState] = useState<"on" | "off">("off");
 
   useEffect(() => {
     // Feature flags dropped before the rename — their stored values are
@@ -70,6 +78,8 @@ export function ThemeProvider({
     } else if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setMotionState("off");
     }
+    const storedGlass = readPref("glass");
+    if (storedGlass === "on" || storedGlass === "off") setGlassState(storedGlass);
     const storedTheme = readPref("theme");
     if (storedTheme === "light" || storedTheme === "dark") {
       setThemeState(storedTheme);
@@ -87,8 +97,8 @@ export function ThemeProvider({
   }, []);
 
   useEffect(() => {
-    applyCssVars(settings, space, motion, theme);
-  }, [settings, space, motion, theme]);
+    applyCssVars(settings, space, motion, theme, glass);
+  }, [settings, space, motion, theme, glass]);
 
   const value = useMemo<ThemeCtx>(
     () => ({
@@ -108,6 +118,11 @@ export function ThemeProvider({
         setThemeState(next);
         writePref("theme", next);
       },
+      glass,
+      setGlass: (next) => {
+        setGlassState(next);
+        writePref("glass", next);
+      },
       refreshSettings: async () => {
         try {
           setSettings(await getPublicSettings());
@@ -117,7 +132,7 @@ export function ThemeProvider({
       },
       applySettings: setSettings,
     }),
-    [settings, space, motion, theme],
+    [settings, space, motion, theme, glass],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

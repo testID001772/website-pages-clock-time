@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Turkish copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const tr: Dictionary = {
   chrome: {
+    glass: "Cam",
+    useGlass: "Kart camını aç",
+    useSolid: "Kart camını kapat",
     music: "Müzik",
     dashboard: "Panel",
     logIn: "Giriş yap",
@@ -188,7 +191,7 @@ export const tr: Dictionary = {
     deniedTitle: "Yalnızca yöneticiler",
     deniedBlurb: "Yörüngeni yükseltmesi için sahibe sor.",
     title: "Yönetici",
-    subtitle: "Arka plan, bulanıklık ve kartlar. Değerler 0px'den başlar. Kartlar açık modda beyaz, koyuda siyahtır.",
+    subtitle: "Arka plan, bulanıklık ve kartlar. Değerler 0px'den başlar. Kart camı başlıktan açılır.",
     background: "Arka plan",
     shipped: "Hazır görseller",
     shippedFerricWash: "Demir yıkaması",
@@ -203,7 +206,7 @@ export const tr: Dictionary = {
     glassBlur: (px: number) => `Cam bulanıklığı · ${px}px`,
     glassFill: (value: number) => `Cam dolgusu · ${value}`,
     glassColor: "Cam rengi",
-    colorAuto: "Kartlar temayı izler",
+    colorAuto: "Cam temanın rengini alır",
     imageError: "Bu görsel kullanılamadı.",
     saved: "Görünüm herkes için kaydedildi.",
     saveError: "Kaydedilemedi.",

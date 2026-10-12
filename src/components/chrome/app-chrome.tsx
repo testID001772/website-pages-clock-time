@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Moon, Sun } from "lucide-react";
+import { Layers, Moon, Sun } from "lucide-react";
 import { LanguagePicker } from "@/components/chrome/language-picker";
 import { InstallPrompt } from "@/components/chrome/install-prompt";
 import { MusicPicker } from "@/components/chrome/music-picker";
@@ -11,13 +11,18 @@ import { useLocale } from "@/lib/i18n";
 import { playSfx } from "@/lib/sfx";
 
 export function AppChrome({ hideAuth = false }: { hideAuth?: boolean }) {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, glass, setGlass } = useTheme();
   const { user, isPending } = useCurrentUserState();
   const { t } = useLocale();
 
   const toggleTheme = () => {
     playSfx("click");
     setTheme(theme === "dark" ? "light" : "dark");
+  };
+
+  const toggleGlass = () => {
+    playSfx("click");
+    setGlass(glass === "on" ? "off" : "on");
   };
 
   const initial = (user?.displayName ?? user?.primaryEmail ?? "M").charAt(0).toUpperCase();
@@ -37,6 +42,17 @@ export function AppChrome({ hideAuth = false }: { hideAuth?: boolean }) {
           <span className="hidden sm:inline">
             {theme === "dark" ? t.chrome.dark : t.chrome.white}
           </span>
+        </button>
+
+        <button
+          type="button"
+          className="icon-btn glass"
+          onClick={toggleGlass}
+          aria-pressed={glass === "on"}
+          aria-label={glass === "on" ? t.chrome.useSolid : t.chrome.useGlass}
+        >
+          <Layers className="size-4" />
+          <span className="hidden sm:inline">{t.chrome.glass}</span>
         </button>
 
         <InstallPrompt />

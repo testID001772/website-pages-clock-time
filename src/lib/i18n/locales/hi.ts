@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Hindi copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const hi: Dictionary = {
   chrome: {
+    glass: "काँच",
+    useGlass: "कार्ड काँच चालू करें",
+    useSolid: "कार्ड काँच बंद करें",
     music: "संगीत",
     dashboard: "डैशबोर्ड",
     logIn: "लॉग इन",
@@ -187,7 +190,7 @@ export const hi: Dictionary = {
     deniedTitle: "केवल एडमिन",
     deniedBlurb: "कक्षा बढ़ाने के लिए स्वामी से कहें।",
     title: "एडमिन",
-    subtitle: "पृष्ठभूमि, धुंधलापन और कार्ड। मान 0px से शुरू। कार्ड हल्के मोड में सफ़ेद, गहरे में काले।",
+    subtitle: "पृष्ठभूमि, धुंधलापन और कार्ड। मान 0px से शुरू। पाठक हेडर से कार्ड काँच चालू करते हैं।",
     background: "पृष्ठभूमि",
     shipped: "अंतर्निहित चित्र",
     shippedFerricWash: "लौह-धुलाई",
@@ -202,7 +205,7 @@ export const hi: Dictionary = {
     glassBlur: (px: number) => `काँच धुंधलापन · ${px}px`,
     glassFill: (value: number) => `काँच भराव · ${value}`,
     glassColor: "काँच का रंग",
-    colorAuto: "कार्ड थीम का अनुसरण करते हैं",
+    colorAuto: "काँच थीम रंग लेता है",
     imageError: "यह छवि इस्तेमाल नहीं हो सकी।",
     saved: "सबके लिए रूप सहेजा गया।",
     saveError: "सहेजा नहीं जा सका।",

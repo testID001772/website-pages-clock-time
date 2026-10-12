@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** German copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const de: Dictionary = {
   chrome: {
+    glass: "Glas",
+    useGlass: "Kartenglas einschalten",
+    useSolid: "Kartenglas ausschalten",
     music: "Musik",
     dashboard: "Dashboard",
     logIn: "Anmelden",
@@ -189,7 +192,7 @@ export const de: Dictionary = {
     deniedTitle: "Nur für Admins",
     deniedBlurb: "Bitte den Inhaber, deinen Orbit zu befördern.",
     title: "Admin",
-    subtitle: "Hintergrund, Weichzeichner und Karten. Werte starten bei 0px. Karten sind im hellen Modus weiß, im dunklen schwarz.",
+    subtitle: "Hintergrund, Weichzeichner und Karten. Werte starten bei 0px. Karten-Glas schalten Leser im Kopfbereich ein.",
     background: "Hintergrund",
     shipped: "Mitgelieferte Motive",
     shippedFerricWash: "Eisenwäsche",
@@ -204,7 +207,7 @@ export const de: Dictionary = {
     glassBlur: (px: number) => `Glas-Weichzeichner · ${px}px`,
     glassFill: (value: number) => `Glas-Füllung · ${value}`,
     glassColor: "Glasfarbe",
-    colorAuto: "Karten folgen dem Theme",
+    colorAuto: "Glas nutzt die Theme-Farbe",
     imageError: "Dieses Bild kann nicht verwendet werden.",
     saved: "Erscheinungsbild für alle gespeichert.",
     saveError: "Speichern fehlgeschlagen.",

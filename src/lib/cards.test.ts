@@ -52,6 +52,40 @@ describe("card surfaces", () => {
     assert.equal(resolveCardSurface({ ...seeded, glassOpacity: Number.NaN }, "dark").alpha, CARD_BASE_ALPHA.dark);
   });
 
+  it("keeps cards solid until the reader switches glass on", () => {
+    // The solid fill is the default rule — no JavaScript, no stored preference,
+    // and the card already paints the theme colour. Glass is the *state*.
+    const css = readFileSync(join(import.meta.dirname, "..", "styles.css"), "utf8");
+    assert.match(
+      css,
+      /\.glass \{\s+background: var\(--card-solid, #000000\);/,
+      "the default .glass fill is the theme's card colour",
+    );
+    assert.match(css, /\.glass-strong \{\s+background: var\(--card-solid, #000000\);/);
+    const solid = css.search(/\.glass \{\s+background: var\(--card-solid/);
+    const glassOn = css.indexOf('html[data-glass="on"] .glass {');
+    assert.ok(glassOn > solid, "glass rules come after the solid ones");
+    const translucent = css.slice(glassOn);
+    assert.match(translucent, /background: rgb\(var\(--glass-rgb\) \/ var\(--glass-alpha\)\)/);
+    assert.match(translucent, /backdrop-filter: blur\(var\(--glass-blur\)\)/);
+    // Nothing else in the sheet paints a translucent card: the whole family
+    // (chips, panels, menus, banner) is solid outside that block.
+    assert.equal(
+      css.slice(0, glassOn).includes("rgb(var(--glass-rgb) /"),
+      false,
+      "no translucent card fill outside the on state",
+    );
+
+    // The provider is what flips it, from a stored preference.
+    const provider = readFileSync(
+      join(import.meta.dirname, "..", "components", "theme-provider.tsx"),
+      "utf8",
+    );
+    assert.match(provider, /root\.dataset\.glass = glass;/);
+    assert.match(provider, /readPref\("glass"\)/);
+    assert.match(provider, /writePref\("glass", next\)/);
+  });
+
   it("matches what the stylesheet paints before hydration", () => {
     // The first paint has no JS, so `:root` and the light block carry the same
     // numbers a seeded row resolves to. If these drift, the page flashes.

@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** French copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const fr: Dictionary = {
   chrome: {
+    glass: "Verre",
+    useGlass: "Activer le verre des cartes",
+    useSolid: "Désactiver le verre des cartes",
     music: "Musique",
     dashboard: "Tableau de bord",
     logIn: "Se connecter",
@@ -189,7 +192,7 @@ export const fr: Dictionary = {
     deniedTitle: "Admins uniquement",
     deniedBlurb: "Demandez au propriétaire de promouvoir votre orbite.",
     title: "Admin",
-    subtitle: "Fond, flou et cartes. Les valeurs partent de 0px. Les cartes sont blanches en clair et noires en sombre.",
+    subtitle: "Fond, flou et cartes. Les valeurs partent de 0px. Le verre des cartes s'active depuis l'en-tête.",
     background: "Fond",
     shipped: "Visuels intégrés",
     shippedFerricWash: "Lavure ferrique",
@@ -204,7 +207,7 @@ export const fr: Dictionary = {
     glassBlur: (px: number) => `Flou de verre · ${px}px`,
     glassFill: (value: number) => `Remplissage de verre · ${value}`,
     glassColor: "Couleur de verre",
-    colorAuto: "Les cartes suivent le thème",
+    colorAuto: "Le verre suit le thème",
     imageError: "Cette image est inutilisable.",
     saved: "Apparence enregistrée pour tous.",
     saveError: "Enregistrement impossible.",

@@ -5,6 +5,9 @@
  */
 export const en = {
   chrome: {
+    glass: "Glass",
+    useGlass: "Turn card glass on",
+    useSolid: "Turn card glass off",
     music: "Music",
     dashboard: "Dashboard",
     logIn: "Log in",
@@ -189,7 +192,7 @@ export const en = {
     deniedTitle: "Admin only",
     deniedBlurb: "Ask the owner to promote your orbit.",
     title: "Admin",
-    subtitle: "Background, blur, and cards. Values start at 0px. Cards are white in light mode, black in dark.",
+    subtitle: "Background, blur, and cards. Values start at 0px. Readers switch card glass on from the header.",
     background: "Background",
     shipped: "Built-in artwork",
     shippedFerricWash: "Ferric wash",
@@ -204,7 +207,7 @@ export const en = {
     glassBlur: (px: number) => `Glass blur · ${px}px`,
     glassFill: (value: number) => `Glass fill · ${value}`,
     glassColor: "Glass color",
-    colorAuto: "Cards follow the theme",
+    colorAuto: "Glass uses the theme colour",
     imageError: "Could not use that image.",
     saved: "Appearance saved for everyone.",
     saveError: "Could not save.",

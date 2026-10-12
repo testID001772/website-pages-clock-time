@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Simplified Chinese copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const zh: Dictionary = {
   chrome: {
+    glass: "玻璃",
+    useGlass: "开启卡片玻璃效果",
+    useSolid: "关闭卡片玻璃效果",
     music: "音乐",
     dashboard: "仪表盘",
     logIn: "登录",
@@ -187,7 +190,7 @@ export const zh: Dictionary = {
     deniedTitle: "仅限管理",
     deniedBlurb: "请所有者提升你的轨道。",
     title: "管理",
-    subtitle: "背景、模糊与卡片。数值从 0px 开始。卡片在浅色模式下为白色，深色下为黑色。",
+    subtitle: "背景、模糊与卡片。数值从 0px 开始。卡片玻璃效果在页眉中开启。",
     background: "背景",
     shipped: "内置画面",
     shippedFerricWash: "铁锈水洗",
@@ -202,7 +205,7 @@ export const zh: Dictionary = {
     glassBlur: (px: number) => `玻璃模糊 · ${px}px`,
     glassFill: (value: number) => `玻璃填充 · ${value}`,
     glassColor: "玻璃颜色",
-    colorAuto: "卡片跟随主题",
+    colorAuto: "玻璃使用主题颜色",
     imageError: "该图片无法使用。",
     saved: "外观已保存，所有人可见。",
     saveError: "保存失败。",

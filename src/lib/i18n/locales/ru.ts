@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Russian copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const ru: Dictionary = {
   chrome: {
+    glass: "Стекло",
+    useGlass: "Включить стекло карточек",
+    useSolid: "Выключить стекло карточек",
     music: "Музыка",
     dashboard: "Панель",
     logIn: "Войти",
@@ -188,7 +191,7 @@ export const ru: Dictionary = {
     deniedTitle: "Только для админов",
     deniedBlurb: "Попросите владельца повысить вашу орбиту.",
     title: "Админ",
-    subtitle: "Фон, размытие и карточки. Значения начинаются с 0px. Карточки белые в светлой теме и чёрные в тёмной.",
+    subtitle: "Фон, размытие и карточки. Значения начинаются с 0px. Стекло карточек включается в шапке.",
     background: "Фон",
     shipped: "Встроенные фоны",
     shippedFerricWash: "Железный размыв",
@@ -203,7 +206,7 @@ export const ru: Dictionary = {
     glassBlur: (px: number) => `Размытие стекла · ${px}px`,
     glassFill: (value: number) => `Заливка стекла · ${value}`,
     glassColor: "Цвет стекла",
-    colorAuto: "Карточки следуют теме",
+    colorAuto: "Стекло берёт цвет темы",
     imageError: "Это изображение не подойдёт.",
     saved: "Оформление сохранено для всех.",
     saveError: "Не удалось сохранить.",

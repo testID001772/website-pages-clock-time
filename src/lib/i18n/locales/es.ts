@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Spanish copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const es: Dictionary = {
   chrome: {
+    glass: "Cristal",
+    useGlass: "Activar el cristal de las tarjetas",
+    useSolid: "Desactivar el cristal de las tarjetas",
     music: "Música",
     dashboard: "Panel",
     logIn: "Iniciar sesión",
@@ -189,7 +192,7 @@ export const es: Dictionary = {
     deniedTitle: "Solo admins",
     deniedBlurb: "Pide al propietario que ascienda tu órbita.",
     title: "Admin",
-    subtitle: "Fondo, desenfoque y tarjetas. Los valores empiezan en 0px. Las tarjetas son blancas en modo claro y negras en oscuro.",
+    subtitle: "Fondo, desenfoque y tarjetas. Los valores empiezan en 0px. El cristal de las tarjetas se activa desde la cabecera.",
     background: "Fondo",
     shipped: "Imágenes incluidas",
     shippedFerricWash: "Lavado férrico",
@@ -204,7 +207,7 @@ export const es: Dictionary = {
     glassBlur: (px: number) => `Desenfoque de cristal · ${px}px`,
     glassFill: (value: number) => `Relleno de cristal · ${value}`,
     glassColor: "Color de cristal",
-    colorAuto: "Las tarjetas siguen el tema",
+    colorAuto: "El cristal usa el color del tema",
     imageError: "No se pudo usar esa imagen.",
     saved: "Apariencia guardada para todos.",
     saveError: "No se pudo guardar.",

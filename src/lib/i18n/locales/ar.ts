@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Arabic copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const ar: Dictionary = {
   chrome: {
+    glass: "زجاج",
+    useGlass: "تشغيل زجاج البطاقات",
+    useSolid: "إيقاف زجاج البطاقات",
     music: "موسيقى",
     dashboard: "لوحة التحكم",
     logIn: "تسجيل الدخول",
@@ -188,7 +191,7 @@ export const ar: Dictionary = {
     deniedTitle: "للإدارة فقط",
     deniedBlurb: "اطلب من المالك ترقية مدارك.",
     title: "الإدارة",
-    subtitle: "الخلفية والضبابية والبطاقات. تبدأ القيم من 0px. البطاقات بيضاء في الوضع الفاتح وسوداء في الداكن.",
+    subtitle: "الخلفية والضبابية والبطاقات. تبدأ القيم من 0px. يفعّل الزوار زجاج البطاقات من الرأس.",
     background: "الخلفية",
     shipped: "خلفيات جاهزة",
     shippedFerricWash: "غسيل حديدي",
@@ -203,7 +206,7 @@ export const ar: Dictionary = {
     glassBlur: (px: number) => `ضبابية الزجاج · ${px}px`,
     glassFill: (value: number) => `تعبئة الزجاج · ${value}`,
     glassColor: "لون الزجاج",
-    colorAuto: "البطاقات تتبع المظهر",
+    colorAuto: "الزجاج يستخدم لون المظهر",
     imageError: "تعذر استخدام هذه الصورة.",
     saved: "تم حفظ المظهر للجميع.",
     saveError: "تعذر الحفظ.",
