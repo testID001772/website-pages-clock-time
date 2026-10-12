@@ -23,7 +23,7 @@ import {
 
 describe("music library rules", () => {
   it("has no hard-coded manifest", () => {
-    // The library is `music_tracks` (seeded with three starter rows); the old
+    // The library is `music_tracks` (seeded with the shipped starter rows); the old
     // generated manifest of 100 dead mp3 references is gone on purpose. At the
     // root mount the app's API prefix is the plain path.
     assert.equal(MUSIC_LIMITS.tracks > 0, true);

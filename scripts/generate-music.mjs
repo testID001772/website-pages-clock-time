@@ -21,6 +21,12 @@
  * `--check` (also run by `scripts/music-schema.test.mjs`) fails if a file is
  * missing, empty, or not the length the seed claims.
  *
+ * Every track is scored from its own seed — key, mode, tempo, chord progression,
+ * register, brightness, reverb, delay, which layers play — and each seed's score
+ * must be unique (`assertDistinctScores`). The library shipped three
+ * byte-identical pairs once, because the old renderer varied only (root note ×
+ * chord shape) for its pad tracks.
+ *
  * Deterministic: the same seed always produces the same bytes, so the committed
  * mp3s can be regenerated exactly. Three styles, one each:
  *   pad   — slow chord washes
@@ -30,6 +36,7 @@
  * Tracks are ordinary library rows: staff can rename, reorder or delete them in
  * the admin music editor like any other track.
  */
+import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -37,7 +44,7 @@ import lamejs from "@breezystack/lamejs";
 import { projectRoot } from "./with-app-env.mjs";
 
 const SR = 44100;
-const BITRATE = 64; // kbps mono — plenty for pads at this length
+const BITRATE = 80; // kbps mono — the reverb tails want the extra headroom
 const OUT_DIR = "public/music";
 /** Where the files are served from (the `source` stored in the library). */
 const SERVE_PATH = "/music";
@@ -336,49 +343,188 @@ function rng(seed) {
 
 const midiToFreq = (m) => 440 * 2 ** ((m - 69) / 12);
 
-/** Chord shapes, semitone offsets stacked from the root. */
-const CHORDS = [
-  [0, 3, 7, 10], // m9
-  [0, 4, 7, 11], // maj7
-  [0, 3, 7, 14], // m add9
-  [0, 5, 9, 12], // m7b5 wash
-  [0, 4, 9, 14], // 6/9
-  [0, 5, 7, 12], // sus shimmer
-];
-const PENTA = [0, 3, 5, 7, 10, 12, 15, 17, 19, 22];
+/**
+ * The harmonic colours a track can be written in. A mode is a semitone set from
+ * the tonic; the chords are built by stacking thirds inside it, so every
+ * progression stays in key whatever the seed picks.
+ */
+const MODES = {
+  aeolian: [0, 2, 3, 5, 7, 8, 10],
+  dorian: [0, 2, 3, 5, 7, 9, 10],
+  ionian: [0, 2, 4, 5, 7, 9, 11],
+  lydian: [0, 2, 4, 6, 7, 9, 11],
+  mixolydian: [0, 2, 4, 5, 7, 9, 10],
+};
+const MODE_NAMES = Object.keys(MODES);
 
-/** A sine or triangle voice with a linear attack/hold/release envelope. */
-function padVoice(buf, start, dur, freq, gain, attack, release, triangle) {
-  const i0 = Math.floor(start * SR);
-  const i1 = Math.min(buf.length, Math.floor((start + dur + release) * SR));
-  for (let i = i0; i < i1; i++) {
+/** Chord progressions as scale degrees — the four bars a track loops over. */
+const PROGRESSIONS = [
+  [0, 5, 3, 4],
+  [0, 4, 5, 3],
+  [0, 3, 4, 3],
+  [5, 3, 0, 4],
+  [0, 6, 3, 4],
+  [1, 4, 0, 0],
+  [0, 2, 5, 4],
+  [3, 4, 0, 5],
+];
+
+const REVERB_COMBS = [1687, 1601, 2053, 2251];
+const REVERB_ALLPASS = [347, 113];
+
+/** One-pole low-pass, in place — the brightness ceiling of the whole mix. */
+function lowpass(buf, cutoff) {
+  const a = Math.exp((-2 * Math.PI * cutoff) / SR);
+  let y = 0;
+  for (let i = 0; i < buf.length; i++) {
+    y = buf[i] * (1 - a) + y * a;
+    buf[i] = y;
+  }
+}
+
+/** One damped feedback comb, summed into `out`. */
+function comb(out, input, delay, feedback) {
+  const line = new Float32Array(delay);
+  let idx = 0;
+  let damp = 0;
+  for (let i = 0; i < input.length; i++) {
+    const delayed = line[idx];
+    const y = input[i] + delayed * feedback;
+    // One-pole damping inside the loop: high frequencies die first, which is
+    // what makes a synthetic tail sound like a room instead of a metal pipe.
+    damp = y * 0.32 + damp * 0.68;
+    line[idx] = damp;
+    out[i] += y;
+    idx = idx + 1 === delay ? 0 : idx + 1;
+  }
+}
+
+/** Schroeder allpass, in place. */
+function allpass(buf, delay, g) {
+  const line = new Float32Array(delay);
+  let idx = 0;
+  for (let i = 0; i < buf.length; i++) {
+    const x = buf[i];
+    const delayed = line[idx];
+    const y = -g * x + delayed;
+    line[idx] = x + g * y;
+    buf[i] = y;
+    idx = idx + 1 === delay ? 0 : idx + 1;
+  }
+}
+
+/**
+ * A room around the mix: four parallel damped combs into two allpasses, mixed
+ * back over the dry signal. Cheap enough for 180 s of audio (a handful of
+ * O(n) passes) and the single biggest reason these tracks sound like music
+ * rather than like oscillators.
+ */
+function reverb(buf, mix, decay) {
+  const wet = new Float32Array(buf.length);
+  const feedback = Math.min(0.88, 0.6 + decay * 0.07);
+  for (const delay of REVERB_COMBS) comb(wet, buf, delay, feedback);
+  const trim = 0.3;
+  for (let i = 0; i < wet.length; i++) wet[i] *= trim;
+  for (const delay of REVERB_ALLPASS) allpass(wet, delay, 0.68);
+  const dry = 1 - mix * 0.45;
+  for (let i = 0; i < buf.length; i++) buf[i] = buf[i] * dry + wet[i] * mix;
+}
+
+/** Slow detune chorus: widens the otherwise mono image without extra bytes. */
+function chorus(buf, rate, depthSec, mix) {
+  const dry = Float32Array.from(buf);
+  const base = 0.011 * SR;
+  const depth = depthSec * SR;
+  for (let i = 0; i < buf.length; i++) {
+    const read = i - (base + depth * Math.sin(2 * Math.PI * rate * (i / SR)));
+    const i0 = Math.floor(read);
+    if (i0 < 1 || i0 + 1 >= dry.length) continue;
+    const frac = read - i0;
+    buf[i] = dry[i] * (1 - mix) + (dry[i0] * (1 - frac) + dry[i0 + 1] * frac) * mix;
+  }
+}
+
+/** Slow, detuned chord voice: three sines and a triangle an octave down. */
+function padVoice(
+  buf,
+  at,
+  dur,
+  freq,
+  gain,
+  { attack = 1.4, release = 2.6, detune = 0.003, lfo = 0.07, lfoDepth = 0.05 } = {},
+) {
+  const i0 = Math.floor(at * SR);
+  const i1 = Math.min(buf.length, Math.floor((at + dur + release) * SR));
+  const spread = [0, detune, -detune];
+  for (let i = Math.max(0, i0); i < i1; i++) {
     const t = (i - i0) / SR;
-    const phase = 2 * Math.PI * freq * t;
-    const s = triangle ? Math.abs(((freq * t) % 1) * 4 - 2) - 1 : Math.sin(phase);
+    if (t < 0) continue;
     let env;
     if (t < attack) env = t / attack;
     else if (t < dur) env = 1;
     else env = Math.max(0, 1 - (t - dur) / release);
+    if (env <= 0) continue;
+    const tremolo = 1 - lfoDepth + lfoDepth * (0.5 + 0.5 * Math.sin(2 * Math.PI * lfo * t));
+    let s = 0;
+    for (const cents of spread) s += Math.sin(2 * Math.PI * freq * (1 + cents) * t);
+    s += 0.24 * (Math.abs(((freq * 0.5 * t) % 1) * 4 - 2) - 1);
+    buf[i] += (s / spread.length) * gain * env * tremolo;
+  }
+}
+
+/** Bell / glass voice: a sine pair through an exponential decay. */
+function bellVoice(buf, at, freq, gain, decay, ratio) {
+  const i0 = Math.floor(at * SR);
+  const n = Math.floor(decay * 5 * SR);
+  let phase = 0;
+  let modPhase = 0;
+  for (let k = 0; k < n && i0 + k < buf.length; k++) {
+    if (i0 + k < 0) continue;
+    const t = k / SR;
+    const env = Math.exp(-t / decay);
+    modPhase += (2 * Math.PI * freq * ratio) / SR;
+    phase += (2 * Math.PI * freq) / SR;
+    buf[i0 + k] += Math.sin(phase + 0.8 * env * Math.sin(modPhase)) * gain * env;
+  }
+}
+
+/** Plucked note: exponential decay, a touch of second harmonic. */
+function pluck(buf, at, freq, gain, decay) {
+  const i0 = Math.floor(at * SR);
+  const n = Math.floor(decay * 4 * SR);
+  for (let k = 0; k < n && i0 + k < buf.length; k++) {
+    const t = k / SR;
+    const env = Math.exp(-t / decay);
+    buf[i0 + k] += (Math.sin(2 * Math.PI * freq * t) + 0.18 * Math.sin(4 * Math.PI * freq * t)) * gain * env;
+  }
+}
+
+/** Bass voice: sine fundamental with two quiet harmonics and a soft envelope. */
+function bassVoice(buf, at, dur, freq, gain) {
+  const i0 = Math.floor(at * SR);
+  const i1 = Math.min(buf.length, Math.floor((at + dur) * SR));
+  const attack = Math.min(0.6, dur * 0.3);
+  const release = Math.min(1.2, dur * 0.4);
+  let phase = 0;
+  for (let i = Math.max(0, i0); i < i1; i++) {
+    const t = (i - i0) / SR;
+    if (t < 0) continue;
+    const env =
+      t < attack ? t / attack : t < dur - release ? 1 : Math.max(0, (dur - t) / release);
+    if (env <= 0) continue;
+    phase += (2 * Math.PI * freq) / SR;
+    const s = Math.sin(phase) + 0.26 * Math.sin(phase * 2) + 0.07 * Math.sin(phase * 3);
     buf[i] += s * gain * env;
   }
 }
 
-/** Plucked note: exponential decay. */
-function pluck(buf, start, freq, gain, decay) {
-  const i0 = Math.floor(start * SR);
-  const n = Math.floor(decay * 4 * SR);
-  for (let k = 0; k < n && i0 + k < buf.length; k++) {
-    const t = k / SR;
-    buf[i0 + k] += Math.sin(2 * Math.PI * freq * t) * gain * Math.exp(-t / decay);
-  }
-}
-
 /** Soft bass thump: pitch sweep + decay. */
-function thump(buf, start, gain) {
-  const i0 = Math.floor(start * SR);
+function thump(buf, at, gain) {
+  const i0 = Math.floor(at * SR);
   const dur = 0.3;
   let phase = 0;
   for (let k = 0; k < dur * SR && i0 + k < buf.length; k++) {
+    if (i0 + k < 0) continue;
     const t = k / SR;
     const f = 95 * Math.exp(-t * 9) + 42;
     phase += (2 * Math.PI * f) / SR;
@@ -387,15 +533,31 @@ function thump(buf, start, gain) {
 }
 
 /** Noise tick (hat). */
-function tick(buf, start, gain, rand) {
-  const i0 = Math.floor(start * SR);
+function tick(buf, at, gain, rand) {
+  const i0 = Math.floor(at * SR);
   let last = 0;
   for (let k = 0; k < 0.05 * SR && i0 + k < buf.length; k++) {
+    if (i0 + k < 0) continue;
     const t = k / SR;
     const white = rand() * 2 - 1;
     const hp = white - last; // cheap high-pass
     last = white;
     buf[i0 + k] += hp * gain * Math.exp(-t / 0.012);
+  }
+}
+
+/** Noise riser: a rising one-pole under a t² envelope, into a transition. */
+function sweep(buf, at, dur, gain, rand) {
+  const i0 = Math.floor(at * SR);
+  const n = Math.floor(dur * SR);
+  let y = 0;
+  for (let k = 0; k < n && i0 + k < buf.length; k++) {
+    if (i0 + k < 0) continue;
+    const t = k / n;
+    const cutoff = 260 * 22 ** t;
+    const a = Math.exp((-2 * Math.PI * cutoff) / SR);
+    y = (rand() * 2 - 1) * (1 - a) + y * a;
+    buf[i0 + k] += y * gain * t * t;
   }
 }
 
@@ -405,54 +567,235 @@ function echo(buf, timeSec, feedback, wet) {
   for (let i = d; i < buf.length; i++) buf[i] += buf[i - d] * feedback * wet;
 }
 
+/**
+ * The score of one track — every parameter the music is built from, drawn from
+ * the track's seed.
+ *
+ * This is the fix for the shipped library's one real defect: the old renderer
+ * used the seed for three things (root note, one of six chord shapes, tempo),
+ * and tempo only reached the two styles with drums — so two "pad" seeds that
+ * landed on the same root and chord shape produced *byte-identical files*. Three
+ * of the thirty shipped tracks were duplicates for exactly that reason. Every
+ * value here is drawn from the seed, and `assertDistinctScores` refuses to ship
+ * a catalogue where two tracks would come out the same.
+ */
+export function scoreFor({ seed, style, seconds }) {
+  const rand = rng(seed);
+  const key = 40 + Math.floor(rand() * 13); // E2..E3
+  const mode = MODE_NAMES[Math.floor(rand() * MODE_NAMES.length)];
+  const bpm = 56 + Math.floor(rand() * 46); // 56..101, ambient is slow
+  const progression = PROGRESSIONS[Math.floor(rand() * PROGRESSIONS.length)];
+  const barsPerChord = rand() < 0.4 ? 2 : 4;
+  const padOctave = rand() < 0.5 ? 12 : 24;
+  const detune = 0.0016 + rand() * 0.0044;
+  const padLfo = 0.03 + rand() * 0.11;
+  const brightness = 1400 + Math.floor(rand() * 3200);
+  const reverbMix = 0.18 + rand() * 0.24;
+  const reverbDecay = 2.2 + rand() * 2.6;
+  const chorusRate = 0.05 + rand() * 0.22;
+  const chorusDepth = 0.004 + rand() * 0.008;
+  const delayBeats = rand() < 0.5 ? 0.75 : 0.375;
+  const delayFeedback = 0.22 + rand() * 0.2;
+  const arpLevel = 0.05 + rand() * 0.045;
+  const bellDecay = 1.6 + rand() * 2.4;
+  const bellRatio = 2 + rand() * 1.6;
+  const bassLevel = 0.05 + rand() * 0.05;
+  const swing = rand() * 0.05;
+  const padLevel = 0.042 + rand() * 0.026;
+  // Which layers exist. The style family decides the skeleton; the draws above
+  // decide how each one sounds.
+  const layers = {
+    bass: rand() < 0.85,
+    bells: style === "pad" ? rand() < 0.8 : rand() < 0.45,
+    arp: style === "arp" || (style === "pulse" && rand() < 0.5),
+    rhythm: style === "pulse",
+    sweep: rand() < 0.5,
+  };
+  return {
+    seed,
+    style,
+    seconds,
+    key,
+    mode,
+    bpm,
+    progression,
+    barsPerChord,
+    padOctave,
+    detune,
+    padLfo,
+    brightness,
+    reverbMix,
+    reverbDecay,
+    chorusRate,
+    chorusDepth,
+    delayBeats,
+    delayFeedback,
+    arpLevel,
+    bellDecay,
+    bellRatio,
+    bassLevel,
+    swing,
+    padLevel,
+    layers,
+  };
+}
+
+/** A stable one-line fingerprint of a score, for the uniqueness check. */
+export function scoreSignature(track) {
+  const score = scoreFor(track);
+  return [
+    score.key,
+    score.mode,
+    score.bpm,
+    score.progression.join("."),
+    score.barsPerChord,
+    score.padOctave,
+    score.detune.toFixed(5),
+    score.padLfo.toFixed(4),
+    score.brightness,
+    score.reverbMix.toFixed(4),
+    score.reverbDecay.toFixed(3),
+    score.chorusRate.toFixed(4),
+    score.chorusDepth.toFixed(5),
+    score.delayBeats,
+    score.delayFeedback.toFixed(4),
+    score.arpLevel.toFixed(5),
+    score.bellDecay.toFixed(3),
+    score.bellRatio.toFixed(3),
+    score.bassLevel.toFixed(5),
+    score.swing.toFixed(4),
+    score.padLevel.toFixed(5),
+    Object.entries(score.layers)
+      .map(([name, on]) => (on ? name[0] : "-"))
+      .join(""),
+  ].join("|");
+}
+
+/**
+ * Refuse to ship two tracks whose music would be identical. Called by both the
+ * write and the check path, so a colliding seed is caught before it is encoded
+ * rather than after someone notices two playlist rows sound the same.
+ */
+export function assertDistinctScores(tracks = TRACKS) {
+  const seen = new Map();
+  for (const track of tracks) {
+    const signature = scoreSignature(track);
+    const previous = seen.get(signature);
+    if (previous) {
+      throw new Error(
+        `${track.id} and ${previous} would render identical music (${signature}) — change one seed`,
+      );
+    }
+    seen.set(signature, track.id);
+  }
+  return seen.size;
+}
+
 /** Render one track to mono float samples (exported for analysis/checks). */
 export function renderTrack({ seed, style, seconds }) {
-  const rand = rng(seed);
+  const score = scoreFor({ seed, style, seconds });
+  const rand = rng((seed ^ 0x9e3779b9) >>> 0);
   const buf = new Float32Array(SR * seconds);
-  const rootMidi = 45 + Math.floor(rand() * 7); // A2..E3
-  const progIndex = Math.floor(rand() * CHORDS.length);
-  const bpm = 92 + Math.floor(rand() * 36);
-  const beat = 60 / bpm;
-  const step = beat / 2; // eighth notes
+  // Melodic layers are rendered separately so the delay and the reverb sit
+  // behind them and never muddy the pad.
+  const mel = new Float32Array(buf.length);
 
-  // Chord loop: 4 chords, 6 s each (pads), reused as the arp harmony.
-  const chordDur = 6;
-  const prog = [0, 1, 2, 3].map((i) => CHORDS[(progIndex + i) % CHORDS.length]);
-  prog.forEach((shape, ci) => {
-    const at = ci * chordDur;
-    shape.forEach((semi, si) => {
-      const f = midiToFreq(rootMidi + 12 + semi);
-      padVoice(buf, at, chordDur - 1.2, f, 0.05, 1.4, 2.4, false);
-      padVoice(buf, at, chordDur - 1.2, f * 2, si === 0 ? 0.012 : 0.007, 1.8, 2.6, true);
+  const scale = MODES[score.mode];
+  const beat = 60 / score.bpm;
+  const bar = beat * 4;
+  const chordDur = bar * score.barsPerChord;
+  const chords = Math.ceil(seconds / chordDur);
+
+  /** The seventh chord on a scale degree, stacked in thirds inside the mode. */
+  const chordNotes = (degree) =>
+    [0, 2, 4, 6].map((step) => {
+      const index = degree + step;
+      return scale[index % 7] + 12 * Math.floor(index / 7);
     });
-  });
 
-  if (style === "arp" || style === "pulse") {
-    // 8-step arpeggio pattern over the pentatonic scale, chord-aware.
-    const pattern = Array.from({ length: 8 }, () => Math.floor(rand() * PENTA.length));
-    const steps = Math.floor(seconds / step);
-    for (let s = 0; s < steps; s++) {
-      const chord = prog[Math.floor((s * step) / chordDur) % 4];
-      const base = rootMidi + 24 + chord[s % chord.length];
-      const note = base + (PENTA[pattern[s % 8]] % 12);
-      pluck(buf, s * step, midiToFreq(note), 0.09, 0.22 + rand() * 0.08);
+  // ── Pads: the whole harmony, chord by chord ────────────────────────────────
+  for (let c = 0; c < chords; c++) {
+    const at = c * chordDur;
+    const degree = score.progression[c % score.progression.length];
+    for (const [index, offset] of chordNotes(degree).entries()) {
+      const freq = midiToFreq(score.key + score.padOctave + offset);
+      padVoice(buf, at, chordDur - bar * 0.4, freq, score.padLevel, {
+        attack: 1.1 + index * 0.25,
+        release: 2.2 + index * 0.3,
+        detune: score.detune,
+        lfo: score.padLfo,
+        lfoDepth: 0.05,
+      });
     }
-    echo(buf, step * 1.5, 0.34, 0.3);
   }
 
-  if (style === "pulse") {
+  // ── Bass: the root of each chord, an octave under the pad ─────────────────
+  if (score.layers.bass) {
+    for (let c = 0; c < chords; c++) {
+      const at = c * chordDur;
+      const degree = score.progression[c % score.progression.length];
+      const freq = midiToFreq(score.key - 12 + scale[degree % 7]);
+      bassVoice(buf, at, chordDur * 0.92, freq, score.bassLevel);
+    }
+  }
+
+  // ── Bells: sparse FM notes on the chord, high above ───────────────────────
+  if (score.layers.bells) {
+    const every = 6 + Math.floor(rand() * 8);
+    for (let t = 4; t < seconds - 6; t += every + rand() * 4) {
+      const degree = score.progression[Math.floor(t / chordDur) % score.progression.length];
+      const notes = chordNotes(degree);
+      const offset = notes[Math.floor(rand() * notes.length)] + 12 * (rand() < 0.5 ? 1 : 2);
+      bellVoice(
+        mel,
+        t,
+        midiToFreq(score.key + score.padOctave + offset),
+        0.05 + rand() * 0.03,
+        score.bellDecay,
+        score.bellRatio,
+      );
+    }
+  }
+
+  // ── Arp: eighth notes through the chord, delay behind them ────────────────
+  if (score.layers.arp) {
+    const step = beat / 2;
+    const steps = Math.floor(seconds / step);
+    const pattern = Array.from({ length: 8 }, () => Math.floor(rand() * 5));
+    for (let s = 0; s < steps; s++) {
+      const at = s * step + (s % 2 === 1 ? score.swing * step : 0);
+      const degree = score.progression[Math.floor(at / chordDur) % score.progression.length];
+      const notes = chordNotes(degree);
+      const offset = notes[pattern[s % 8] % notes.length] + 12;
+      pluck(mel, at, midiToFreq(score.key + score.padOctave + offset), score.arpLevel * (0.7 + rand() * 0.5), 0.9 + rand() * 0.8);
+    }
+  }
+
+  // ── Pulse: a slow heartbeat of thumps and ticks ───────────────────────────
+  if (score.layers.rhythm) {
     const beats = Math.floor(seconds / beat);
     for (let b = 0; b < beats; b++) {
-      if (b % 2 === 0) thump(buf, b * beat, 0.32);
-      if (b % 2 === 1) tick(buf, b * beat, 0.05, rand);
+      const strong = b % 4 === 0;
+      if (strong || b % 2 === 0) thump(buf, b * beat, strong ? 0.22 : 0.12);
+      if (b % 2 === 1) tick(buf, b * beat, 0.028 + rand() * 0.014, rand);
     }
-    // Low root drone under everything.
-    prog.forEach((_, ci) =>
-      padVoice(buf, ci * chordDur, chordDur - 1, midiToFreq(rootMidi), 0.05, 0.8, 1.5, false),
-    );
   }
 
-  // Master: soft clip, normalize, fades so the track does not click in or out.
+  // ── One or two risers, into a later chord ─────────────────────────────────
+  if (score.layers.sweep) {
+    for (let t = 40 + rand() * 40; t < seconds - 20; t += 70 + rand() * 40) {
+      sweep(buf, t, 6 + rand() * 5, 0.05 + rand() * 0.03, rand);
+    }
+  }
+
+  // ── Effects, in the order a mix would use them ────────────────────────────
+  echo(mel, beat * score.delayBeats, score.delayFeedback, 0.9);
+  for (let i = 0; i < buf.length; i++) buf[i] += mel[i];
+  reverb(buf, score.reverbMix, score.reverbDecay);
+  chorus(buf, score.chorusRate, score.chorusDepth, 0.28);
+  lowpass(buf, score.brightness);
+
+  // ── Master: soft clip, normalize, fades so nothing clicks in or out ───────
   let peak = 0;
   for (let i = 0; i < buf.length; i++) {
     buf[i] = Math.tanh(buf[i] * 1.1);
@@ -634,11 +977,31 @@ function writeLibrary() {
   console.log(`${LIBRARY_FILE}  ${libraryRows().length} tracks`);
 }
 
+/** Peak / RMS of a rendered buffer, so a broken render cannot ship. */
+export function analyse(buf) {
+  let peak = 0;
+  let sum = 0;
+  for (let i = 0; i < buf.length; i++) {
+    const v = buf[i];
+    peak = Math.max(peak, Math.abs(v));
+    sum += v * v;
+  }
+  return { peak, rms: Math.sqrt(sum / buf.length) };
+}
+
 function writeTracks() {
   mkdirSync(join(projectRoot(), OUT_DIR), { recursive: true });
+  assertDistinctScores();
   const started = Date.now();
   for (const track of TRACKS) {
-    const bytes = encodeMp3(renderTrack(track));
+    const rendered = renderTrack(track);
+    const { peak, rms } = analyse(rendered);
+    if (!(peak > 0.5 && peak <= 0.95) || rms < 0.03) {
+      throw new Error(
+        `${track.id} rendered badly (peak ${peak.toFixed(3)}, rms ${rms.toFixed(4)}) — refusing to encode silence`,
+      );
+    }
+    const bytes = encodeMp3(rendered);
     const path = join(projectRoot(), OUT_DIR, track.file);
     writeFileSync(path, bytes);
     const seconds = parseMp3Duration(bytes);
@@ -658,6 +1021,12 @@ function checkTracks() {
   const durations = readTrackDurations();
   const rows = readSeedRows();
   let bad = 0;
+  try {
+    assertDistinctScores();
+  } catch (error) {
+    console.error(`DUPLICATE SCORE ${error.message}`);
+    bad++;
+  }
   for (const track of TRACKS) {
     const row = rows[track.id];
     const seconds = durations[track.file];
@@ -683,6 +1052,27 @@ function checkTracks() {
       console.error(`BAD TITLE    ${track.id}: row "${row.title}" vs "${track.title}"`);
       bad++;
     }
+  }
+  // The files themselves must differ: two rows that play the same audio was the
+  // defect this check exists to keep out (three pairs shipped that way once).
+  const digests = new Map();
+  for (const track of TRACKS) {
+    let digest = null;
+    try {
+      digest = createHash("sha256").update(readFileSync(join(projectRoot(), OUT_DIR, track.file))).digest("hex");
+    } catch {
+      continue; // already reported as MISSING FILE above
+    }
+    const twin = digests.get(digest);
+    if (twin) {
+      console.error(`DUPLICATE AUDIO ${OUT_DIR}/${track.file} is byte-identical to ${twin}`);
+      bad++;
+    }
+    digests.set(digest, track.file);
+  }
+  if (digests.size !== TRACKS.length) {
+    console.error(`DISTINCT FILES ${digests.size} of ${TRACKS.length} tracks are unique`);
+    bad++;
   }
   if (bad) {
     console.error(`\n${bad} problem(s) found`);
