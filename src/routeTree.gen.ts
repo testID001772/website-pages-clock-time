@@ -15,6 +15,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as WorldClockRouteImport } from './routes/world-clock'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiMusicIdRouteImport } from './routes/api/music.$id'
 
@@ -48,6 +49,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorldClockRoute = WorldClockRouteImport.update({
+  id: '/world-clock',
+  path: '/world-clock',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
+  '/world-clock': typeof WorldClockRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/music/$id': typeof ApiMusicIdRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
+  '/world-clock': typeof WorldClockRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/music/$id': typeof ApiMusicIdRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
+  '/world-clock': typeof WorldClockRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/music/$id': typeof ApiMusicIdRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/settings'
+    | '/world-clock'
     | '/api/auth/$'
     | '/api/music/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/settings'
+    | '/world-clock'
     | '/api/auth/$'
     | '/api/music/$id'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/settings'
+    | '/world-clock'
     | '/api/auth/$'
     | '/api/music/$id'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRoute
+  WorldClockRoute: typeof WorldClockRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiMusicIdRoute: typeof ApiMusicIdRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/world-clock': {
+      id: '/world-clock'
+      path: '/world-clock'
+      fullPath: '/world-clock'
+      preLoaderRoute: typeof WorldClockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRoute,
+  WorldClockRoute: WorldClockRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiMusicIdRoute: ApiMusicIdRoute,
 }
