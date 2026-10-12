@@ -8,6 +8,12 @@ import { appEnvPlugin } from "./scripts/app-env-plugin.mjs";
 /**
  * Vite config for the Clock Time countdown app.
  *
+ * Two shapes come out of this file. The default (dev, `npm run build`, preview)
+ * is the server app mounted at `/`. `npm run build:pages` sets `PAGES_BUILD=1`
+ * and `PAGES_BASE`, which mounts everything under the project path GitHub Pages
+ * serves it from and prerenders the pages to HTML — same app, no server
+ * (`scripts/build-pages.mjs` explains the rest).
+ *
  * Three plugins, in order:
  *  - `tailwindcss()` — Tailwind v4; `src/styles.css` is the only CSS entry and
  *    `@import "tailwindcss"` is expanded here.
@@ -24,8 +30,21 @@ import { appEnvPlugin } from "./scripts/app-env-plugin.mjs";
  * strict, so a port already in use fails loudly instead of silently shifting to
  * a port nobody is watching.
  */
+/** The GitHub Pages build: static output mounted under `PAGES_BASE`. */
+const pagesBuild = process.env.PAGES_BUILD === "1";
+const pagesBase = pagesBuild && process.env.PAGES_BASE ? process.env.PAGES_BASE : "/";
+
 export default defineConfig({
-  plugins: [tailwindcss(), appEnvPlugin(), tanstackStart(), viteReact()],
+  base: pagesBase,
+  plugins: [
+    tailwindcss(),
+    appEnvPlugin(),
+    // Prerender only for the static host: the server build keeps rendering on
+    // demand. `prerender.js` discovers the routes and writes them as
+    // `dist/client/**/index.html`; a failure here fails the Pages deploy.
+    tanstackStart(pagesBuild ? { prerender: { enabled: true } } : {}),
+    viteReact(),
+  ],
   resolve: {
     // `@/*` → `src/*`, matching tsconfig `paths`. Vite does not read tsconfig
     // paths without a plugin, so the alias is declared here too.

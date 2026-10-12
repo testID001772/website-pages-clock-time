@@ -6,6 +6,7 @@ import { MusicPicker } from "@/components/chrome/music-picker";
 import { UpdateBanner } from "@/components/chrome/update-banner";
 import { useTheme } from "@/components/theme-provider";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { STATIC_SITE } from "@/lib/base-url";
 import { useLocale } from "@/lib/i18n";
 import { playSfx } from "@/lib/sfx";
 
@@ -44,7 +45,7 @@ export function AppChrome({ hideAuth = false }: { hideAuth?: boolean }) {
 
         <LanguagePicker />
 
-        {hideAuth ? null : isPending ? (
+        {hideAuth || STATIC_SITE ? null : isPending ? (
           <div className="glass h-11 w-24 animate-pulse rounded-full" />
         ) : user ? (
           <Link to="/dashboard" className="icon-btn glass max-w-[12rem]">

@@ -1,5 +1,6 @@
 import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { Navigate } from "@tanstack/react-router";
+import { STATIC_SITE } from "@/lib/base-url";
 import { GROK_PROVIDERS, authEnabled, signIn, signOut } from "./client";
 import { hasGateSessionMarker } from "./gate-session-marker";
 import { resolveSignInGateState } from "./sign-in-gate";
@@ -43,10 +44,11 @@ export function SignedOut({ children }: { children: ReactNode }) {
  * session loading, which feels like a second "Loading…" on /login.
  *
  * Guard routes by waiting out `isPending` first (see `use-current-user`), then
- * render this.
+ * render this. In the static build there is no sign-in at all, so the gate sends
+ * the visitor back to the countdown rather than into a form that cannot submit.
  */
 export function RedirectToSignIn({ to = SIGN_IN_PATH }: { to?: string }) {
-  return <Navigate to={to} />;
+  return <Navigate to={STATIC_SITE ? "/" : to} />;
 }
 
 export function SignInGate({

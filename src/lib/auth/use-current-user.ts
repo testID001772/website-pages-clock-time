@@ -1,3 +1,4 @@
+import { STATIC_SITE } from "@/lib/base-url";
 import { authClient, authEnabled } from "./client";
 
 /** Normalized user shape used across the app, auth on or off. */
@@ -51,10 +52,14 @@ export type CurrentUserState = {
  *   if (isPending) return null;              // still resolving — don't redirect yet
  *   if (!user) return <RedirectToSignIn />;  // definitely signed out
  *
- * `authEnabled` is a module-level constant fixed at load, so the guarded hook
- * call keeps a stable hook order across every render of a given component.
+ * `authEnabled` and `STATIC_SITE` are module-level constants fixed at load, so
+ * the guarded hook call keeps a stable hook order across every render of a given
+ * component. The static build (GitHub Pages) has no server to hold a session:
+ * nobody is signed in and there is nothing to wait for, so gates send visitors
+ * back to the countdown instead of to a sign-in page that could not work.
  */
 export function useCurrentUserState(): CurrentUserState {
+  if (STATIC_SITE) return { user: null, isPending: false };
   if (!authEnabled) return { user: DEV_USER, isPending: false };
   // eslint-disable-next-line react-hooks/rules-of-hooks -- authEnabled is constant for the app's lifetime
   const { data, isPending } = authClient.useSession();

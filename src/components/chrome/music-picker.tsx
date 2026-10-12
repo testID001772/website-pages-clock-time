@@ -2,8 +2,15 @@ import { Link } from "@tanstack/react-router";
 import { Pause, Play, Radio, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { startAmbient, stopAmbient } from "@/lib/ambient";
+import { STATIC_SITE } from "@/lib/base-url";
 import { useLocale } from "@/lib/i18n";
-import { trackDurationLabel, trackLabel, type MusicTrack } from "@/lib/music";
+import {
+  loadStaticTracks,
+  playableTrackUrl,
+  trackDurationLabel,
+  trackLabel,
+  type MusicTrack,
+} from "@/lib/music";
 import { readPref, writePref } from "@/lib/prefs";
 import { listTracks } from "@/lib/server/music";
 import { getMyProfile } from "@/lib/server/profiles";
@@ -15,11 +22,15 @@ const fmt = (seconds: number) =>
 
 /**
  * Music button + playlist panel. The first row is the live generative ambience
- * (no file); below it is the library staff maintain in the admin music editor —
- * the app ships no tracks of its own. Play state follows the shared audio
+ * (no file); below it is the library staff maintain in the admin music editor,
+ * which ships with the three starter tracks. Play state follows the shared audio
  * intent (`clock-time-music`), so unpausing also re-enables the UI sound
  * effects. If a track fails to load, playback falls back to the live ambience
  * and the row is flagged.
+ *
+ * `STATIC_SITE` (the GitHub Pages build) has no `listTracks` to call, so the
+ * panel reads the shipped `music/library.json` instead — same three rows, no
+ * database, and never an "ask staff to add tracks" link that cannot work.
  */
 export function MusicPicker() {
   const { t } = useLocale();
@@ -105,12 +116,15 @@ export function MusicPicker() {
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
-    void listTracks()
+    const loadLibrary: () => Promise<MusicTrack[]> = STATIC_SITE
+      ? loadStaticTracks
+      : (listTracks as () => Promise<MusicTrack[]>);
+    void loadLibrary()
       .then((next) => {
         if (cancelled) return;
         tracksRef.current = next;
         setTracks(next);
-        if (next.length > 0) return;
+        if (next.length > 0 || STATIC_SITE) return;
         return getMyProfile()
           .then((profile) => {
             if (!cancelled) setCanEdit(isStaff(profile.role));
@@ -162,7 +176,7 @@ export function MusicPicker() {
     }
     stopAmbient();
     if (!track || !audio) return;
-    audio.src = track.url;
+    audio.src = playableTrackUrl(track);
     void audio.play().catch(() => undefined);
   };
   playRef.current = play;

@@ -1,0 +1,28 @@
+{
+  "tracks": [
+    {
+      "id": "starter-first-light",
+      "title": "First Light",
+      "artist": "Clock Time",
+      "source": "/music/first-light.mp3",
+      "seconds": 30,
+      "order": 1
+    },
+    {
+      "id": "starter-starfall",
+      "title": "Starfall",
+      "artist": "Clock Time",
+      "source": "/music/starfall.mp3",
+      "seconds": 30,
+      "order": 2
+    },
+    {
+      "id": "starter-midnight-pulse",
+      "title": "Midnight Pulse",
+      "artist": "Clock Time",
+      "source": "/music/midnight-pulse.mp3",
+      "seconds": 30,
+      "order": 3
+    }
+  ]
+}

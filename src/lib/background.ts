@@ -1,3 +1,4 @@
+import { appUrl } from "./base-url.ts";
 import type { SiteSettings } from "./types";
 
 /**
@@ -12,7 +13,7 @@ import type { SiteSettings } from "./types";
  */
 
 /** The image the app ships with; served straight from `public/`. */
-export const DEFAULT_BACKGROUND_URL = "/background.jpg";
+export const DEFAULT_BACKGROUND_URL = appUrl("/background.jpg");
 
 /**
  * The image URL to paint, or `null` for the gradient-only look.

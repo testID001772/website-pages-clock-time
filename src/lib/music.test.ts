@@ -9,7 +9,10 @@ import {
   audioSourceError,
   isAudioSource,
   isUploadedSource,
+  loadStaticTracks,
   MUSIC_API_PREFIX,
+  parseStaticTracks,
+  playableTrackUrl,
   MUSIC_LIMITS,
   parseByteRange,
   publicTrackUrl,
@@ -19,9 +22,10 @@ import {
 } from "./music.ts";
 
 describe("music library rules", () => {
-  it("ships no tracks of its own", () => {
-    // The library is whatever staff add; the old generated manifest of 100
-    // dead mp3 references is gone on purpose.
+  it("has no hard-coded manifest", () => {
+    // The library is `music_tracks` (seeded with three starter rows); the old
+    // generated manifest of 100 dead mp3 references is gone on purpose. At the
+    // root mount the app's API prefix is the plain path.
     assert.equal(MUSIC_LIMITS.tracks > 0, true);
     assert.equal(MUSIC_API_PREFIX, "/api/music/");
   });
@@ -143,5 +147,87 @@ describe("music library rules", () => {
     const upload = `data:audio/wav;base64,${Buffer.from("RIFF").toString("base64")}`;
     assert.ok(UPLOAD_DATA_URL.test(upload));
     assert.ok(AUDIO_URL.test("/api/music/abc-123"));
+  });
+});
+
+describe("static catalogue (the serverless GitHub Pages build)", () => {
+  const document = {
+    tracks: [
+      { id: "b", title: "Second", artist: "Clock Time", source: "/music/b.mp3", seconds: 30, order: 2 },
+      { id: "a", title: "First", artist: "", source: "https://cdn.example.com/a.mp3", seconds: 12, order: 1 },
+    ],
+  };
+
+  it("reads the shipped rows, in playlist order", () => {
+    const tracks = parseStaticTracks(document);
+    assert.deepEqual(
+      tracks.map((track) => track.id),
+      ["a", "b"],
+      "rows come back sorted by order, not by document position",
+    );
+    assert.deepEqual(tracks[0], {
+      id: "a",
+      title: "First",
+      artist: "",
+      url: "https://cdn.example.com/a.mp3",
+      uploaded: false,
+      seconds: 12,
+      order: 1,
+    });
+  });
+
+  it("accepts a bare array and drops rows that could not play", () => {
+    const tracks = parseStaticTracks([
+      { id: "ok", title: "Ok", source: "/music/ok.mp3", seconds: 5, order: 1 },
+      { id: "no-source", title: "No", order: 2 },
+      { id: "bad-source", title: "Bad", source: "javascript:alert(1)", order: 3 },
+      { id: "", title: "Nameless", source: "/music/x.mp3", order: 4 },
+      { id: "untitled", title: "", source: "/music/x.mp3", order: 5 },
+      { id: "upload", title: "Upload", source: "data:audio/mpeg;base64,QUJD", order: 6 },
+    ]);
+    assert.deepEqual(
+      tracks.map((track) => track.id),
+      ["ok"],
+    );
+    assert.deepEqual(parseStaticTracks(null), []);
+    assert.deepEqual(parseStaticTracks({ tracks: "nope" }), []);
+  });
+
+  it("never returns more rows than the library allows", () => {
+    const many = Array.from({ length: MUSIC_LIMITS.tracks + 50 }, (_, i) => ({
+      id: `t-${i}`,
+      title: `Track ${i}`,
+      source: `/music/${i}.mp3`,
+      seconds: 1,
+      order: i + 1,
+    }));
+    assert.equal(parseStaticTracks(many).length, MUSIC_LIMITS.tracks);
+  });
+
+  it("plays stored URLs as they are at the root mount", () => {
+    assert.equal(playableTrackUrl({ url: "/music/first-light.mp3" }), "/music/first-light.mp3");
+    assert.equal(playableTrackUrl({ url: "/api/music/abc" }), "/api/music/abc");
+    assert.equal(
+      playableTrackUrl({ url: "https://cdn.example.com/song.mp3" }),
+      "https://cdn.example.com/song.mp3",
+    );
+  });
+
+  it("asks for the catalogue under the mount point", async () => {
+    const calls: string[] = [];
+    const original = globalThis.fetch;
+    globalThis.fetch = ((url: string | URL | Request) => {
+      calls.push(String(url));
+      return Promise.resolve({ ok: true, json: async () => document });
+    }) as typeof fetch;
+    try {
+      const tracks = await loadStaticTracks();
+      assert.equal(tracks.length, 2);
+    } finally {
+      globalThis.fetch = original;
+    }
+    assert.equal(calls.length, 1);
+    // The dev/preview root mount. `joinBase` covers the Pages prefix.
+    assert.equal(calls[0], "/music/library.json");
   });
 });

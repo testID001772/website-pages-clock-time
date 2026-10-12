@@ -6,6 +6,13 @@
  *   node scripts/generate-music.mjs           # write (or rewrite) the tracks
  *   node scripts/generate-music.mjs --check   # verify what is on disk
  *
+ * Besides the mp3s it writes `public/music/library.json`, the same three rows in
+ * the shape the client reads (`{ tracks: [...] }`). The database is the source of
+ * truth everywhere a server is running; that file is what the static GitHub
+ * Pages build — which has no database at all — loads into the playlist panel.
+ * Both are checked against `migrations/0009_music_seed.sql`, so the shipped
+ * playlist and the seeded one can never drift apart.
+ *
  * The app ships no *dead* tracks: every row seeded by
  * `migrations/0009_music_seed.sql` points at a file this script produces, and
  * `--check` (also run by `scripts/music-schema.test.mjs`) fails if a file is
@@ -32,6 +39,8 @@ const OUT_DIR = "public/music";
 /** Where the files are served from (the `source` stored in the library). */
 const SERVE_PATH = "/music";
 const MIGRATION = "migrations/0009_music_seed.sql";
+/** The catalogue the static (serverless) build reads. */
+const LIBRARY_FILE = "public/music/library.json";
 
 /** The library the app ships with. One row per file in the seed migration. */
 export const TRACKS = [
@@ -306,6 +315,39 @@ export function readSeedRows(root = projectRoot()) {
   return rows;
 }
 
+/**
+ * The starter tracks as client-facing rows, in playing order: the seed row for
+ * each recipe (title/artist/source/seconds/order), keyed by the id the database
+ * would use. This is both what `library.json` holds and what `--check` compares
+ * against the migration.
+ */
+export function libraryRows(root = projectRoot()) {
+  const rows = readSeedRows(root);
+  return TRACKS.map((track) => {
+    const row = rows[track.id];
+    if (!row) return null;
+    return {
+      id: track.id,
+      title: row.title,
+      artist: row.artist,
+      source: row.source,
+      seconds: row.seconds,
+      order: row.order,
+    };
+  }).filter(Boolean);
+}
+
+/** The library document as it is written to disk (stable, pretty-printed). */
+export function libraryDocument(root = projectRoot()) {
+  return `${JSON.stringify({ tracks: libraryRows(root) }, null, 2)}\n`;
+}
+
+function writeLibrary() {
+  const path = join(projectRoot(), LIBRARY_FILE);
+  writeFileSync(path, libraryDocument());
+  console.log(`${LIBRARY_FILE}  ${libraryRows().length} tracks`);
+}
+
 function writeTracks() {
   mkdirSync(join(projectRoot(), OUT_DIR), { recursive: true });
   for (const track of TRACKS) {
@@ -317,6 +359,7 @@ function writeTracks() {
       `${track.file}  ${(bytes.length / 1024).toFixed(0)} KB  ${seconds.toFixed(1)}s  ${track.title}`,
     );
   }
+  writeLibrary();
 }
 
 function checkTracks() {
@@ -354,7 +397,20 @@ function checkTracks() {
     process.exitCode = 1;
     return;
   }
-  console.log(`${TRACKS.length} starter tracks match ${MIGRATION}`);
+  let library = null;
+  try {
+    library = readFileSync(join(projectRoot(), LIBRARY_FILE), "utf8");
+  } catch {
+    console.error(`MISSING FILE ${LIBRARY_FILE} (run: node scripts/generate-music.mjs)`);
+    process.exitCode = 1;
+    return;
+  }
+  if (library !== libraryDocument()) {
+    console.error(`STALE FILE   ${LIBRARY_FILE} — regenerate with: node scripts/generate-music.mjs`);
+    process.exitCode = 1;
+    return;
+  }
+  console.log(`${TRACKS.length} starter tracks match ${MIGRATION} (and ${LIBRARY_FILE})`);
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

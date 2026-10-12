@@ -11,11 +11,18 @@
  * and runs the exact statements `src/lib/server/music.ts` runs.
  */
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { test } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
-import { parseMp3Duration, readSeedRows, readTrackDurations, TRACKS } from "./generate-music.mjs";
+import {
+  libraryRows,
+  parseMp3Duration,
+  readSeedRows,
+  readTrackDurations,
+  TRACKS,
+} from "./generate-music.mjs";
 import { pendingMigrations } from "./migration-plan.mjs";
 import { projectRoot } from "./with-app-env.mjs";
 
@@ -93,6 +100,22 @@ test("the seed migration, the generator recipes and the rows agree", async () =>
   }
   const bytes = await readFile(join(ROOT, "public/music", TRACKS[0].file));
   assert.ok(parseMp3Duration(bytes) > 25, "a starter track must hold real audio");
+});
+
+test("the static catalogue mirrors the seeded library", async () => {
+  // The GitHub Pages build has no database: it plays `public/music/library.json`
+  // (see `parseStaticTracks`). The rows there must be the seeded ones, or the
+  // static site would ship a playlist the app does not have.
+  const file = join(ROOT, "public/music/library.json");
+  const document = JSON.parse(await readFile(file, "utf8"));
+  assert.deepEqual(document.tracks, libraryRows());
+  for (const row of document.tracks) {
+    assert.ok(row.source.startsWith("/music/"), `${row.id} must point at a shipped file`);
+    assert.ok(
+      existsSync(join(ROOT, "public/music", row.source.replace("/music/", ""))),
+      `${row.id} → ${row.source} is not in public/music`,
+    );
+  }
 });
 
 test("the generated 100-track manifest stays gone", async () => {

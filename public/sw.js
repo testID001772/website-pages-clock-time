@@ -2,21 +2,29 @@
  * Clock Time service worker — installability + offline support.
  *
  * Strategies:
- * - App shell (/, manifest, icons): precached on install.
+ * - App shell (the app root, manifest, icons): precached on install.
  * - Everything else on this origin: network-first — never stale while
  *   online (safe with the dev server's HMR), cache fallback offline.
- * - /music/*.mp3 and /api/music/<id> (an uploaded track): cache-first after
- *   the first play, so a track keeps working offline once it has been played.
+ * - music/*.mp3 and api/music/<id> (an uploaded track): cache-first after the
+ *   first play, so a track keeps working offline once it has been played.
+ *
+ * Every path is built from `BASE` — the directory this worker is served from
+ * (`self.registration.scope`), so `/` at the root and
+ * `/website-pages-clock-time-/` on the GitHub Pages build. Precaching the wrong
+ * shell would poison the offline experience with the host's 404 page.
  */
-const VERSION = "clock-time-v5";
+const BASE = new URL(self.registration.scope).pathname;
+const VERSION = "clock-time-v6";
 const SHELL = [
-  "/",
-  "/background.jpg",
-  "/manifest.webmanifest",
-  "/icon-192.png",
-  "/icon-512.png",
-  "/favicon.svg",
+  BASE,
+  `${BASE}background.jpg`,
+  `${BASE}manifest.webmanifest`,
+  `${BASE}icon-192.png`,
+  `${BASE}icon-512.png`,
+  `${BASE}favicon.svg`,
 ];
+/** The audio that is worth keeping offline (first play caches it). */
+const MUSIC_PATHS = [`${BASE}music/`, `${BASE}api/music/`];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -58,9 +66,11 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.startsWith("/music/") || url.pathname.startsWith("/api/music/")) {
+  if (MUSIC_PATHS.some((prefix) => url.pathname.startsWith(prefix))) {
     event.respondWith(
-      musicStrategy(url.pathname).catch(() => caches.match("/").then((hit) => hit ?? Response.error())),
+      musicStrategy(url.pathname).catch(() =>
+        caches.match(BASE).then((hit) => hit ?? Response.error()),
+      ),
     );
     return;
   }
@@ -78,7 +88,7 @@ self.addEventListener("fetch", (event) => {
         const hit = await caches.match(request, { ignoreSearch: request.mode === "navigate" });
         if (hit) return hit;
         if (request.mode === "navigate") {
-          const home = await caches.match("/");
+          const home = await caches.match(BASE);
           if (home) return home;
         }
         return Response.error();

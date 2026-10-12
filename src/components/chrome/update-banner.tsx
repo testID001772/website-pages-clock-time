@@ -1,6 +1,7 @@
 import { RefreshCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/lib/i18n";
+import { appUrl } from "@/lib/base-url";
 import { playSfx } from "@/lib/sfx";
 
 /**
@@ -24,7 +25,7 @@ export function UpdateBanner() {
     };
     navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
     void navigator.serviceWorker
-      .register("/sw.js")
+      .register(appUrl("/sw.js"))
       .then((reg) => {
         registration = reg;
         reg.addEventListener("updatefound", () => {

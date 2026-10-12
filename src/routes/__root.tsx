@@ -3,6 +3,7 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { LocaleProvider } from "@/lib/i18n";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { ThemeProvider } from "@/components/theme-provider";
+import { appUrl } from "@/lib/base-url";
 import { getPublicSettings } from "@/lib/server/site";
 import { DEFAULT_SETTINGS } from "@/lib/types";
 import appCss from "../styles.css?url";
@@ -34,9 +35,9 @@ export const Route = createRootRoute({
       { name: "apple-mobile-web-app-title", content: APP_NAME },
     ],
     links: [
-      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "icon", type: "image/svg+xml", href: appUrl("/favicon.svg") },
+      { rel: "manifest", href: appUrl("/manifest.webmanifest") },
+      { rel: "apple-touch-icon", sizes: "180x180", href: appUrl("/apple-touch-icon.png") },
       { rel: "stylesheet", href: appCss },
     ],
   }),
