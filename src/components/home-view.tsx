@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { AppChrome } from "@/components/chrome/app-chrome";
 import { CountdownClock } from "@/components/space/countdown-clock";
 import { EventCountdown } from "@/components/space/event-countdown";
@@ -15,6 +16,7 @@ import {
 import { useLocale } from "@/lib/i18n";
 import { formatDecimal, formatInteger } from "@/lib/numbers";
 import { playSfx } from "@/lib/sfx";
+import { copyFor } from "@/lib/world-clock-copy";
 
 export function HomeView() {
   const { t, locale } = useLocale();
@@ -211,6 +213,10 @@ export function HomeView() {
               {t.home.previewFinale}
             </button>
           ) : null}
+
+          <Link to="/world-clock" className="btn btn-ghost mt-3">
+            {copyFor(locale).title}
+          </Link>
 
         </div>
       </main>
