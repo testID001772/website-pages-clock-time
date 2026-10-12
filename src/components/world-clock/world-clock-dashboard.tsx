@@ -1,12 +1,21 @@
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { useLocale } from "@/lib/i18n";
+import { formatInteger } from "@/lib/numbers";
 import { readPref, writePref } from "@/lib/prefs";
+import { conditionKey } from "@/lib/weather";
+import { copyFor } from "@/lib/world-clock-copy";
 import {
   DEFAULT_ZONES,
+  FEATURED_ZONE,
   MAX_CARDS,
+  cityName,
   describeZone,
-  differenceLabel,
+  formatDifference,
+  formatOffset,
   localTimeZone,
+  localeConfig,
   moveZone,
   offsetMinutes,
   optionFor,
@@ -15,48 +24,30 @@ import {
   serializeZones,
   type TimeZoneData,
 } from "@/lib/world-clock";
+import { ClockCard } from "./clock-card";
+import { useNow, useWeather } from "./use-world-clock";
 
 const PREF_NAME = "world-clock-zones";
 
-/** Clock face text for one zone, in the browser's own locale. */
-function formatTime(date: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    timeZone,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).format(date);
-}
-
-function formatDate(date: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    timeZone,
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-}
-
 export function WorldClockDashboard() {
   const { theme, setTheme } = useTheme();
+  const { locale: appLocale } = useLocale();
+  const locale = useMemo(() => localeConfig(appLocale), [appLocale]);
+  const copy = copyFor(appLocale);
 
   // Server and first client render use the defaults and no time, so the HTML
-  // never disagrees with the browser's clock. The effect below fills them in.
+  // never disagrees with the browser's clock. The effects below fill them in.
   const [zones, setZones] = useState<string[]>([...DEFAULT_ZONES]);
   const [ready, setReady] = useState(false);
-  const [now, setNow] = useState<Date | null>(null);
   const [localZone, setLocalZone] = useState("UTC");
   const [query, setQuery] = useState("");
+  const now = useNow();
+  const weather = useWeather(FEATURED_ZONE.coordinates);
 
   useEffect(() => {
     setZones(parseStoredZones(readPref(PREF_NAME)));
     setLocalZone(localTimeZone());
-    setNow(new Date());
     setReady(true);
-    // One tick per second keeps every seconds hand honest.
-    const id = window.setInterval(() => setNow(new Date()), 1000);
-    return () => window.clearInterval(id);
   }, []);
 
   // Persist only after the saved list has loaded, so the defaults never
@@ -65,22 +56,29 @@ export function WorldClockDashboard() {
     if (ready) writePref(PREF_NAME, serializeZones(zones));
   }, [zones, ready]);
 
-  const suggestions = useMemo(() => searchTimeZones(query, zones), [query, zones]);
+  const suggestions = useMemo(
+    () => searchTimeZones(query, zones, appLocale),
+    [query, zones, appLocale],
+  );
   const atLimit = zones.length >= MAX_CARDS;
 
-  const localMinutes = now ? offsetMinutes(localZone, now) : 0;
   const cards: TimeZoneData[] = useMemo(
     () =>
       now
-        ? zones.map((zone) =>
-            describeZone(
-              optionFor(zone) ?? { city: zone, region: "", timeZone: zone },
-              now,
-            ),
-          )
+        ? zones.map((zone) => {
+            const option = optionFor(zone);
+            return option
+              ? describeZone(option, appLocale, now)
+              : { city: zone, timeZone: zone, offset: "UTC" };
+          })
         : [],
-    [zones, now],
+    [zones, now, appLocale],
   );
+
+  const featuredOffset = now ? offsetMinutes(FEATURED_ZONE.timeZone, now) : 0;
+  const localOffset = now ? offsetMinutes(localZone, now) : 0;
+  const featuredCity = cityName(FEATURED_ZONE, appLocale);
+  const weatherCode = weather.data ? conditionKey(weather.data.code) : null;
 
   function addZone(timeZone: string) {
     if (atLimit || zones.includes(timeZone)) return;
@@ -107,38 +105,94 @@ export function WorldClockDashboard() {
   const nextTheme = theme === "dark" ? "light" : "dark";
 
   return (
-    <div className="space-y-8">
+    <div dir={locale.dir} className="space-y-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-xs tracking-[0.28em] text-muted uppercase">Clock &amp; Time Zone</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">World clocks</h1>
+          <p className="text-xs tracking-[0.28em] text-muted uppercase">{copy.eyebrow}</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight">{copy.title}</h1>
         </div>
         <button
           type="button"
           onClick={() => setTheme(nextTheme)}
-          aria-label={`Switch to ${nextTheme} mode`}
           className="rounded-full border border-white/15 px-4 py-2 text-sm transition-colors duration-300 hover:bg-white/10"
         >
-          {theme === "dark" ? "Light mode" : "Dark mode"}
+          {theme === "dark" ? copy.lightMode : copy.darkMode}
         </button>
       </header>
 
-      {/* Local time: always first, never removable. */}
-      <section
-        aria-label="Your local time"
-        className="glass rounded-[28px] p-6 transition-all duration-300 sm:p-8"
-      >
-        <p className="text-xs tracking-[0.2em] text-muted uppercase">Your local time · {localZone}</p>
-        <p className="mt-2 font-mono text-5xl font-semibold tabular-nums sm:text-6xl" aria-live="off">
-          {now ? formatTime(now, localZone) : "--:--:--"}
-        </p>
-        <p className="mt-2 text-sm text-muted">{now ? formatDate(now, localZone) : " "}</p>
+      {/* Featured: Cairo, with live weather beneath the clock. */}
+      <section aria-label={copy.featuredLabel} className="space-y-3">
+        <p className="text-xs tracking-[0.2em] text-muted uppercase">{copy.featuredLabel}</p>
+        <ClockCard
+          city={featuredCity}
+          timeZone={FEATURED_ZONE.timeZone}
+          offset={formatOffset(featuredOffset)}
+          now={now}
+          locale={locale}
+          copy={copy}
+          difference={
+            now ? formatDifference(featuredOffset - localOffset, locale.tag) : null
+          }
+          featured
+        >
+          <div className="mt-6 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-3">
+            <div className="sm:col-span-1">
+              <p className="text-xs text-muted uppercase tracking-[0.16em]">{copy.weatherTitle}</p>
+              <p className="mt-1 text-lg font-medium" aria-live="polite">
+                {weatherCode
+                  ? copy.conditions[weatherCode]
+                  : weather.status === "error"
+                    ? copy.weatherError
+                    : copy.weatherLoading}
+              </p>
+              {weather.status === "error" && (
+                <button
+                  type="button"
+                  onClick={weather.retry}
+                  className="mt-2 rounded-full border border-white/15 px-3 py-1 text-xs transition-colors hover:bg-white/10"
+                >
+                  {copy.retry}
+                </button>
+              )}
+            </div>
+            <div>
+              <p className="text-xs text-muted uppercase tracking-[0.16em]">{copy.temperature}</p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums">
+                {weather.data
+                  ? `${formatInteger(Math.round(weather.data.temperatureC), appLocale)}°C`
+                  : "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted uppercase tracking-[0.16em]">{copy.humidity}</p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums">
+                {weather.data
+                  ? `${formatInteger(Math.round(weather.data.humidity), appLocale)}%`
+                  : "—"}
+              </p>
+            </div>
+          </div>
+        </ClockCard>
+      </section>
+
+      {/* Your local time: always shown, never removable. */}
+      <section aria-label={copy.localLabel} className="space-y-3">
+        <p className="text-xs tracking-[0.2em] text-muted uppercase">{copy.localLabel}</p>
+        <ClockCard
+          city={localZone}
+          timeZone={localZone}
+          offset={formatOffset(localOffset)}
+          now={now}
+          locale={locale}
+          copy={copy}
+          difference={null}
+        />
       </section>
 
       {/* Add a zone, with suggestions. */}
-      <section aria-label="Add a time zone" className="space-y-3">
+      <section aria-label={copy.addTitle} className="space-y-3">
         <label htmlFor="world-clock-search" className="text-sm font-medium">
-          Add a city or time zone
+          {copy.addTitle}
         </label>
         <input
           id="world-clock-search"
@@ -147,24 +201,24 @@ export function WorldClockDashboard() {
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={handleSearchKey}
           disabled={atLimit}
-          placeholder={atLimit ? `Limit of ${MAX_CARDS} clocks reached` : "Try Cairo, Tokyo or Europe/Paris"}
+          placeholder={atLimit ? copy.limitReached : copy.addPlaceholder}
           autoComplete="off"
           className="w-full rounded-xl border border-white/15 bg-transparent px-4 py-3 outline-none transition-colors duration-300 focus:border-indigo-400 disabled:opacity-50"
         />
         {!atLimit && suggestions.length > 0 && (
-          <ul className="glass grid gap-1 rounded-2xl p-2 sm:grid-cols-2" role="list">
+          <ul className="glass grid gap-1 rounded-2xl p-2 sm:grid-cols-2">
             {suggestions.map((option) => (
               <li key={option.timeZone}>
                 <button
                   type="button"
                   onClick={() => addZone(option.timeZone)}
-                  className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition-colors duration-200 hover:bg-white/10"
+                  className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-start transition-colors duration-200 hover:bg-white/10"
                 >
                   <span>
-                    <span className="font-medium">{option.city}</span>
-                    <span className="ml-2 text-sm text-muted">{option.region}</span>
+                    <span className="font-medium">{cityName(option, appLocale)}</span>
+                    <span className="ms-2 text-sm text-muted">{option.timeZone}</span>
                   </span>
-                  <span className="text-xs text-muted">+ Add</span>
+                  <span className="text-xs text-muted">+ {copy.addAction}</span>
                 </button>
               </li>
             ))}
@@ -172,67 +226,62 @@ export function WorldClockDashboard() {
         )}
       </section>
 
-      {/* City cards. */}
-      <section aria-label="World clocks">
+      {/* City cards, in the order the visitor chose. */}
+      <section aria-label={copy.title}>
         {zones.length === 0 ? (
-          <p className="text-sm text-muted">No clocks yet. Search above to add one.</p>
+          <p className="text-sm text-muted">{copy.empty}</p>
         ) : (
           <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {cards.map((card, index) => (
-              <li
-                key={card.timeZone}
-                className="glass flex flex-col rounded-[24px] p-5 transition-all duration-300 hover:-translate-y-0.5"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h2 className="text-lg font-semibold">{card.city}</h2>
-                    <p className="text-xs text-muted">{card.timeZone}</p>
-                  </div>
-                  <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs tabular-nums">
-                    {card.offset}
-                  </span>
-                </div>
-                <p className="mt-4 font-mono text-3xl font-semibold tabular-nums">
-                  {now ? formatTime(now, card.timeZone) : "--:--:--"}
-                </p>
-                <p className="mt-1 text-sm text-muted">
-                  {now ? formatDate(now, card.timeZone) : " "}
-                </p>
-                <p className="mt-3 text-xs text-muted">
-                  {now
-                    ? `${differenceLabel(offsetMinutes(card.timeZone, now), localMinutes)} vs local`
-                    : " "}
-                </p>
-                <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => moveCard(index, -1)}
-                    disabled={index === 0}
-                    aria-label={`Move ${card.city} earlier`}
-                    className="rounded-lg px-2.5 py-1 text-sm transition-colors hover:bg-white/10 disabled:opacity-30"
-                  >
-                    ←
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => moveCard(index, 1)}
-                    disabled={index === cards.length - 1}
-                    aria-label={`Move ${card.city} later`}
-                    className="rounded-lg px-2.5 py-1 text-sm transition-colors hover:bg-white/10 disabled:opacity-30"
-                  >
-                    →
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeZone(card.timeZone)}
-                    aria-label={`Remove ${card.city}`}
-                    className="ml-auto rounded-lg px-2.5 py-1 text-sm text-muted transition-colors hover:bg-white/10 hover:text-current"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </li>
-            ))}
+            {cards.map((card, index) => {
+              const option = optionFor(card.timeZone);
+              const zoneOffset = now ? offsetMinutes(card.timeZone, now) : 0;
+              return (
+                <li key={card.timeZone}>
+                  <ClockCard
+                    city={card.city}
+                    timeZone={card.timeZone}
+                    offset={card.offset}
+                    now={now}
+                    locale={locale}
+                    copy={copy}
+                    difference={
+                      now && option ? formatDifference(zoneOffset - localOffset, locale.tag) : null
+                    }
+                    actions={
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => moveCard(index, -1)}
+                          disabled={index === 0}
+                          aria-label={copy.moveEarlier(card.city)}
+                          className="rounded-lg p-1.5 transition-colors hover:bg-white/10 disabled:opacity-30"
+                        >
+                          <ChevronLeft className="size-4 rtl:rotate-180" aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveCard(index, 1)}
+                          disabled={index === cards.length - 1}
+                          aria-label={copy.moveLater(card.city)}
+                          className="rounded-lg p-1.5 transition-colors hover:bg-white/10 disabled:opacity-30"
+                        >
+                          <ChevronRight className="size-4 rtl:rotate-180" aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeZone(card.timeZone)}
+                          aria-label={copy.removeCity(card.city)}
+                          className="ms-auto flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-muted transition-colors hover:bg-white/10"
+                        >
+                          <X className="size-3.5" aria-hidden="true" />
+                          {copy.remove}
+                        </button>
+                      </>
+                    }
+                  />
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

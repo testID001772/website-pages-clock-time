@@ -2,11 +2,16 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   DEFAULT_ZONES,
+  FEATURED_ZONE,
   MAX_CARDS,
   TIME_ZONE_CATALOGUE,
-  differenceLabel,
+  cityName,
+  countryName,
+  formatClockTime,
+  formatDifference,
   formatOffset,
   isValidTimeZone,
+  localeConfig,
   moveZone,
   offsetMinutes,
   parseStoredZones,
@@ -30,16 +35,26 @@ test("offsets come from the zone's real rules, DST included", () => {
 
 test("offset labels read as UTC±HH:MM", () => {
   assert.equal(formatOffset(0), "UTC");
-  assert.equal(formatOffset(120), "UTC+02:00");
+  assert.equal(formatOffset(180), "UTC+03:00");
   assert.equal(formatOffset(-300), "UTC-05:00");
   assert.equal(formatOffset(330), "UTC+05:30");
 });
 
-test("difference from local is signed and drops zero minutes", () => {
-  assert.equal(differenceLabel(0, 0), "Same time");
-  assert.equal(differenceLabel(480, 120), "+6h");
-  assert.equal(differenceLabel(-300, 120), "−7h");
-  assert.equal(differenceLabel(330, 0), "+5h 30m");
+test("difference from local is signed, localised, and null for the same time", () => {
+  assert.equal(formatDifference(0, "en"), null);
+  assert.equal(formatDifference(360, "en"), "+6h");
+  assert.equal(formatDifference(-420, "en"), "−7h");
+  assert.equal(formatDifference(330, "en"), "+5h 30m");
+  assert.equal(formatDifference(-30, "en"), "−30m");
+});
+
+test("the featured zone is Cairo and is never a catalogue or saved card", () => {
+  assert.equal(FEATURED_ZONE.timeZone, "Africa/Cairo");
+  assert.equal(FEATURED_ZONE.coordinates.latitude, 30.050755);
+  assert.equal(FEATURED_ZONE.coordinates.longitude, 31.246909);
+  assert.ok(!DEFAULT_ZONES.includes(FEATURED_ZONE.timeZone));
+  assert.ok(!searchTimeZones("cairo", []).some((o) => o.timeZone === FEATURED_ZONE.timeZone));
+  assert.deepEqual(parseStoredZones(JSON.stringify(["Africa/Cairo", "Asia/Tokyo"])), ["Asia/Tokyo"]);
 });
 
 test("every catalogue zone is a valid IANA zone and appears once", () => {
@@ -49,24 +64,33 @@ test("every catalogue zone is a valid IANA zone and appears once", () => {
   for (const id of DEFAULT_ZONES) assert.ok(ids.includes(id), id);
 });
 
-test("search matches city, region and zone id, skipping zones already shown", () => {
-  const cities = searchTimeZones("lon", []).map((o) => o.city);
-  assert.ok(cities.includes("London"));
-  assert.ok(searchTimeZones("japan", []).some((o) => o.city === "Tokyo"));
-  assert.ok(searchTimeZones("Asia/Seoul", []).some((o) => o.city === "Seoul"));
-  assert.ok(!searchTimeZones("london", ["Europe/London"]).some((o) => o.city === "London"));
-  assert.equal(searchTimeZones("", [], 3).length, 3);
+test("city names follow the active language, with English as the fallback", () => {
+  const tokyo = TIME_ZONE_CATALOGUE.find((o) => o.timeZone === "Asia/Tokyo");
+  assert.ok(tokyo);
+  assert.equal(cityName(tokyo, "en"), "Tokyo");
+  assert.equal(cityName(tokyo, "ar"), "طوكيو");
+  assert.equal(cityName(tokyo, "es"), "Tokio");
+  assert.equal(cityName(tokyo, "de"), "Tokyo", "a language without city names falls back");
+});
+
+test("country names come from the runtime's own localisation tables", () => {
+  assert.equal(countryName("JP", "en"), "Japan");
+  assert.equal(countryName("EG", "fr"), "Égypte");
+  assert.equal(typeof countryName("ZZ", "en"), "string", "unknown codes never throw");
+});
+
+test("search matches city in any language, country, and zone id, skipping shown zones", () => {
+  assert.ok(searchTimeZones("lon", []).some((o) => o.timeZone === "Europe/London"));
+  assert.ok(searchTimeZones("japan", []).some((o) => o.timeZone === "Asia/Tokyo"));
+  assert.ok(searchTimeZones("طوكيو", [], "ar").some((o) => o.timeZone === "Asia/Tokyo"));
+  assert.ok(searchTimeZones("Asia/Seoul", []).some((o) => o.timeZone === "Asia/Seoul"));
+  assert.ok(!searchTimeZones("london", ["Europe/London"]).some((o) => o.timeZone === "Europe/London"));
+  assert.equal(searchTimeZones("", [], "en", 3).length, 3);
   assert.equal(searchTimeZones("zzzz", []).length, 0);
 });
 
 test("saved order is restored, and bad entries are dropped", () => {
-  const raw = JSON.stringify([
-    "Asia/Tokyo",
-    "Not/AZone",
-    42,
-    "Asia/Tokyo",
-    "Europe/Paris",
-  ]);
+  const raw = JSON.stringify(["Asia/Tokyo", "Not/AZone", 42, "Asia/Tokyo", "Europe/Paris"]);
   assert.deepEqual(parseStoredZones(raw), ["Asia/Tokyo", "Europe/Paris"]);
 });
 
@@ -89,4 +113,13 @@ test("moving a card swaps it with its neighbour and stops at the edges", () => {
   assert.deepEqual(moveZone(zones, 0, -1), ["a", "b", "c"]);
   assert.deepEqual(moveZone(zones, 2, 1), ["a", "b", "c"]);
   assert.deepEqual(zones, ["a", "b", "c"], "input is not mutated");
+});
+
+test("Arabic gets RTL and Arabic-Indic numerals; other languages stay LTR", () => {
+  const ar = localeConfig("ar");
+  assert.equal(ar.dir, "rtl");
+  assert.match(formatClockTime(winter, "Africa/Cairo", ar.tag), /[\u0660-\u0669]/u);
+  const en = localeConfig("en");
+  assert.equal(en.dir, "ltr");
+  assert.match(formatClockTime(winter, "Africa/Cairo", en.tag), /^\d/u);
 });
