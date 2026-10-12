@@ -241,7 +241,9 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
   /* Fully solid panel: anything behind (e.g. the bright hero clock) must not
      ghost through. The colour is the theme's card colour — black in dark mode,
      white in light — never the stage's violet. */
-  background: var(--card-solid);
+  /* The fallback is the dark card colour: if the variable is ever missing the
+     panel still paints — it never goes transparent and never shows the stage. */
+  background: var(--card-solid, #000000);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow:

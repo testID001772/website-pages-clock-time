@@ -63,7 +63,13 @@ describe("card surfaces", () => {
     assert.match(light, /--card-solid:\s*#ffffff/, "light card colour");
     assert.match(light, /--glass-rgb:\s*255,\s*255,\s*255/, "light card rgb");
     // And the solid dropdown reads the token, not a hard-coded violet.
-    assert.match(css, /\.lang-menu[^}]*background:\s*var\(--card-solid\)/s);
+        assert.match(css, /\.lang-menu[^}]*background:\s*var\(--card-solid,\s*#000000\)/s);
+    // JS sets the same token from the active theme (`theme-provider.tsx`).
+    const provider = readFileSync(
+      join(import.meta.dirname, "..", "components", "theme-provider.tsx"),
+      "utf8",
+    );
+    assert.match(provider, /--card-solid", CARD_SOLID\[theme\]/);
     assert.ok(!/rgb\(18 8 42\)/.test(css), "the old violet panel colour is gone");
   });
 });

@@ -22,6 +22,7 @@
  * `npm run build` (server output, `base: "/"`) is untouched.
  */
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { isMainModule, projectRoot } from "./with-app-env.mjs";
@@ -95,7 +96,29 @@ function postProcess(base) {
   if (base !== "/" && !html.includes(base)) {
     throw new Error(`index.html does not reference the mount point ${base}`);
   }
+  stampServiceWorker(html);
   return html;
+}
+
+/**
+ * Give the service worker a cache name derived from the build, so every deploy
+ * drops the previous shell instead of leaving installed browsers on the old one
+ * until someone remembers to bump a constant by hand. The HTML carries the
+ * hashed asset names, so hashing it changes exactly when the build changes.
+ */
+export function stampServiceWorker(html, outDir = OUT) {
+  const path = join(outDir, "sw.js");
+  const source = readFileSync(path, "utf8");
+  const stamp = createHash("sha256").update(html).digest("hex").slice(0, 8);
+  const stamped = source.replace(
+    /const VERSION = "[^"]*";/,
+    `const VERSION = "clock-time-${stamp}";`,
+  );
+  if (stamped === source) {
+    throw new Error("sw.js: could not stamp the cache version (VERSION line changed?)");
+  }
+  writeFileSync(path, stamped);
+  console.log(`[pages] sw.js cache version → clock-time-${stamp}`);
 }
 
 function main() {

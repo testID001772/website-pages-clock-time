@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { resolveCardSurface } from "@/lib/cards";
+import { CARD_SOLID, resolveCardSurface } from "@/lib/cards";
 import { LEGACY_PREF_PREFIX, readPref, writePref } from "@/lib/prefs";
 import { getPublicSettings } from "@/lib/server/site";
 import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/types";
@@ -34,6 +34,9 @@ function applyCssVars(
   const cards = resolveCardSurface(settings, theme);
   root.style.setProperty("--glass-rgb", cards.rgb);
   root.style.setProperty("--glass-alpha", String(cards.alpha));
+  // Fully solid cards (the language menu) take the literal theme colour, so the
+  // panel can never end up on the stage's violet, whatever else is in flight.
+  root.style.setProperty("--card-solid", CARD_SOLID[theme]);
 }
 
 /**
