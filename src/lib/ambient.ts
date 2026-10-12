@@ -7,6 +7,7 @@
  * mute intent as the SFX (`clock-time-music` in localStorage).
  */
 import { getAudioContext } from "./sfx";
+import { readVolume } from "./volume";
 
 const CHORD_SECONDS = 8;
 const ATTACK = 2.5;
@@ -14,6 +15,11 @@ const RELEASE = 3;
 const FADE_IN = 3;
 const FADE_OUT = 0.6;
 const MASTER_GAIN = 0.045;
+/**
+ * The gain `master` was last ramped to, so `setAmbientVolume` can tell whether
+ * the loop is fading in, at level, or on its way out.
+ */
+let appliedVolume = 1;
 
 /** Am9 → Fmaj9 → Cmaj7 → G6, root frequencies in Hz. */
 const CHORDS: readonly (readonly number[])[] = [
@@ -91,8 +97,9 @@ export function startAmbient() {
   lfo.start();
 
   const now = ac.currentTime;
+  appliedVolume = readVolume();
   master.gain.setValueAtTime(0.0001, now);
-  master.gain.linearRampToValueAtTime(MASTER_GAIN, now + FADE_IN);
+  master.gain.linearRampToValueAtTime(MASTER_GAIN * appliedVolume, now + FADE_IN);
 
   step = 0;
   nextChordAt = now + 0.05;
@@ -108,6 +115,22 @@ export function startAmbient() {
   pumpTimer = window.setInterval(pump, 1000);
 
   if (ac.state === "suspended") unlockWhenGestured(ac);
+}
+
+/**
+ * Apply a new volume to the running loop (no-op when it is not playing). Called
+ * while the reader drags the slider, so the ambience follows the number.
+ */
+export function setAmbientVolume(volume: number) {
+  const ac = getAudioContext();
+  if (!master || !ac) return;
+  appliedVolume = volume;
+  const now = ac.currentTime;
+  const target = MASTER_GAIN * volume;
+  master.gain.cancelScheduledValues(now);
+  master.gain.setValueAtTime(Math.max(master.gain.value, 0.0001), now);
+  // A short ramp instead of a jump: a step in gain is an audible click.
+  master.gain.linearRampToValueAtTime(Math.max(target, 0.0001), now + 0.12);
 }
 
 /** Stop the loop and fade out; the shared context stays for the SFX. */

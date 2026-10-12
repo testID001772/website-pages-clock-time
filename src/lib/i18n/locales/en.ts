@@ -55,6 +55,7 @@ export const en = {
       `${months} months, ${days} days, ${hours} hours and ${minutes} minutes until the release`,
   },
   playlist: {
+    volume: "Volume",
     title: "Playlist",
     play: "Play",
     pause: "Pause",

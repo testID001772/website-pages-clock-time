@@ -54,6 +54,7 @@ export const fr: Dictionary = {
   },
 
   playlist: {
+    volume: "Volume",
     title: "Playlist",
     play: "Lecture",
     pause: "Pause",

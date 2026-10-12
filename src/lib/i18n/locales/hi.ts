@@ -53,6 +53,7 @@ export const hi: Dictionary = {
   },
 
   playlist: {
+    volume: "वॉल्यूम",
     title: "प्लेलिस्ट",
     play: "चलाएँ",
     pause: "रोकें",

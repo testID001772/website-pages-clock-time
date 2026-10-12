@@ -54,6 +54,7 @@ export const ar: Dictionary = {
   },
 
   playlist: {
+    volume: "مستوى الصوت",
     title: "قائمة التشغيل",
     play: "تشغيل",
     pause: "إيقاف مؤقت",

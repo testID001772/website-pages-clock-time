@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Pause, Play, Radio, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { startAmbient, stopAmbient } from "@/lib/ambient";
+import { setAmbientVolume, startAmbient, stopAmbient } from "@/lib/ambient";
 import { STATIC_SITE } from "@/lib/base-url";
 import { useLocale } from "@/lib/i18n";
 import {
@@ -11,11 +11,12 @@ import {
   trackLabel,
   type MusicTrack,
 } from "@/lib/music";
-import { formatInteger } from "@/lib/numbers";
+import { formatInteger, formatPercent } from "@/lib/numbers";
 import { readPref, writePref } from "@/lib/prefs";
 import { listTracks } from "@/lib/server/music";
 import { getMyProfile } from "@/lib/server/profiles";
 import { MUSIC_PREF, playSfx } from "@/lib/sfx";
+import { DEFAULT_VOLUME, readVolume, writeVolume } from "@/lib/volume";
 import { isStaff } from "@/lib/types";
 
 /** `m:ss` — the visitor's digits, like every other number in the app. */
@@ -42,6 +43,8 @@ export function MusicPicker() {
   /** True when the signed-in visitor is staff and the library is empty. */
   const [canEdit, setCanEdit] = useState(false);
   const [musicOn, setMusicOn] = useState(true);
+  /** 0–1, shared with the ambience and the UI effects. Full by default. */
+  const [volume, setVolume] = useState(DEFAULT_VOLUME);
   /** null = the live generative ambience. */
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [failedId, setFailedId] = useState<string | null>(null);
@@ -64,9 +67,11 @@ export function MusicPicker() {
     setMusicOn(intent);
     if (intent) startAmbient();
 
+    const storedVolume = readVolume();
+    setVolume(storedVolume);
     const audio = new Audio();
     audio.preload = "none"; // fetch a track only when it is picked
-    audio.volume = 0.6;
+    audio.volume = storedVolume;
     audio.addEventListener("error", () => {
       const id = currentRef.current;
       if (id === null) return;
@@ -185,6 +190,18 @@ export function MusicPicker() {
   playRef.current = play;
   tracksRef.current = tracks;
 
+  // The file player and the generative ambience share one volume.
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume;
+    setAmbientVolume(volume);
+  }, [volume]);
+
+  /** Slider handler: store the value, and let the sound change underneath it. */
+  const onVolume = (next: number) => {
+    const applied = writeVolume(next);
+    setVolume(applied);
+  };
+
   /** Click / tap on the seek bar jumps to that position. */
   const seekTo = (clientX: number, bar: HTMLElement) => {
     const audio = audioRef.current;
@@ -270,6 +287,21 @@ export function MusicPicker() {
                 {musicOn ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
               </button>
             </div>
+          </div>
+
+          <div className="volume-row">
+            <Volume2 className="size-3.5 flex-none text-muted" aria-hidden="true" />
+            <input
+              type="range"
+              className="volume-range"
+              min={0}
+              max={100}
+              step={5}
+              value={Math.round(volume * 100)}
+              onChange={(e) => onVolume(Number(e.target.value) / 100)}
+              aria-label={t.playlist.volume}
+            />
+            <span className="volume-value tabular-nums">{formatPercent(volume, locale)}</span>
           </div>
 
           {currentId ? (

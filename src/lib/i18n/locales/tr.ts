@@ -53,6 +53,7 @@ export const tr: Dictionary = {
   },
 
   playlist: {
+    volume: "Ses düzeyi",
     title: "Çalma listesi",
     play: "Oynat",
     pause: "Duraklat",

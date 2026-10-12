@@ -54,6 +54,7 @@ export const ru: Dictionary = {
   },
 
   playlist: {
+    volume: "Громкость",
     title: "Плейлист",
     play: "Играть",
     pause: "Пауза",

@@ -53,6 +53,7 @@ export const zh: Dictionary = {
   },
 
   playlist: {
+    volume: "音量",
     title: "播放列表",
     play: "播放",
     pause: "暂停",

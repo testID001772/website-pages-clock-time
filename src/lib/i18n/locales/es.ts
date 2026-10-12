@@ -54,6 +54,7 @@ export const es: Dictionary = {
   },
 
   playlist: {
+    volume: "Volumen",
     title: "Lista de reproducción",
     play: "Reproducir",
     pause: "Pausar",

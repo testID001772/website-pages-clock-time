@@ -594,6 +594,46 @@ html[data-theme="light"] .music-option.current {
   background: rgb(36 29 78 / 0.1);
 }
 
+/* Volume row in the playlist panel: a slim bar plus the percentage it is at. */
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.volume-range {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  accent-color: var(--color-sun);
+  cursor: pointer;
+}
+
+.volume-range:focus-visible {
+  outline: 2px solid var(--color-sun);
+  outline-offset: 3px;
+}
+
+.volume-value {
+  min-width: 2.8rem;
+  flex: none;
+  text-align: end;
+  font-size: 0.65rem;
+  color: var(--color-muted);
+}
+
+html[data-theme="light"] .volume-row {
+  border-color: rgb(36 29 78 / 0.12);
+}
+
+html[data-theme="light"] .volume-range {
+  accent-color: #4a3f9e;
+}
+
 .music-title {
   flex: 1;
   min-width: 0;

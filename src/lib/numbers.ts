@@ -46,6 +46,7 @@ function clampDigits(n: number): number {
  * ten times a second, and constructing an `Intl.NumberFormat` is not cheap.
  */
 const formatters = new Map<string, Intl.NumberFormat>();
+const percentFormatters = new Map<string, Intl.NumberFormat>();
 
 function formatter(locale: string | undefined, options: Intl.NumberFormatOptions) {
   const tag = numberTag(locale);
@@ -63,6 +64,27 @@ export function formatInteger(value: number, locale?: string, minDigits = 1): st
   return formatter(locale, { minimumIntegerDigits: clampDigits(minDigits) }).format(
     Math.trunc(value),
   );
+}
+
+/**
+ * A whole-number percentage in the language's own notation: `100%` in English,
+ * `١٠٠٪` in Arabic (its percent sign is not the Latin one), `100 %` in Russian.
+ * Fractions of a percent round to the nearest whole one — the label is a
+ * read-out, not a measurement.
+ */
+export function formatPercent(fraction: number, locale?: string): string {
+  if (!Number.isFinite(fraction)) return "";
+  const tag = numberTag(locale);
+  let made = percentFormatters.get(tag);
+  if (!made) {
+    made = new Intl.NumberFormat(tag, {
+      style: "percent",
+      useGrouping: false,
+      maximumFractionDigits: 0,
+    });
+    percentFormatters.set(tag, made);
+  }
+  return made.format(fraction);
 }
 
 /**
