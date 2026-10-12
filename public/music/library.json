@@ -5,7 +5,7 @@
       "title": "First Light",
       "artist": "Clock Time",
       "source": "/music/first-light.mp3",
-      "seconds": 30,
+      "seconds": 180,
       "order": 1
     },
     {
@@ -13,7 +13,7 @@
       "title": "Starfall",
       "artist": "Clock Time",
       "source": "/music/starfall.mp3",
-      "seconds": 30,
+      "seconds": 180,
       "order": 2
     },
     {
@@ -21,8 +21,224 @@
       "title": "Midnight Pulse",
       "artist": "Clock Time",
       "source": "/music/midnight-pulse.mp3",
-      "seconds": 30,
+      "seconds": 180,
       "order": 3
+    },
+    {
+      "id": "starter-northern-drift",
+      "title": "Northern Drift",
+      "artist": "Clock Time",
+      "source": "/music/northern-drift.mp3",
+      "seconds": 180,
+      "order": 4
+    },
+    {
+      "id": "starter-cobalt-hours",
+      "title": "Cobalt Hours",
+      "artist": "Clock Time",
+      "source": "/music/cobalt-hours.mp3",
+      "seconds": 180,
+      "order": 5
+    },
+    {
+      "id": "starter-slow-orbit",
+      "title": "Slow Orbit",
+      "artist": "Clock Time",
+      "source": "/music/slow-orbit.mp3",
+      "seconds": 180,
+      "order": 6
+    },
+    {
+      "id": "starter-lantern-tide",
+      "title": "Lantern Tide",
+      "artist": "Clock Time",
+      "source": "/music/lantern-tide.mp3",
+      "seconds": 180,
+      "order": 7
+    },
+    {
+      "id": "starter-paper-sky",
+      "title": "Paper Sky",
+      "artist": "Clock Time",
+      "source": "/music/paper-sky.mp3",
+      "seconds": 180,
+      "order": 8
+    },
+    {
+      "id": "starter-quiet-machines",
+      "title": "Quiet Machines",
+      "artist": "Clock Time",
+      "source": "/music/quiet-machines.mp3",
+      "seconds": 180,
+      "order": 9
+    },
+    {
+      "id": "starter-glass-horizon",
+      "title": "Glass Horizon",
+      "artist": "Clock Time",
+      "source": "/music/glass-horizon.mp3",
+      "seconds": 180,
+      "order": 10
+    },
+    {
+      "id": "starter-ember-line",
+      "title": "Ember Line",
+      "artist": "Clock Time",
+      "source": "/music/ember-line.mp3",
+      "seconds": 180,
+      "order": 11
+    },
+    {
+      "id": "starter-low-gravity",
+      "title": "Low Gravity",
+      "artist": "Clock Time",
+      "source": "/music/low-gravity.mp3",
+      "seconds": 180,
+      "order": 12
+    },
+    {
+      "id": "starter-night-ferry",
+      "title": "Night Ferry",
+      "artist": "Clock Time",
+      "source": "/music/night-ferry.mp3",
+      "seconds": 180,
+      "order": 13
+    },
+    {
+      "id": "starter-amber-static",
+      "title": "Amber Static",
+      "artist": "Clock Time",
+      "source": "/music/amber-static.mp3",
+      "seconds": 180,
+      "order": 14
+    },
+    {
+      "id": "starter-long-exposure",
+      "title": "Long Exposure",
+      "artist": "Clock Time",
+      "source": "/music/long-exposure.mp3",
+      "seconds": 180,
+      "order": 15
+    },
+    {
+      "id": "starter-silver-hours",
+      "title": "Silver Hours",
+      "artist": "Clock Time",
+      "source": "/music/silver-hours.mp3",
+      "seconds": 180,
+      "order": 16
+    },
+    {
+      "id": "starter-deep-field",
+      "title": "Deep Field",
+      "artist": "Clock Time",
+      "source": "/music/deep-field.mp3",
+      "seconds": 180,
+      "order": 17
+    },
+    {
+      "id": "starter-tidal-glass",
+      "title": "Tidal Glass",
+      "artist": "Clock Time",
+      "source": "/music/tidal-glass.mp3",
+      "seconds": 180,
+      "order": 18
+    },
+    {
+      "id": "starter-neon-rainfall",
+      "title": "Neon Rainfall",
+      "artist": "Clock Time",
+      "source": "/music/neon-rainfall.mp3",
+      "seconds": 180,
+      "order": 19
+    },
+    {
+      "id": "starter-cold-sun",
+      "title": "Cold Sun",
+      "artist": "Clock Time",
+      "source": "/music/cold-sun.mp3",
+      "seconds": 180,
+      "order": 20
+    },
+    {
+      "id": "starter-harbour-lights",
+      "title": "Harbour Lights",
+      "artist": "Clock Time",
+      "source": "/music/harbour-lights.mp3",
+      "seconds": 180,
+      "order": 21
+    },
+    {
+      "id": "starter-slow-comet",
+      "title": "Slow Comet",
+      "artist": "Clock Time",
+      "source": "/music/slow-comet.mp3",
+      "seconds": 180,
+      "order": 22
+    },
+    {
+      "id": "starter-wire-and-rain",
+      "title": "Wire & Rain",
+      "artist": "Clock Time",
+      "source": "/music/wire-and-rain.mp3",
+      "seconds": 180,
+      "order": 23
+    },
+    {
+      "id": "starter-aurora-fold",
+      "title": "Aurora Fold",
+      "artist": "Clock Time",
+      "source": "/music/aurora-fold.mp3",
+      "seconds": 180,
+      "order": 24
+    },
+    {
+      "id": "starter-palm-static",
+      "title": "Palm Static",
+      "artist": "Clock Time",
+      "source": "/music/palm-static.mp3",
+      "seconds": 180,
+      "order": 25
+    },
+    {
+      "id": "starter-blanket-fog",
+      "title": "Blanket Fog",
+      "artist": "Clock Time",
+      "source": "/music/blanket-fog.mp3",
+      "seconds": 180,
+      "order": 26
+    },
+    {
+      "id": "starter-solar-tide",
+      "title": "Solar Tide",
+      "artist": "Clock Time",
+      "source": "/music/solar-tide.mp3",
+      "seconds": 180,
+      "order": 27
+    },
+    {
+      "id": "starter-last-train-home",
+      "title": "Last Train Home",
+      "artist": "Clock Time",
+      "source": "/music/last-train-home.mp3",
+      "seconds": 180,
+      "order": 28
+    },
+    {
+      "id": "starter-years-end",
+      "title": "Year's End",
+      "artist": "Clock Time",
+      "source": "/music/years-end.mp3",
+      "seconds": 180,
+      "order": 29
+    },
+    {
+      "id": "starter-countdown",
+      "title": "Countdown",
+      "artist": "Clock Time",
+      "source": "/music/countdown.mp3",
+      "seconds": 180,
+      "order": 30
     }
   ]
 }

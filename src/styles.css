@@ -192,6 +192,12 @@ html[data-theme="light"] .colon {
 }
 
 /* Pale washes used for tracks, pills and rows become light-mode tints. */
+/* The hairline utilities are dark-theme values too: a white border on a white
+   card is invisible (the playlist header divider, the release-list separator). */
+html[data-theme="light"] [class*="border-white/"] {
+  border-color: rgb(36 29 78 / 0.12);
+}
+
 html[data-theme="light"] [class*="bg-white/"] {
   background-color: rgb(36 29 78 / 0.08);
 }
@@ -320,9 +326,10 @@ html[data-theme="light"] .lang-option.current {
   text-overflow: ellipsis;
 }
 
-/* Crowded header: the language picker rests on small screens. */
+/* Crowded header on phones: switching language is a control the reader needs and
+   this is the only way to reach it, so the *glass* look is what rests instead. */
 @media (max-width: 560px) {
-  .lang-picker {
+  .chip-glass {
     display: none;
   }
 }
@@ -528,6 +535,22 @@ html[data-theme="light"] select:focus-visible {
   width: min(20rem, calc(100vw - 2.5rem));
   border-radius: 18px;
   padding: 0.25rem;
+}
+
+/* Both panels are 20rem wide and anchored to the chip that opened them. On a
+   narrow window the header row is wide enough to push those chips across, and a
+   panel anchored to them then ran off the left edge of the viewport — the page
+   cannot scroll sideways, so the panel was simply cut off. Under 800px they
+   anchor to the viewport instead, just under the header row (one row tall at
+   every width). At 800px and up the row never reaches far enough left. */
+@media (max-width: 800px) {
+  .music-menu,
+  .lang-menu {
+    position: fixed;
+    inset-inline-end: 1rem;
+    top: 4.75rem;
+    width: min(20rem, calc(100vw - 2rem));
+  }
 }
 
 .music-option {

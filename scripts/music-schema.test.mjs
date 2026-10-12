@@ -28,6 +28,8 @@ import { projectRoot } from "./with-app-env.mjs";
 
 const ROOT = projectRoot();
 const MIGRATIONS_DIR = join(ROOT, "migrations");
+/** The seed the generator owns (0009 shipped the first three tracks). */
+const MIGRATION_NAME = "migrations/0010_music_library.sql";
 
 /** A fresh embedded Postgres with every migration applied, oldest first. */
 async function migratedDb() {
@@ -61,7 +63,11 @@ test("the library ships exactly the starter tracks", async () => {
     TRACKS.map((track) => track.id),
     "a fresh database must ship the starter tracks in playlist order",
   );
-  assert.equal(rows.rows.length, 3, "a small starter set, not a wall of tracks");
+  assert.equal(
+    rows.rows.length,
+    TRACKS.length,
+    "the shipped playlist is exactly the catalogue, not the old 100-row manifest",
+  );
   await db.close();
 });
 
@@ -92,7 +98,7 @@ test("the seed migration, the generator recipes and the rows agree", async () =>
   assert.equal(Object.keys(rows).length, TRACKS.length);
   for (const track of TRACKS) {
     const row = rows[track.id];
-    assert.ok(row, `${track.id} is missing from migrations/0009_music_seed.sql`);
+    assert.ok(row, `${track.id} is missing from ${MIGRATION_NAME}`);
     assert.equal(row.title, track.title);
     assert.equal(row.artist, track.artist);
     assert.equal(row.source, `/music/${track.file}`);

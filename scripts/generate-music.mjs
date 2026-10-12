@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 /**
- * Starter music for the playlist — three short royalty-free ambient tracks,
- * synthesized from seeded recipes and encoded to `public/music/*.mp3`.
+ * Starter music for the playlist — thirty royalty-free ambient tracks, three
+ * minutes each, synthesized from seeded recipes and encoded to
+ * `public/music/*.mp3` (~41 MB of audio, so a fresh clone gets a full playlist
+ * without a download).
  *
  *   node scripts/generate-music.mjs           # write (or rewrite) the tracks
  *   node scripts/generate-music.mjs --check   # verify what is on disk
  *
- * Besides the mp3s it writes `public/music/library.json`, the same three rows in
- * the shape the client reads (`{ tracks: [...] }`). The database is the source of
+ * Besides the mp3s it writes `public/music/library.json`, the same rows in the
+ * shape the client reads (`{ tracks: [...] }`). The database is the source of
  * truth everywhere a server is running; that file is what the static GitHub
  * Pages build — which has no database at all — loads into the playlist panel.
- * Both are checked against `migrations/0009_music_seed.sql`, so the shipped
- * playlist and the seeded one can never drift apart.
+ * Both are written from `migrations/0010_music_library.sql` (the seed that
+ * installs this catalogue; 0009 shipped the first three tracks and stays as
+ * history), so the shipped playlist and the seeded one cannot drift apart.
  *
  * The app ships no *dead* tracks: every row seeded by
  * `migrations/0009_music_seed.sql` points at a file this script produces, and
@@ -38,7 +41,7 @@ const BITRATE = 64; // kbps mono — plenty for pads at this length
 const OUT_DIR = "public/music";
 /** Where the files are served from (the `source` stored in the library). */
 const SERVE_PATH = "/music";
-const MIGRATION = "migrations/0009_music_seed.sql";
+const MIGRATION = "migrations/0010_music_library.sql";
 /** The catalogue the static (serverless) build reads. */
 const LIBRARY_FILE = "public/music/library.json";
 
@@ -51,7 +54,7 @@ export const TRACKS = [
     artist: "Clock Time",
     style: "pad",
     seed: 1107,
-    seconds: 30,
+    seconds: 180,
   },
   {
     id: "starter-starfall",
@@ -60,7 +63,7 @@ export const TRACKS = [
     artist: "Clock Time",
     style: "arp",
     seed: 2027,
-    seconds: 30,
+    seconds: 180,
   },
   {
     id: "starter-midnight-pulse",
@@ -69,7 +72,250 @@ export const TRACKS = [
     artist: "Clock Time",
     style: "pulse",
     seed: 3141,
-    seconds: 30,
+    seconds: 180,
+  },
+  {
+    id: "starter-northern-drift",
+    file: "northern-drift.mp3",
+    title: "Northern Drift",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 4099,
+    seconds: 180,
+  },
+  {
+    id: "starter-cobalt-hours",
+    file: "cobalt-hours.mp3",
+    title: "Cobalt Hours",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 5153,
+    seconds: 180,
+  },
+  {
+    id: "starter-slow-orbit",
+    file: "slow-orbit.mp3",
+    title: "Slow Orbit",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 6203,
+    seconds: 180,
+  },
+  {
+    id: "starter-lantern-tide",
+    file: "lantern-tide.mp3",
+    title: "Lantern Tide",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 7211,
+    seconds: 180,
+  },
+  {
+    id: "starter-paper-sky",
+    file: "paper-sky.mp3",
+    title: "Paper Sky",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 8191,
+    seconds: 180,
+  },
+  {
+    id: "starter-quiet-machines",
+    file: "quiet-machines.mp3",
+    title: "Quiet Machines",
+    artist: "Clock Time",
+    style: "pulse",
+    seed: 9209,
+    seconds: 180,
+  },
+  {
+    id: "starter-glass-horizon",
+    file: "glass-horizon.mp3",
+    title: "Glass Horizon",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 10211,
+    seconds: 180,
+  },
+  {
+    id: "starter-ember-line",
+    file: "ember-line.mp3",
+    title: "Ember Line",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 11213,
+    seconds: 180,
+  },
+  {
+    id: "starter-low-gravity",
+    file: "low-gravity.mp3",
+    title: "Low Gravity",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 12227,
+    seconds: 180,
+  },
+  {
+    id: "starter-night-ferry",
+    file: "night-ferry.mp3",
+    title: "Night Ferry",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 13217,
+    seconds: 180,
+  },
+  {
+    id: "starter-amber-static",
+    file: "amber-static.mp3",
+    title: "Amber Static",
+    artist: "Clock Time",
+    style: "pulse",
+    seed: 14221,
+    seconds: 180,
+  },
+  {
+    id: "starter-long-exposure",
+    file: "long-exposure.mp3",
+    title: "Long Exposure",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 15227,
+    seconds: 180,
+  },
+  {
+    id: "starter-silver-hours",
+    file: "silver-hours.mp3",
+    title: "Silver Hours",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 16231,
+    seconds: 180,
+  },
+  {
+    id: "starter-deep-field",
+    file: "deep-field.mp3",
+    title: "Deep Field",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 17239,
+    seconds: 180,
+  },
+  {
+    id: "starter-tidal-glass",
+    file: "tidal-glass.mp3",
+    title: "Tidal Glass",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 18253,
+    seconds: 180,
+  },
+  {
+    id: "starter-neon-rainfall",
+    file: "neon-rainfall.mp3",
+    title: "Neon Rainfall",
+    artist: "Clock Time",
+    style: "pulse",
+    seed: 19259,
+    seconds: 180,
+  },
+  {
+    id: "starter-cold-sun",
+    file: "cold-sun.mp3",
+    title: "Cold Sun",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 20261,
+    seconds: 180,
+  },
+  {
+    id: "starter-harbour-lights",
+    file: "harbour-lights.mp3",
+    title: "Harbour Lights",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 21269,
+    seconds: 180,
+  },
+  {
+    id: "starter-slow-comet",
+    file: "slow-comet.mp3",
+    title: "Slow Comet",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 22271,
+    seconds: 180,
+  },
+  {
+    id: "starter-wire-and-rain",
+    file: "wire-and-rain.mp3",
+    title: "Wire & Rain",
+    artist: "Clock Time",
+    style: "pulse",
+    seed: 23279,
+    seconds: 180,
+  },
+  {
+    id: "starter-aurora-fold",
+    file: "aurora-fold.mp3",
+    title: "Aurora Fold",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 24281,
+    seconds: 180,
+  },
+  {
+    id: "starter-palm-static",
+    file: "palm-static.mp3",
+    title: "Palm Static",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 25289,
+    seconds: 180,
+  },
+  {
+    id: "starter-blanket-fog",
+    file: "blanket-fog.mp3",
+    title: "Blanket Fog",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 26293,
+    seconds: 180,
+  },
+  {
+    id: "starter-solar-tide",
+    file: "solar-tide.mp3",
+    title: "Solar Tide",
+    artist: "Clock Time",
+    style: "pulse",
+    seed: 27301,
+    seconds: 180,
+  },
+  {
+    id: "starter-last-train-home",
+    file: "last-train-home.mp3",
+    title: "Last Train Home",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 28307,
+    seconds: 180,
+  },
+  {
+    id: "starter-years-end",
+    file: "years-end.mp3",
+    title: "Year\'s End",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 29303,
+    seconds: 180,
+  },
+  {
+    id: "starter-countdown",
+    file: "countdown.mp3",
+    title: "Countdown",
+    artist: "Clock Time",
+    style: "pulse",
+    seed: 30307,
+    seconds: 180,
   },
 ];
 
@@ -342,6 +588,46 @@ export function libraryDocument(root = projectRoot()) {
   return `${JSON.stringify({ tracks: libraryRows(root) }, null, 2)}\n`;
 }
 
+/**
+ * The seed migration that installs this catalogue, rendered from `TRACKS`.
+ *
+ * 0009 shipped the first three tracks and stays in history; this is the file the
+ * generator owns now. The `delete` makes it re-runnable on a database that
+ * already applied 0009: the starter rows are replaced wholesale, staff-added
+ * tracks are untouched.
+ */
+export function seedMigrationDocument() {
+  const rows = TRACKS.map((track, index) => {
+    const id = `starter-${track.file.replace(/\.mp3$/, "")}`;
+    const quote = (value) => `'${value.replace(/'/g, "''")}'`;
+    return `  (${quote(id)}, ${quote(track.title)}, ${quote(track.artist)}, ${quote(
+      `${SERVE_PATH}/${track.file}`,
+    )}, ${track.seconds}, ${index + 1})`;
+  });
+  return [
+    "-- Music library.",
+    "--",
+    `-- ${TRACKS.length} tracks, three minutes each, synthesized deterministically by`,
+    "-- `scripts/generate-music.mjs` (which writes this file) and served from",
+    "-- `public/music/`. 0009 seeded the first three; this replaces every starter",
+    "-- row with the full catalogue, so a database that ran the old seed ends up",
+    "-- with the same library the app ships.",
+    "--",
+    "-- They are ordinary library rows: staff can rename, reorder or delete them in",
+    "-- the admin music editor. `on conflict ... do nothing` keeps the insert safe",
+    "-- to re-run and leaves an edited track alone.",
+    "--",
+    "-- Keep in sync with the generator: `node scripts/generate-music.mjs --check`",
+    "-- (and `scripts/music-schema.test.mjs`) fails when a file is missing, empty,",
+    "-- or not the length this file claims.",
+    "delete from music_tracks where id like 'starter-%';",
+    "insert into music_tracks (id, title, artist, source, seconds, sort_order) values",
+    `${rows.join(",\n")}`,
+    "on conflict (id) do nothing;",
+    "",
+  ].join("\n");
+}
+
 function writeLibrary() {
   const path = join(projectRoot(), LIBRARY_FILE);
   writeFileSync(path, libraryDocument());
@@ -350,16 +636,22 @@ function writeLibrary() {
 
 function writeTracks() {
   mkdirSync(join(projectRoot(), OUT_DIR), { recursive: true });
+  const started = Date.now();
   for (const track of TRACKS) {
     const bytes = encodeMp3(renderTrack(track));
     const path = join(projectRoot(), OUT_DIR, track.file);
     writeFileSync(path, bytes);
     const seconds = parseMp3Duration(bytes);
     console.log(
-      `${track.file}  ${(bytes.length / 1024).toFixed(0)} KB  ${seconds.toFixed(1)}s  ${track.title}`,
+      `${track.file.padEnd(20)} ${(bytes.length / 1024).toFixed(0).padStart(4)} KB  ` +
+        `${seconds.toFixed(1)}s  ${track.title}`,
     );
   }
+  const path = join(projectRoot(), MIGRATION);
+  writeFileSync(path, seedMigrationDocument());
+  console.log(`${MIGRATION}  ${TRACKS.length} rows`);
   writeLibrary();
+  console.log(`${TRACKS.length} tracks in ${((Date.now() - started) / 1000).toFixed(0)}s`);
 }
 
 function checkTracks() {
@@ -410,7 +702,15 @@ function checkTracks() {
     process.exitCode = 1;
     return;
   }
-  console.log(`${TRACKS.length} starter tracks match ${MIGRATION} (and ${LIBRARY_FILE})`);
+  const sql = readFileSync(join(projectRoot(), MIGRATION), "utf8");
+  if (sql !== seedMigrationDocument()) {
+    console.error(`STALE FILE   ${MIGRATION} — regenerate with: node scripts/generate-music.mjs`);
+    process.exitCode = 1;
+    return;
+  }
+  console.log(
+    `${TRACKS.length} starter tracks match ${MIGRATION} (and ${LIBRARY_FILE})`,
+  );
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

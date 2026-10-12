@@ -48,9 +48,6 @@ const REQUIRED = [
   "icon-192.png",
   "sw.js",
   "music/library.json",
-  "music/first-light.mp3",
-  "music/starfall.mp3",
-  "music/midnight-pulse.mp3",
 ];
 
 function build(base) {
@@ -96,8 +93,28 @@ function postProcess(base) {
   if (base !== "/" && !html.includes(base)) {
     throw new Error(`index.html does not reference the mount point ${base}`);
   }
+  assertCatalogue();
   stampServiceWorker(html);
   return html;
+}
+
+/**
+ * Every track the shipped catalogue lists has to be in the artifact. The list is
+ * generated (`scripts/generate-music.mjs`), so the build reads it instead of a
+ * hand-kept copy of 30 file names — a track that is listed but missing would be a
+ * row in the playlist that cannot play.
+ */
+function assertCatalogue() {
+  const catalogue = JSON.parse(readFileSync(join(OUT, "music", "library.json"), "utf8"));
+  const rows = Array.isArray(catalogue?.tracks) ? catalogue.tracks : [];
+  if (rows.length === 0) throw new Error("music/library.json lists no tracks");
+  const missing = rows
+    .map((row) => String(row?.source ?? "").replace(/^\//, ""))
+    .filter((rel) => rel === "" || !existsSync(join(OUT, rel)));
+  if (missing.length > 0) {
+    throw new Error(`missing from dist/client: ${missing.join(", ")}`);
+  }
+  console.log(`[pages] music catalogue: ${rows.length} tracks, every file present`);
 }
 
 /**

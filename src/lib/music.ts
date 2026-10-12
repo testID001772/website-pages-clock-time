@@ -8,11 +8,11 @@ import type { Dictionary } from "./i18n";
  * importable from both the client bundle and a server function; the SQL lives in
  * `@/lib/server/music`.
  *
- * The app ships three short starter tracks (`scripts/generate-music.mjs` writes
- * `public/music/*.mp3` and `public/music/library.json`,
- * `migrations/0009_music_seed.sql` seeds the rows). Where a server is running
- * the database is the library; the JSON is the same three rows for the static
- * build, which has no database to ask (`loadStaticTracks`). The
+ * The app ships 30 starter tracks, three minutes each (`scripts/generate-music.mjs`
+ * writes `public/music/*.mp3`, `public/music/library.json` and
+ * `migrations/0010_music_library.sql`, which seeds the rows). Where a server is
+ * running the database is the library; the JSON carries the same rows for the
+ * static build, which has no database to ask (`loadStaticTracks`). The
  * old 100-entry generated manifest is gone: it pointed at mp3s that were never
  * in the repository, so every one of them failed to play. Staff add, rename,
  * reorder and delete tracks in the admin music editor; everything lives in

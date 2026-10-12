@@ -46,7 +46,7 @@ export function AppChrome({ hideAuth = false }: { hideAuth?: boolean }) {
 
         <button
           type="button"
-          className="icon-btn glass"
+          className="icon-btn glass chip-glass"
           onClick={toggleGlass}
           aria-pressed={glass === "on"}
           aria-label={glass === "on" ? t.chrome.useSolid : t.chrome.useGlass}

@@ -34,6 +34,29 @@ describe("white mode", () => {
     // Focus rings and image outlines are tuned for the dark stage by default.
     assert.match(LIGHT, /html\[data-theme="light"\] \.btn:focus-visible/);
     assert.match(LIGHT, /html\[data-theme="light"\] img \{\s+outline-color: rgb\(36 29 78/);
+    // So are the hairline utilities — a white border on a white card is nothing
+    // (the playlist header divider, the release-list separator).
+    assert.match(LIGHT, /html\[data-theme="light"\] \[class\*="border-white\/"\] \{\s+border-color: rgb\(36 29 78/);
+  });
+
+  it("keeps the pickers reachable and unclipped in a narrow window", () => {
+    // Both panels are 20rem wide. Anchored to their chip they ran off the left
+    // edge once the header row pushed that chip across; under 800px they anchor
+    // to the viewport, under the header row.
+    const narrow = CSS.slice(CSS.indexOf("@media (max-width: 800px)"));
+    assert.ok(narrow.length > 0, "the narrow-window rule exists");
+    assert.match(narrow, /\.music-menu,\s+\n?\s*\.lang-menu \{\s+position: fixed;/);
+    assert.match(narrow, /inset-inline-end: 1rem;/);
+    // Switching language is not optional on a phone: the glass chip rests
+    // instead of the language picker (which used to be hidden below 560px).
+    assert.match(
+      CSS,
+      /@media \(max-width: 560px\) \{\s+\.chip-glass \{\s+display: none;/,
+    );
+    assert.ok(
+      !/\.lang-picker \{[^}]*display: none/s.test(CSS),
+      "the language picker must never hide",
+    );
   });
 
   it("keeps the light palette light and its ink dark", () => {
