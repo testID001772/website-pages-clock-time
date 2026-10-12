@@ -40,8 +40,8 @@ export function isDefaultBackground(
  * Upload budget for a custom image, in characters of the resulting data URL
  * (base64, so ~4/3 of the byte size). The URL is inlined into the server-
  * rendered HTML and the pre-hydration CSS variable, so it is paid for on every
- * page load — the background sits under a blur and a scrim, which is why a
- * modest size is plenty.
+ * page load — the background sits under a blur, which is why a modest size is
+ * plenty.
  */
 export const BACKGROUND_MAX_CHARS = 500_000;
 

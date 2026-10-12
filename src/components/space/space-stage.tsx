@@ -3,9 +3,8 @@ import { useTheme } from "@/components/theme-provider";
 import { resolveBackgroundUrl } from "@/lib/background";
 
 /**
- * Paints the page backdrop: the gradient lives on `.space-bg`, the image (an
- * upload or the shipped default) on `.space-bg-custom`, and a scrim above it
- * keeps the content readable over an arbitrary photo.
+ * Paints the page backdrop: the gradient lives on `.space-bg` and the image (an
+ * upload or the shipped default) on `.space-bg-custom`.
  *
  * The stage reads its settings from the theme provider, which the root route
  * seeds from the server — so the background image is part of the first paint,
@@ -22,7 +21,6 @@ export function SpaceStage({ children }: { children: ReactNode }) {
           hidden={!imageUrl}
           style={imageUrl ? { backgroundImage: `url("${imageUrl}")` } : undefined}
         />
-        <div className="space-bg-scrim" hidden={!imageUrl} />
       </div>
       <div className="space-content">{children}</div>
     </div>
