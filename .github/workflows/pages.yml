@@ -54,6 +54,38 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
+      - name: Point Pages at this workflow
+        # Until the site's source is "GitHub Actions", GitHub also builds the
+        # branch root on every push and publishes it — and that build has no
+        # index.html, so it 404s (and can overwrite this deploy, whichever
+        # finishes last). A workflow token with `pages: write` can make the
+        # switch; the step is a no-op once it is already workflow-based.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current="$(curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" |
+            sed -n 's/.*"build_type": *"\([a-z]*\)".*/\1/p')"
+          echo "Pages source is currently: ${current:-unknown}"
+          if [ "$current" = "workflow" ]; then
+            echo "Already deploying from GitHub Actions."
+            exit 0
+          fi
+          code="$(curl -sS -o /tmp/pages-switch.json -w '%{http_code}' -X PUT \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" \
+            -d '{"build_type":"workflow"}')"
+          cat /tmp/pages-switch.json
+          echo "PUT /pages -> $code"
+          if [ "$code" = "204" ] || [ "$code" = "200" ]; then
+            echo "Pages now deploys from this workflow."
+          else
+            echo "::warning::Could not switch the Pages source automatically (HTTP $code). Set Settings → Pages → Build and deployment → Source to \"GitHub Actions\" once."
+          fi
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/client
