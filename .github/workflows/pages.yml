@@ -9,7 +9,10 @@
 #
 # The repository must have Pages set to "GitHub Actions" as its source
 # (Settings → Pages → Build and deployment). `scripts/build-pages.mjs` fails the
-# job if the output could not work on a static host.
+# job if the output could not work on a static host. Until that switch is made,
+# GitHub also publishes the branch root on every push (it has no index.html, so
+# it 404s) and the deploy job waits for that build before deploying, so this
+# artifact is the last writer.
 name: Deploy to GitHub Pages
 
 on:
@@ -97,5 +100,31 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Let the repository's own Pages build finish first
+        # While the site's source is still the branch ("legacy"), GitHub builds
+        # the branch root on every push as well, and the two deployments race:
+        # whichever finishes last serves the site. The branch build has no
+        # index.html, so if it lands last the whole site 404s — the app included.
+        # Deploying after it keeps this artifact live. Once Settings → Pages →
+        # Source is "GitHub Actions" there is no branch build to wait for and the
+        # loop exits on the first poll.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/pages/builds/latest"
+          for attempt in $(seq 1 36); do
+            info="$(curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" "$url" || echo '{}')"
+            sha="$(printf '%s' "$info" | sed -n 's/.*"commit": *"\([0-9a-f]*\)".*/\1/p')"
+            status="$(printf '%s' "$info" | sed -n 's/.*"status": *"\([a-z]*\)".*/\1/p')"
+            if [ "$sha" = "$GITHUB_SHA" ] && [ "$status" = "built" ]; then
+              echo "The branch build for $GITHUB_SHA has finished — deploying on top of it."
+              exit 0
+            fi
+            echo "waiting for the branch build (${attempt}/36): ${status:-none}"
+            sleep 5
+          done
+          echo "::warning::The branch Pages build never settled; deploying anyway."
+
       - id: deployment
         uses: actions/deploy-pages@v4
