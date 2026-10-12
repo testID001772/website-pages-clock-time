@@ -188,8 +188,7 @@ export const tr: Dictionary = {
     deniedTitle: "Yalnızca yöneticiler",
     deniedBlurb: "Yörüngeni yükseltmesi için sahibe sor.",
     title: "Yönetici",
-    subtitle:
-      "Arka plan, bulanıklık ve cam. Değerler 0px'den başlar. Otomatik cam yüklemeyi örnekler.",
+    subtitle: "Arka plan, bulanıklık ve kartlar. Değerler 0px'den başlar. Kartlar açık modda beyaz, koyuda siyahtır.",
     background: "Arka plan",
     shipped: "Hazır görseller",
     shippedFerricWash: "Demir yıkaması",
@@ -204,7 +203,7 @@ export const tr: Dictionary = {
     glassBlur: (px: number) => `Cam bulanıklığı · ${px}px`,
     glassFill: (value: number) => `Cam dolgusu · ${value}`,
     glassColor: "Cam rengi",
-    colorAuto: "Otomatik cam rengi",
+    colorAuto: "Kartlar temayı izler",
     imageError: "Bu görsel kullanılamadı.",
     saved: "Görünüm herkes için kaydedildi.",
     saveError: "Kaydedilemedi.",

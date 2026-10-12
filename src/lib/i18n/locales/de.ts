@@ -189,8 +189,7 @@ export const de: Dictionary = {
     deniedTitle: "Nur für Admins",
     deniedBlurb: "Bitte den Inhaber, deinen Orbit zu befördern.",
     title: "Admin",
-    subtitle:
-      "Hintergrund, Weichzeichner und Glas. Werte starten bei 0px. Auto-Glas übernimmt den Upload.",
+    subtitle: "Hintergrund, Weichzeichner und Karten. Werte starten bei 0px. Karten sind im hellen Modus weiß, im dunklen schwarz.",
     background: "Hintergrund",
     shipped: "Mitgelieferte Motive",
     shippedFerricWash: "Eisenwäsche",
@@ -205,7 +204,7 @@ export const de: Dictionary = {
     glassBlur: (px: number) => `Glas-Weichzeichner · ${px}px`,
     glassFill: (value: number) => `Glas-Füllung · ${value}`,
     glassColor: "Glasfarbe",
-    colorAuto: "Glas automatisch färben",
+    colorAuto: "Karten folgen dem Theme",
     imageError: "Dieses Bild kann nicht verwendet werden.",
     saved: "Erscheinungsbild für alle gespeichert.",
     saveError: "Speichern fehlgeschlagen.",

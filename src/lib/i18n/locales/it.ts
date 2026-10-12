@@ -189,8 +189,7 @@ export const it: Dictionary = {
     deniedTitle: "Solo admin",
     deniedBlurb: "Chiedi al proprietario di promuovere la tua orbita.",
     title: "Admin",
-    subtitle:
-      "Sfondo, sfocatura e vetro. I valori partono da 0px. Il vetro auto campiona l'immagine.",
+    subtitle: "Sfondo, sfocatura e schede. I valori partono da 0px. Le schede sono bianche in chiaro e nere in scuro.",
     background: "Sfondo",
     shipped: "Immagini incluse",
     shippedFerricWash: "Lavaggio ferrico",
@@ -205,7 +204,7 @@ export const it: Dictionary = {
     glassBlur: (px: number) => `Sfocatura vetro · ${px}px`,
     glassFill: (value: number) => `Riempimento vetro · ${value}`,
     glassColor: "Colore vetro",
-    colorAuto: "Vetro automatico",
+    colorAuto: "Le schede seguono il tema",
     imageError: "Immagine non utilizzabile.",
     saved: "Aspetto salvato per tutti.",
     saveError: "Salvataggio non riuscito.",

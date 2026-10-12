@@ -189,8 +189,7 @@ export const fr: Dictionary = {
     deniedTitle: "Admins uniquement",
     deniedBlurb: "Demandez au propriétaire de promouvoir votre orbite.",
     title: "Admin",
-    subtitle:
-      "Fond, flou et verre. Les valeurs partent de 0px. Le verre auto échantillonne l'image.",
+    subtitle: "Fond, flou et cartes. Les valeurs partent de 0px. Les cartes sont blanches en clair et noires en sombre.",
     background: "Fond",
     shipped: "Visuels intégrés",
     shippedFerricWash: "Lavure ferrique",
@@ -205,7 +204,7 @@ export const fr: Dictionary = {
     glassBlur: (px: number) => `Flou de verre · ${px}px`,
     glassFill: (value: number) => `Remplissage de verre · ${value}`,
     glassColor: "Couleur de verre",
-    colorAuto: "Verre auto",
+    colorAuto: "Les cartes suivent le thème",
     imageError: "Cette image est inutilisable.",
     saved: "Apparence enregistrée pour tous.",
     saveError: "Enregistrement impossible.",

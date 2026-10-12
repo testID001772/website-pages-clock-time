@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { resolveCardSurface } from "@/lib/cards";
 import { LEGACY_PREF_PREFIX, readPref, writePref } from "@/lib/prefs";
 import { getPublicSettings } from "@/lib/server/site";
 import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/types";
-import { hexToRgb } from "@/lib/utils";
 
 type ThemeCtx = {
   settings: SiteSettings;
@@ -30,9 +30,10 @@ function applyCssVars(
   root.dataset.theme = theme;
   root.style.setProperty("--bg-blur", `${settings.backgroundBlur}px`);
   root.style.setProperty("--glass-blur", `${settings.glassBlur}px`);
-  const { r, g, b } = hexToRgb(settings.glassColor);
-  root.style.setProperty("--glass-rgb", `${r}, ${g}, ${b}`);
-  root.style.setProperty("--glass-alpha", String(settings.glassOpacity / 100));
+  // Cards are the theme's own colour (black / white) unless staff picked one.
+  const cards = resolveCardSurface(settings, theme);
+  root.style.setProperty("--glass-rgb", cards.rgb);
+  root.style.setProperty("--glass-alpha", String(cards.alpha));
 }
 
 /**

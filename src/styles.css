@@ -60,11 +60,16 @@
 
 :root {
   --bg-blur: 0px;
-  /* Pre-hydration glass: match DEFAULT_SETTINGS so the first paint already
-     shows real glass (the theme provider takes over with DB settings). */
+  /* Pre-hydration cards: the dark theme's own surface (black), so the first
+     paint matches what the theme provider computes from the staff settings
+     (`resolveCardSurface`). The light block below mirrors this in white. */
   --glass-blur: 12px;
-  --glass-rgb: 255, 255, 255;
-  --glass-alpha: 0.2;
+  --glass-rgb: 0, 0, 0;
+  --glass-alpha: 0.5;
+  /* Fully solid surfaces (the language menu): the theme's card colour exactly. */
+  --card-solid: #000000;
+  /* Hover tint for chips sitting on the stage (icon buttons). */
+  --chip-hover: rgb(255 255 255 / 0.12);
   --space-ms: 0.1s;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -94,6 +99,11 @@
 /* Light theme: bright sky backdrop with dark content. Every data-theme
    rule below only applies in white mode, independent of space on/off. */
 html[data-theme="light"] {
+  /* Cards are white in light mode — the mirror of `:root` above. */
+  --glass-rgb: 255, 255, 255;
+  --glass-alpha: 0.62;
+  --card-solid: #ffffff;
+  --chip-hover: rgb(36 29 78 / 0.07);
   --color-void: #e9e6fa;
   --color-space: #ddd6f3;
   --color-nebula: #b9a8ee;
@@ -110,18 +120,12 @@ html[data-theme="light"] .space-bg {
 }
 
 html[data-theme="light"] .glass {
-  background: rgb(255 255 255 / 0.6);
   box-shadow:
     0 0 0 1px rgb(36 29 78 / 0.12),
     0 8px 28px rgb(36 29 78 / 0.1);
 }
 
-html[data-theme="light"] .glass-strong {
-  background: rgb(255 255 255 / 0.78);
-}
-
 html[data-theme="light"] .lang-menu {
-  background: rgb(255 255 255);
   box-shadow:
     0 12px 40px rgb(36 29 78 / 0.18),
     0 0 0 1px rgb(36 29 78 / 0.1);
@@ -151,10 +155,6 @@ html[data-theme="light"] .btn-primary {
 
 html[data-theme="light"] .icon-btn {
   color: #241d4e;
-}
-
-html[data-theme="light"] .icon-btn:hover {
-  background: rgb(36 29 78 / 0.07);
 }
 
 html[data-theme="light"] .field input,
@@ -238,8 +238,10 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
   padding: 0.4rem;
   border-radius: 18px;
   list-style: none;
-  /* Fully solid panel: anything behind (e.g. the bright hero clock) must not ghost through. */
-  background: rgb(18 8 42);
+  /* Fully solid panel: anything behind (e.g. the bright hero clock) must not
+     ghost through. The colour is the theme's card colour — black in dark mode,
+     white in light — never the stage's violet. */
+  background: var(--card-solid);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow:
@@ -307,7 +309,7 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
 }
 
 .icon-btn:hover {
-  background: rgb(var(--glass-rgb) / calc(var(--glass-alpha) + 0.08));
+  background: var(--chip-hover);
 }
 
 .icon-btn:active {

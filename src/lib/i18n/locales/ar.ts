@@ -188,8 +188,7 @@ export const ar: Dictionary = {
     deniedTitle: "للإدارة فقط",
     deniedBlurb: "اطلب من المالك ترقية مدارك.",
     title: "الإدارة",
-    subtitle:
-      "الخلفية والضبابية والزجاج. تبدأ القيم من 0px. الزجاج التلقائي يعاين الصورة المرفوعة.",
+    subtitle: "الخلفية والضبابية والبطاقات. تبدأ القيم من 0px. البطاقات بيضاء في الوضع الفاتح وسوداء في الداكن.",
     background: "الخلفية",
     shipped: "خلفيات جاهزة",
     shippedFerricWash: "غسيل حديدي",
@@ -204,7 +203,7 @@ export const ar: Dictionary = {
     glassBlur: (px: number) => `ضبابية الزجاج · ${px}px`,
     glassFill: (value: number) => `تعبئة الزجاج · ${value}`,
     glassColor: "لون الزجاج",
-    colorAuto: "تلوين الزجاج تلقائيًا",
+    colorAuto: "البطاقات تتبع المظهر",
     imageError: "تعذر استخدام هذه الصورة.",
     saved: "تم حفظ المظهر للجميع.",
     saveError: "تعذر الحفظ.",
