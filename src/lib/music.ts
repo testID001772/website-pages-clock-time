@@ -1,4 +1,5 @@
 import { appUrl } from "./base-url.ts";
+import { formatInteger } from "./numbers.ts";
 import type { Dictionary } from "./i18n";
 
 /**
@@ -149,11 +150,14 @@ export function audioSourceError(source: string): "MUSIC_BAD_SOURCE" | "MUSIC_TO
   return null;
 }
 
-/** `m:ss`, or `""` when the length is unknown (a link we could not probe). */
-export function trackDurationLabel(seconds: number): string {
+/**
+ * `m:ss`, or `""` when the length is unknown (a link we could not probe).
+ * Digits follow the visitor's language like every other number in the app.
+ */
+export function trackDurationLabel(seconds: number, locale?: string): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return "";
   const whole = Math.round(seconds);
-  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
+  return `${formatInteger(Math.floor(whole / 60), locale)}:${formatInteger(whole % 60, locale, 2)}`;
 }
 
 /** `Title · Artist`, or just the title. */

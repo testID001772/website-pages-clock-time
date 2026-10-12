@@ -26,8 +26,8 @@ export const ar: Dictionary = {
       seconds: "ثوانٍ",
     },
     ariaLabel: (
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
@@ -38,9 +38,14 @@ export const ar: Dictionary = {
     label: "الحدث القادم",
     releases: (date: string) => `يصدر بتاريخ ${date}`,
     outNow: "متاح الآن",
-    more: (count: number) => `المزيد من الإصدارات (${count})`,
+    more: (count: string | number) => `المزيد من الإصدارات (${count})`,
     less: "عرض أقل",
-    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
       `متبقٍ ${months} أشهر و${days} أيام و${hours} ساعات و${minutes} دقيقة على الإصدار`,
   },
 
@@ -52,7 +57,7 @@ export const ar: Dictionary = {
     failed: "تعذّر تحميل هذا المقطع",
     retry: "أعد المحاولة",
     seek: "التمرير",
-    count: (n: number) => `${n} مقطعًا`,
+    count: (n: string | number) => `${n} مقطعًا`,
     empty: "لا توجد مقاطع بعد.",
     emptyHint: "أضف موسيقى من محرّر المسؤول.",
     emptyAction: "افتح محرّر الموسيقى",
@@ -83,7 +88,7 @@ export const ar: Dictionary = {
 
   home: {
     target: "الهدف:",
-    yearComplete: (year: number, pct: string) => `اكتمل ${pct}% من ${year}`,
+    yearComplete: (year: string | number, pct: string) => `اكتمل ${pct}% من ${year}`,
     ringsIn: (when: string, timeZone: string) => `يبدأ ${when} · ${timeZone}`,
     loadedIn: (seconds: string) => `تم التحميل في ${seconds} ث`,
     previewFinale: "معاينة النهاية",
@@ -91,12 +96,22 @@ export const ar: Dictionary = {
     partyWish: "نتمنى لك سنة رائعة.",
     partyGo: "هيا بنا.",
     partyPeek: "لمحة عن منتصف الليل.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${p(hours)}س ${p(minutes)}د ${p(seconds)}ث من ${year} حتى الآن`;
     },
     startCountingTo: (year: string) => `ابدأ العد إلى ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${days} أيام و${hours} ساعات و${minutes} دقائق حتى ${year}`,
   },
   auth: {

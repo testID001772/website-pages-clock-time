@@ -13,7 +13,15 @@ import { pt } from "./i18n/locales/pt.ts";
 import { ru } from "./i18n/locales/ru.ts";
 import { tr } from "./i18n/locales/tr.ts";
 import { zh } from "./i18n/locales/zh.ts";
-import { nextNewYear, splitRange, UNITS } from "./countdown.ts";
+import {
+  formatNow,
+  nextNewYear,
+  splitRange,
+  unitNumberText,
+  UNITS,
+  type UnitParts,
+} from "./countdown.ts";
+import { numberTag } from "./numbers.ts";
 
 const dictionaries: Record<string, typeof en> = {
   ar,
@@ -127,5 +135,73 @@ describe("countdown units", () => {
       assert.match(countdown, /2/, `${tag} countdown aria lost its months value`);
       assert.match(event, /2/, `${tag} event aria lost its months value`);
     }
+  });
+});
+
+describe("the clock speaks the visitor's language", () => {
+  /** 19:07:16.2 UTC — the exact moment the Arabic screenshot showed. */
+  const AT = new Date(Date.UTC(2026, 9, 12, 19, 7, 16, 200));
+  const PARTS: UnitParts = { months: 2, days: 19, hours: 4, minutes: 52, seconds: 43, tenths: 7 };
+  /** CLDR's default clock: 12-hour with a marker … */
+  const TWELVE_HOUR = ["en", "ar", "hi"];
+  /** … and 24-hour, where an English "PM" was simply wrong. */
+  const TWENTY_FOUR_HOUR = ["de", "es", "fr", "it", "pt", "ru", "tr", "zh"];
+
+  it("renders every countdown block in the visitor's digits", () => {
+    assert.equal(unitNumberText("months", PARTS, "en"), "02");
+    assert.equal(unitNumberText("months", PARTS, "ar"), "٠٢");
+    assert.equal(unitNumberText("hours", PARTS, "ar"), "٠٤");
+    assert.equal(unitNumberText("seconds", PARTS, "en"), "43.7");
+    assert.equal(unitNumberText("seconds", PARTS, "de"), "43,7");
+    assert.equal(unitNumberText("seconds", PARTS, "ar"), "٤٣\u066B٧");
+    // First paint / server render: the tenths are not live yet.
+    assert.equal(unitNumberText("seconds", PARTS, "en", false), "43.0");
+  });
+
+  it("keeps each language's own clock instead of forcing 12-hour", () => {
+    for (const locale of TWENTY_FOUR_HOUR) {
+      const text = formatNow(AT, locale);
+      assert.match(text, /^[0-9]{1,2}:[0-9]{2}:[0-9]{2}[.,][0-9]$/, `${locale}: ${text}`);
+    }
+    for (const locale of TWELVE_HOUR) {
+      const text = formatNow(AT, locale);
+      assert.match(text, /[A-Za-z\u0600-\u06FF]/, `${locale} keeps its own day period: ${text}`);
+      assert.match(text, /[0-9\u0660-\u0669]{1,2}:[0-9\u0660-\u0669]{2}:/, `${locale}: ${text}`);
+    }
+    // The old build hard-coded `hour12: true`, which is what put an English
+    // "PM" on the German, French and Russian clocks.
+    const forced = new Intl.DateTimeFormat("de", {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+      fractionalSecondDigits: 1,
+      hour12: true,
+    }).format(AT);
+    assert.notEqual(formatNow(AT, "de"), forced);
+  });
+
+  it("passes the language through and formats nothing on its own", () => {
+    for (const locale of [...TWELVE_HOUR, ...TWENTY_FOUR_HOUR]) {
+      const expected = new Intl.DateTimeFormat(numberTag(locale), {
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        fractionalSecondDigits: 1,
+      }).format(AT);
+      assert.equal(formatNow(AT, locale), expected, locale);
+    }
+  });
+
+  it("agrees with itself: the clock and the countdown share one numeral system", () => {
+    const arabic = formatNow(AT, "ar");
+    assert.ok(/[\u0660-\u0669]/.test(arabic), `Arabic-Indic digits in the clock: ${arabic}`);
+    assert.ok(
+      /[\u0660-\u0669]/.test(unitNumberText("seconds", PARTS, "ar")),
+      "Arabic-Indic digits in the countdown",
+    );
+    assert.ok(
+      !/[0-9]/.test(unitNumberText("seconds", PARTS, "ar")),
+      "no Latin digits left in the Arabic countdown",
+    );
   });
 });

@@ -26,8 +26,8 @@ export const hi: Dictionary = {
       seconds: "सेकंड",
     },
     ariaLabel: (
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
@@ -37,9 +37,14 @@ export const hi: Dictionary = {
     label: "आगामी",
     releases: (date: string) => `${date} को रिलीज़ होगा`,
     outNow: "अभी उपलब्ध",
-    more: (count: number) => `और रिलीज़ (${count})`,
+    more: (count: string | number) => `और रिलीज़ (${count})`,
     less: "कम दिखाएँ",
-    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
       `रिलीज़ से पहले ${months} महीने, ${days} दिन, ${hours} घंटे और ${minutes} मिनट शेष`,
   },
 
@@ -51,7 +56,7 @@ export const hi: Dictionary = {
     failed: "यह ट्रैक लोड नहीं हो सका",
     retry: "पुनः प्रयास",
     seek: "आगे बढ़ाएँ",
-    count: (n: number) => `${n} ट्रैक`,
+    count: (n: string | number) => `${n} ट्रैक`,
     empty: "अभी कोई ट्रैक नहीं।",
     emptyHint: "एडमिन एडिटर में संगीत जोड़ें।",
     emptyAction: "संगीत एडिटर खोलें",
@@ -82,7 +87,7 @@ export const hi: Dictionary = {
 
   home: {
     target: "लक्ष्य:",
-    yearComplete: (year: number, pct: string) => `${year} ${pct}% पूरा हुआ`,
+    yearComplete: (year: string | number, pct: string) => `${year} ${pct}% पूरा हुआ`,
     ringsIn: (when: string, timeZone: string) => `${when} को शुरू होगा · ${timeZone}`,
     loadedIn: (seconds: string) => `${seconds} सेकंड में लोड हुआ`,
     previewFinale: "फिनाले देखें",
@@ -90,12 +95,22 @@ export const hi: Dictionary = {
     partyWish: "आने वाला साल शानदार हो।",
     partyGo: "चलिए शुरू करते हैं।",
     partyPeek: "आधी रात की एक झलक।",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${year} के अब तक ${p(hours)}घं ${p(minutes)}मि ${p(seconds)}से`;
     },
     startCountingTo: (year: string) => `${year} तक गिनें`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${year} तक ${days} दिन, ${hours} घंटे और ${minutes} मिनट`,
   },
   auth: {

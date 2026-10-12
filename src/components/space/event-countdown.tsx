@@ -1,7 +1,8 @@
 import { Fragment, useEffect, useState } from "react";
-import { formatTarget, pad2, splitRange } from "@/lib/countdown";
+import { formatTarget, splitRange } from "@/lib/countdown";
 import { currentEvent, liveGames, type ScheduledEvent } from "@/lib/events";
 import { useLocale } from "@/lib/i18n";
+import { formatInteger } from "@/lib/numbers";
 import { playSfx } from "@/lib/sfx";
 
 type Snap = {
@@ -38,9 +39,9 @@ function snapshot(now: Date): Snapshot | null {
   };
 }
 
-/** `62d` — total days left, no month/year units. */
-function daysLeft(totalDays: number) {
-  return `${totalDays}d`;
+/** `62d` — total days left, no month/year units, in the visitor's digits. */
+function daysLeft(totalDays: number, locale: string) {
+  return `${formatInteger(totalDays, locale)}d`;
 }
 
 /**
@@ -100,15 +101,16 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
             className="num text-xl tabular-nums"
             role="timer"
             aria-label={t.event.timerAria(
-              main.parts.months,
-              main.parts.days,
-              main.parts.hours,
-              main.parts.minutes,
+              formatInteger(main.parts.months, locale),
+              formatInteger(main.parts.days, locale),
+              formatInteger(main.parts.hours, locale, 2),
+              formatInteger(main.parts.minutes, locale, 2),
             )}
             suppressHydrationWarning
           >
-            {daysLeft(main.totalDays)} {pad2(main.parts.hours)}:{pad2(main.parts.minutes)}:
-            {pad2(main.parts.seconds)}
+            {daysLeft(main.totalDays, locale)} {formatInteger(main.parts.hours, locale, 2)}:
+            {formatInteger(main.parts.minutes, locale, 2)}:
+            {formatInteger(main.parts.seconds, locale, 2)}
           </p>
         )}
       </div>
@@ -124,7 +126,7 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
               setOpen((next) => !next);
             }}
           >
-            {open ? t.event.less : t.event.more(allGames.length)}
+            {open ? t.event.less : t.event.more(formatInteger(allGames.length, locale))}
           </button>
           {open ? (
             <ul className="event-list mt-3 space-y-1 border-t border-white/10 pt-2 text-left">
@@ -155,7 +157,7 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
                         </span>
                       ) : (
                         <span className="flex-none text-xs tabular-nums text-muted">
-                          {daysLeft(game.snap.totalDays)}
+                          {daysLeft(game.snap.totalDays, locale)}
                         </span>
                       )}
                     </button>

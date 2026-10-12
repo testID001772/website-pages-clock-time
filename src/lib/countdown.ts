@@ -1,3 +1,5 @@
+import { formatDecimal, formatInteger, numberTag } from "./numbers.ts";
+
 /**
  * The units the clock renders, longest first. `years` is deliberately absent:
  * the countdown targets the next New Year (always < 12 months away), so a
@@ -7,6 +9,29 @@
  */
 export const UNITS = ["months", "days", "hours", "minutes", "seconds"] as const;
 export type Unit = (typeof UNITS)[number];
+
+/** A countdown snapshot as the clock renders it (see `splitRange`). */
+export type UnitParts = Record<Unit, number> & { tenths: number };
+
+/**
+ * One countdown block, in the visitor's language: two integer digits for every
+ * unit and the seconds block with its tenth (`43.7` / `43,7` / `٤٣٫٧`).
+ *
+ * `tenthsLive` is false for the server/first paint, which must render the same
+ * mark-up on both sides of hydration — the tenths start ticking after mount.
+ */
+export function unitNumberText(
+  unit: Unit,
+  parts: UnitParts,
+  locale?: string,
+  tenthsLive = true,
+): string {
+  if (unit === "seconds") {
+    const tenths = tenthsLive ? parts.tenths : 0;
+    return formatDecimal(parts.seconds + tenths / 10, locale, 1, 2);
+  }
+  return formatInteger(parts[unit], locale, 2);
+}
 
 export function nextNewYear(from: Date) {
   return new Date(from.getFullYear() + 1, 0, 1, 0, 0, 0, 0);
@@ -78,10 +103,8 @@ export function yearProgress(now: Date) {
   return ((now.getTime() - start) / (end - start)) * 100;
 }
 
-export const pad2 = (n: number) => String(n).padStart(2, "0");
-
 export function formatTarget(target: Date, locale?: string) {
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(numberTag(locale), {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -90,8 +113,8 @@ export function formatTarget(target: Date, locale?: string) {
 
 /** Date + zone parts — the sentence around them lives in the dictionary. */
 export function formatMetaParts(target: Date, locale?: string) {
-  const timeZone = Intl.DateTimeFormat(locale).resolvedOptions().timeZone || "local time";
-  const when = new Intl.DateTimeFormat(locale, {
+  const timeZone = Intl.DateTimeFormat(numberTag(locale)).resolvedOptions().timeZone || "local time";
+  const when = new Intl.DateTimeFormat(numberTag(locale), {
     weekday: "short",
     day: "numeric",
     month: "short",
@@ -100,24 +123,32 @@ export function formatMetaParts(target: Date, locale?: string) {
   return { when, timeZone };
 }
 
+/**
+ * The wall clock the countdown sits under.
+ *
+ * No `hour12` is forced: each language keeps its own clock — 12-hour with a
+ * marker in English, Arabic, Hindi and Spanish, 24-hour in German, French,
+ * Italian, Portuguese, Russian, Turkish and Chinese — which is what "7:07 PM"
+ * in every language was getting wrong. `numberTag` keeps the digits and the
+ * decimal separator in that same language, so the clock matches the countdown
+ * next to it (`٧:٠٧:١٦٫٢ م`, `19:07:16,2`).
+ */
 export function formatNow(now: Date, locale?: string) {
   try {
-    return new Intl.DateTimeFormat(locale, {
+    return new Intl.DateTimeFormat(numberTag(locale), {
       hour: "numeric",
       minute: "2-digit",
       second: "2-digit",
       fractionalSecondDigits: 1,
-      hour12: true,
     }).format(now);
   } catch {
     // Older engines (Safari < 15.4, legacy Android WebView) reject
     // fractionalSecondDigits — fall back to whole seconds rather than
     // throwing on every tick and freezing the page.
-    return new Intl.DateTimeFormat(locale, {
+    return new Intl.DateTimeFormat(numberTag(locale), {
       hour: "numeric",
       minute: "2-digit",
       second: "2-digit",
-      hour12: true,
     }).format(now);
   }
 }

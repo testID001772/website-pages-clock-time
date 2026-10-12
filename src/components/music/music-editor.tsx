@@ -1,6 +1,7 @@
 import { Check, ChevronDown, ChevronUp, Pause, Play, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocale } from "@/lib/i18n";
+import { formatInteger } from "@/lib/numbers";
 import {
   isAudioFile,
   MUSIC_LIMITS,
@@ -56,7 +57,7 @@ function draftsFrom(tracks: MusicTrack[]): Record<string, Draft> {
 }
 
 export function MusicEditor() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [title, setTitle] = useState("");
@@ -192,7 +193,7 @@ export function MusicEditor() {
                 className="flex flex-wrap items-center gap-3 rounded-[18px] bg-white/5 p-3"
               >
                 <span className="w-7 flex-none text-right text-[0.65rem] tabular-nums text-muted">
-                  {String(i + 1).padStart(2, "0")}
+                  {formatInteger(i + 1, locale, 2)}
                 </span>
                 <input
                   className="min-h-11 min-w-[9rem] flex-1 rounded-xl bg-black/30 px-3 text-sm"
@@ -215,7 +216,7 @@ export function MusicEditor() {
                   {trackKindLabel(track, t)}
                 </span>
                 <span className="text-xs tabular-nums text-muted">
-                  {trackDurationLabel(track.seconds) || "—"}
+                  {trackDurationLabel(track.seconds, locale) || "—"}
                 </span>
                 <div className="flex items-center gap-1">
                   <button

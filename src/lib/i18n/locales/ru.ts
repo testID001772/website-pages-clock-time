@@ -26,8 +26,8 @@ export const ru: Dictionary = {
       seconds: "Секунд",
     },
     ariaLabel: (
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
@@ -38,9 +38,14 @@ export const ru: Dictionary = {
     label: "Скоро",
     releases: (date: string) => `Выходит ${date}`,
     outNow: "Уже вышла",
-    more: (count: number) => `Ещё релизы (${count})`,
+    more: (count: string | number) => `Ещё релизы (${count})`,
     less: "Показать меньше",
-    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
       `До релиза осталось ${months} мес. ${days} д. ${hours} ч. ${minutes} мин.`,
   },
 
@@ -52,7 +57,7 @@ export const ru: Dictionary = {
     failed: "Не удалось загрузить этот трек",
     retry: "Повторить",
     seek: "Перемотка",
-    count: (n: number) => `треков: ${n}`,
+    count: (n: string | number) => `треков: ${n}`,
     empty: "Треков пока нет.",
     emptyHint: "Добавьте музыку в админ-редакторе.",
     emptyAction: "Открыть музыкальный редактор",
@@ -83,7 +88,7 @@ export const ru: Dictionary = {
 
   home: {
     target: "Цель:",
-    yearComplete: (year: number, pct: string) => `${year} год пройден на ${pct}%`,
+    yearComplete: (year: string | number, pct: string) => `${year} год пройден на ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `Начнётся ${when} · ${timeZone}`,
     loadedIn: (seconds: string) => `Загружено за ${seconds} с`,
     previewFinale: "Посмотреть финал",
@@ -91,12 +96,22 @@ export const ru: Dictionary = {
     partyWish: "Яркого года впереди.",
     partyGo: "Поехали.",
     partyPeek: "Глоток полуночи.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${p(hours)} ч ${p(minutes)} мин ${p(seconds)} с ${year} года прошло`;
     },
     startCountingTo: (year: string) => `Считать до ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `До ${year} года: ${days} дней, ${hours} часов и ${minutes} минут`,
   },
   auth: {

@@ -26,8 +26,8 @@ export const tr: Dictionary = {
       seconds: "Saniye",
     },
     ariaLabel: (
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
@@ -37,9 +37,14 @@ export const tr: Dictionary = {
     label: "Yakında",
     releases: (date: string) => `${date} tarihinde çıkıyor`,
     outNow: "Şimdi satışta",
-    more: (count: number) => `Daha fazla çıkış (${count})`,
+    more: (count: string | number) => `Daha fazla çıkış (${count})`,
     less: "Daha az göster",
-    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
       `Yayına ${months} ay, ${days} gün, ${hours} saat ve ${minutes} dakika kaldı`,
   },
 
@@ -51,7 +56,7 @@ export const tr: Dictionary = {
     failed: "Bu parça yüklenemedi",
     retry: "Tekrar dene",
     seek: "Sar",
-    count: (n: number) => `${n} parça`,
+    count: (n: string | number) => `${n} parça`,
     empty: "Henüz parça yok.",
     emptyHint: "Yönetici düzenleyicisinden müzik ekleyin.",
     emptyAction: "Müzik düzenleyicisini aç",
@@ -82,7 +87,7 @@ export const tr: Dictionary = {
 
   home: {
     target: "Hedef:",
-    yearComplete: (year: number, pct: string) => `${year} %${pct} tamamlandı`,
+    yearComplete: (year: string | number, pct: string) => `${year} %${pct} tamamlandı`,
     ringsIn: (when: string, timeZone: string) => `${when} başlıyor · ${timeZone}`,
     loadedIn: (seconds: string) => `${seconds} sn'de yüklendi`,
     previewFinale: "Finali önizle",
@@ -90,12 +95,22 @@ export const tr: Dictionary = {
     partyWish: "Parlak bir yıl olsun.",
     partyGo: "Başlıyoruz.",
     partyPeek: "Gece yarısından bir tat.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${year}'den şu ana kadar ${p(hours)}s ${p(minutes)}dk ${p(seconds)}sn`;
     },
     startCountingTo: (year: string) => `${year}'e kadar say`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${year}'e ${days} gün, ${hours} saat ve ${minutes} dakika kaldı`,
   },
   auth: {

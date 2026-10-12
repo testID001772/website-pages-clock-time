@@ -26,8 +26,8 @@ export const es: Dictionary = {
       seconds: "Segundos",
     },
     ariaLabel: (
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
@@ -38,9 +38,14 @@ export const es: Dictionary = {
     label: "Próximamente",
     releases: (date: string) => `Se lanza el ${date}`,
     outNow: "Ya disponible",
-    more: (count: number) => `Más lanzamientos (${count})`,
+    more: (count: string | number) => `Más lanzamientos (${count})`,
     less: "Mostrar menos",
-    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
       `${months} meses, ${days} días, ${hours} horas y ${minutes} minutos para el lanzamiento`,
   },
 
@@ -52,7 +57,7 @@ export const es: Dictionary = {
     failed: "No se pudo cargar esta pista",
     retry: "Reintentar",
     seek: "Avanzar",
-    count: (n: number) => `${n} pistas`,
+    count: (n: string | number) => `${n} pistas`,
     empty: "Aún no hay pistas.",
     emptyHint: "Añade música desde el editor de administración.",
     emptyAction: "Abrir el editor de música",
@@ -83,7 +88,7 @@ export const es: Dictionary = {
 
   home: {
     target: "Meta:",
-    yearComplete: (year: number, pct: string) => `El ${year} va al ${pct}%`,
+    yearComplete: (year: string | number, pct: string) => `El ${year} va al ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `Comienza el ${when} · ${timeZone}`,
     loadedIn: (seconds: string) => `Cargado en ${seconds} s`,
     previewFinale: "Ver el final",
@@ -91,12 +96,22 @@ export const es: Dictionary = {
     partyWish: "Por un año brillante.",
     partyGo: "Allá vamos.",
     partyPeek: "Un adelanto de la medianoche.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${p(hours)} h ${p(minutes)} min ${p(seconds)} s del ${year}`;
     },
     startCountingTo: (year: string) => `Contar hasta ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${days} días, ${hours} horas y ${minutes} minutos hasta ${year}`,
   },
   auth: {

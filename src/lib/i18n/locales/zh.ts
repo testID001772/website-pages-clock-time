@@ -26,8 +26,8 @@ export const zh: Dictionary = {
       seconds: "秒",
     },
     ariaLabel: (
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
@@ -37,9 +37,14 @@ export const zh: Dictionary = {
     label: "即将到来",
     releases: (date: string) => `将于${date}发售`,
     outNow: "现已推出",
-    more: (count: number) => `更多发售（${count}）`,
+    more: (count: string | number) => `更多发售（${count}）`,
     less: "收起",
-    timerAria: (months: number, days: number, hours: number, minutes: number) =>
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
       `距离发售还有 ${months} 个月 ${days} 天 ${hours} 小时 ${minutes} 分钟`,
   },
 
@@ -51,7 +56,7 @@ export const zh: Dictionary = {
     failed: "无法加载此曲目",
     retry: "重试",
     seek: "快进",
-    count: (n: number) => `${n} 首曲目`,
+    count: (n: string | number) => `${n} 首曲目`,
     empty: "还没有曲目。",
     emptyHint: "请在管理编辑器中添加音乐。",
     emptyAction: "打开音乐编辑器",
@@ -82,7 +87,7 @@ export const zh: Dictionary = {
 
   home: {
     target: "目标：",
-    yearComplete: (year: number, pct: string) => `${year} 年已过去 ${pct}%`,
+    yearComplete: (year: string | number, pct: string) => `${year} 年已过去 ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `${when} 开始 · ${timeZone}`,
     loadedIn: (seconds: string) => `加载用时 ${seconds} 秒`,
     previewFinale: "预览终章",
@@ -90,12 +95,22 @@ export const zh: Dictionary = {
     partyWish: "愿来年精彩。",
     partyGo: "开始吧。",
     partyPeek: "午夜前瞻。",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${year} 年已过去 ${p(hours)}时${p(minutes)}分${p(seconds)}秒`;
     },
     startCountingTo: (year: string) => `开始倒数 ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `距离 ${year} 年还有 ${days} 天 ${hours} 小时 ${minutes} 分`,
   },
   auth: {

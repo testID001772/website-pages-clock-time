@@ -11,14 +11,16 @@ import {
   trackLabel,
   type MusicTrack,
 } from "@/lib/music";
+import { formatInteger } from "@/lib/numbers";
 import { readPref, writePref } from "@/lib/prefs";
 import { listTracks } from "@/lib/server/music";
 import { getMyProfile } from "@/lib/server/profiles";
 import { MUSIC_PREF, playSfx } from "@/lib/sfx";
 import { isStaff } from "@/lib/types";
 
-const fmt = (seconds: number) =>
-  `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+/** `m:ss` — the visitor's digits, like every other number in the app. */
+const fmt = (seconds: number, locale: string) =>
+  `${formatInteger(Math.floor(seconds / 60), locale)}:${formatInteger(Math.floor(seconds % 60), locale, 2)}`;
 
 /**
  * Music button + playlist panel. The first row is the live generative ambience
@@ -33,7 +35,7 @@ const fmt = (seconds: number) =>
  * database, and never an "ask staff to add tracks" link that cannot work.
  */
 export function MusicPicker() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [open, setOpen] = useState(false);
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   /** True when the signed-in visitor is staff and the library is empty. */
@@ -256,7 +258,7 @@ export function MusicPicker() {
             </p>
             <div className="flex items-center gap-2">
               <span className="text-[0.65rem] tracking-wide text-muted">
-                {t.playlist.count(tracks.length)}
+                {t.playlist.count(formatInteger(tracks.length, locale))}
               </span>
               <button
                 type="button"
@@ -276,7 +278,7 @@ export function MusicPicker() {
                   {currentTrack ? trackLabel(currentTrack) : ""}
                 </p>
                 <p className="flex-none text-[0.65rem] tabular-nums text-muted">
-                  {fmt(Math.min(elapsed, duration))} / {fmt(duration)}
+                  {fmt(Math.min(elapsed, duration), locale)} / {fmt(duration, locale)}
                 </p>
               </div>
               <div
@@ -349,7 +351,7 @@ export function MusicPicker() {
                     onClick={() => play(track.id)}
                   >
                     <span className="w-6 flex-none text-right text-[0.65rem] tabular-nums text-muted">
-                      {failed ? "!" : String(i + 1).padStart(2, "0")}
+                      {failed ? "!" : formatInteger(i + 1, locale, 2)}
                     </span>
                     <span className={`music-title${failed ? " text-muted" : ""}`}>
                       {trackLabel(track)}
@@ -368,7 +370,7 @@ export function MusicPicker() {
                         </span>
                       ) : trackDurationLabel(track.seconds) ? (
                         <span className="text-[0.65rem] tabular-nums text-muted">
-                          {trackDurationLabel(track.seconds)}
+                          {trackDurationLabel(track.seconds, locale)}
                         </span>
                       ) : null}
                     </span>

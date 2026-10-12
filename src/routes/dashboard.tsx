@@ -6,13 +6,14 @@ import { CountdownClock } from "@/components/space/countdown-clock";
 import { EventCountdown } from "@/components/space/event-countdown";
 import { nextNewYear, splitRange, yearProgress } from "@/lib/countdown";
 import { useLocale } from "@/lib/i18n";
+import { formatDecimal } from "@/lib/numbers";
 import { getMyProfile } from "@/lib/server/profiles";
 import type { Profile } from "@/lib/types";
 
 export const Route = createFileRoute("/dashboard")({ component: Dashboard });
 
 function Dashboard() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [profile, setProfile] = useState<Profile | null>(null);
   // Render-time snapshot so the server paints the real countdown on first
   // paint (never 00s); the tick effect below takes over live updates on mount.
@@ -77,7 +78,7 @@ function Dashboard() {
           <div className="h-full rounded-full bg-ice" style={{ width: `${pct.toFixed(2)}%` }} />
         </div>
         <p className="mt-3 text-center text-xs text-muted">
-          {t.dashboard.yearPassed(pct.toFixed(2))}
+          {t.dashboard.yearPassed(formatDecimal(pct, locale, 2))}
         </p>
         <div className="mt-6">
           <EventCountdown variant="inline" />
