@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useTheme } from "@/components/theme-provider";
-import { resolveBackgroundUrl } from "@/lib/background";
+import { resolveBackgroundUrl, resolvePhoneBackgroundUrl } from "@/lib/background";
 
 /**
  * Paints the page backdrop: the gradient lives on `.space-bg` and the image (an
@@ -13,13 +13,24 @@ import { resolveBackgroundUrl } from "@/lib/background";
 export function SpaceStage({ children }: { children: ReactNode }) {
   const { settings } = useTheme();
   const imageUrl = resolveBackgroundUrl(settings);
+  const phoneUrl = resolvePhoneBackgroundUrl(settings);
   return (
     <div className="space-root">
       <div className="space-bg" aria-hidden="true">
         <div
           className="space-bg-custom"
           hidden={!imageUrl}
-          style={imageUrl ? { backgroundImage: `url("${imageUrl}")` } : undefined}
+          // Both URLs travel as custom properties and `styles.css` picks one:
+          // the phone copy under 900px, the full-size artwork above it. Setting
+          // `background-image` here instead would win over that rule.
+          style={
+            imageUrl
+              ? ({
+                  "--bg-image": `url("${imageUrl}")`,
+                  "--bg-image-phone": `url("${phoneUrl ?? imageUrl}")`,
+                } as CSSProperties)
+              : undefined
+          }
         />
       </div>
       <div className="space-content">{children}</div>

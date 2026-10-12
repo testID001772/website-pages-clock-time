@@ -1,5 +1,27 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+/** Width/height of a JPEG, read straight from its frame header. */
+function imageSize(bytes: Buffer): { width: number; height: number } | null {
+  let i = 2;
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
+  while (i + 9 < bytes.length) {
+    if (bytes[i] !== 0xff) {
+      i++;
+      continue;
+    }
+    const marker = bytes[i + 1];
+    const length = bytes.readUInt16BE(i + 2);
+    // SOF0..SOF15 minus the non-frame markers (DHT=0xc4, JPG=0xc8, DAC=0xcc).
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+      return { width: bytes.readUInt16BE(i + 7), height: bytes.readUInt16BE(i + 5) };
+    }
+    i += 2 + length;
+  }
+  return null;
+}
 import {
   BACKGROUND_HARD_MAX_CHARS,
   BACKGROUND_MAX_CHARS,
@@ -7,6 +29,7 @@ import {
   SHIPPED_BACKGROUNDS,
   isDefaultBackground,
   resolveBackgroundUrl,
+  resolvePhoneBackgroundUrl,
   shippedBackgroundFor,
 } from "./background.ts";
 
@@ -45,6 +68,54 @@ describe("background image resolution", () => {
       backgroundEnabled: boolean;
     };
     assert.equal(resolveBackgroundUrl(legacy), DEFAULT_BACKGROUND_URL);
+  });
+
+  it("paints the phone copy of the shipped artwork on a narrow screen", () => {
+    const shipped = { backgroundUrl: null, backgroundEnabled: true };
+    assert.equal(resolvePhoneBackgroundUrl(shipped), "/ferric-wash-phone.jpg");
+    assert.equal(
+      resolvePhoneBackgroundUrl({ backgroundUrl: "/space-nebula.jpg", backgroundEnabled: true }),
+      "/space-nebula-phone.jpg",
+    );
+    // No image at all stays no image — the phone rule must not resurrect one.
+    assert.equal(resolvePhoneBackgroundUrl({ backgroundUrl: null, backgroundEnabled: false }), null);
+    // An upload is already inside the budget and is painted as-is.
+    const upload = { backgroundUrl: "data:image/jpeg;base64,AAAA", backgroundEnabled: true };
+    assert.equal(resolvePhoneBackgroundUrl(upload), "data:image/jpeg;base64,AAAA");
+  });
+
+  it("ships a phone copy for every shipped backdrop, and they are small", () => {
+    for (const image of SHIPPED_BACKGROUNDS) {
+      const phone = join(import.meta.dirname, "..", "..", "public", image.phoneUrl.replace("/", ""));
+      assert.ok(existsSync(phone), `${image.phoneUrl} is missing (npm run backgrounds)`);
+      const size = statSync(phone).size;
+      assert.ok(size < 400_000, `${image.phoneUrl} is ${(size / 1024).toFixed(0)} KB`);
+      // Nine times fewer pixels than the 8K original — that is the point.
+      const meta = imageSize(readFileSync(phone));
+      assert.ok(meta, `${image.phoneUrl} must be a readable JPEG`);
+      assert.ok(
+        meta.width <= 2048 && meta.height <= 2048,
+        `${image.phoneUrl} is ${meta.width}×${meta.height}`,
+      );
+      assert.ok(meta.width >= 1280, `${image.phoneUrl} is too small for a phone (${meta.width}px wide)`);
+    }
+  });
+
+  it("picks between the two copies in CSS, not in JavaScript", () => {
+    // The media query is what makes a phone skip the 33-megapixel decode; a
+    // `background-image` set inline would win over it, so the stage sets custom
+    // properties instead.
+    const css = readFileSync(join(import.meta.dirname, "..", "styles.css"), "utf8");
+    assert.match(css, /\.space-bg-custom \{[^}]*background-image: var\(--bg-image\)/s);
+    const narrow = css.slice(css.indexOf("@media (max-width: 900px)"));
+    assert.match(narrow, /background-image: var\(--bg-image-phone, var\(--bg-image\)\)/);
+    const stage = readFileSync(
+      join(import.meta.dirname, "..", "components", "space", "space-stage.tsx"),
+      "utf8",
+    );
+    assert.match(stage, /"--bg-image": `url\("\$\{imageUrl\}"\)`/);
+    assert.match(stage, /"--bg-image-phone": `url\("\$\{phoneUrl \?\? imageUrl\}"\)`/);
+    assert.ok(!/backgroundImage:/.test(stage), "the stage must not set background-image inline");
   });
 
   it("keeps the upload budget inside the server ceiling", () => {

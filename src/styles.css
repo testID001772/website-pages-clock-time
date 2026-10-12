@@ -209,6 +209,9 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
 .space-bg-custom {
   position: absolute;
   inset: 0;
+  /* Set by the stage (`space-stage.tsx`): the full-size artwork, and the phone
+     copy a media query swaps in below. */
+  background-image: var(--bg-image);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -219,6 +222,15 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
 
 .space-bg-custom[hidden] {
   display: none;
+}
+
+/* A phone gets the 1920×1080 copy: the 8K original is 33 megapixels, and that
+   decode is what a cheap Android kills the tab over while the installed app is
+   starting. Behind the blur and the dark wash the two are indistinguishable. */
+@media (max-width: 900px) {
+  .space-bg-custom {
+    background-image: var(--bg-image-phone, var(--bg-image));
+  }
 }
 
 .space-content {

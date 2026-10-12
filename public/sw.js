@@ -23,15 +23,28 @@
 const BASE = new URL(self.registration.scope).pathname;
 // Stamped with the build hash by `scripts/build-pages.mjs`; this value is what
 // the dev server (and a manual `npm run build`) serves.
-const VERSION = "clock-time-v6";
+const VERSION = "clock-time-v7";
+/**
+ * Everything needed to boot the app: the page, the manifest, the icons. The
+ * backdrop is deliberately *not* here — it is 1.6 MB and the app renders fine
+ * over the gradient, so a phone on mobile data should not pay for it twice.
+ */
 const SHELL = [
   BASE,
-  `${BASE}ferric-wash.jpg`,
   `${BASE}manifest.webmanifest`,
   `${BASE}icon-192.png`,
   `${BASE}icon-512.png`,
   `${BASE}favicon.svg`,
 ];
+/**
+ * The hashed stylesheet and client bundles of the build this worker shipped
+ * with, filled in by `scripts/build-pages.mjs`. They are what make an offline
+ * launch render the app instead of a bare document; the dev server leaves the
+ * list empty and Vite serves modules instead.
+ */
+const BUILD_ASSETS = [];
+/** Store the app shell under `BASE` but fetch it through a query. */
+const SHELL_FETCH = `${BASE}?source=sw`;
 /** The audio that is worth keeping offline (first play caches it). */
 const MUSIC_PATHS = [`${BASE}music/`, `${BASE}api/music/`];
 
@@ -39,7 +52,17 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(VERSION);
-      await Promise.allSettled(SHELL.map((url) => cache.add(new Request(url, { cache: "reload" }))));
+      await Promise.allSettled(
+        [...SHELL, ...BUILD_ASSETS.map((asset) => `${BASE}${asset}`)].map((url) =>
+          cache.add(new Request(url, { cache: "reload" })),
+        ),
+      );
+      // The document itself. Fetched with a query because a host can hold a
+      // stale answer for the bare directory (GitHub Pages did exactly that),
+      // and the shell must never be that answer — it is what an installed app
+      // boots from. Stored under the plain `BASE` key so the fallback finds it.
+      const document_ = await fetch(SHELL_FETCH, { cache: "reload" }).catch(() => null);
+      if (document_?.ok) await cache.put(BASE, document_);
       await self.skipWaiting();
     })(),
   );
@@ -94,6 +117,12 @@ self.addEventListener("fetch", (event) => {
         if (response.ok) {
           const cache = await caches.open(VERSION);
           await cache.put(request, response.clone());
+        } else if (request.mode === "navigate") {
+          // A navigation answered with 404/5xx still boots the app when we hold
+          // the shell: that is the difference between "the app keeps stopping"
+          // and the countdown, for a launch URL that outlived its host cache.
+          const shell = await caches.match(BASE);
+          if (shell) return shell;
         }
         return response;
       } catch {

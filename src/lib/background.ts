@@ -20,10 +20,15 @@ import type { SiteSettings } from "./types";
  * `url` is the site path, mounted under `BASE_URL` like every other asset.
  */
 export const SHIPPED_BACKGROUNDS = [
-  /** Iron-oxide wash on near-black — the default, and what ships with the theme. */
-  { id: "ferric-wash", url: "/ferric-wash.jpg" },
+  /**
+   * Iron-oxide wash on near-black — the default, and what ships with the theme.
+   * `phoneUrl` is the 1920×1080 copy (`scripts/generate-backgrounds.mjs`): the
+   * 8K original is 33 megapixels, and decoding that on a phone is enough for a
+   * low-end Android to kill the tab while the home-screen app starts.
+   */
+  { id: "ferric-wash", url: "/ferric-wash.jpg", phoneUrl: "/ferric-wash-phone.jpg" },
   /** The deep-space nebula. */
-  { id: "space-nebula", url: "/space-nebula.jpg" },
+  { id: "space-nebula", url: "/space-nebula.jpg", phoneUrl: "/space-nebula-phone.jpg" },
 ] as const;
 
 export type ShippedBackgroundId = (typeof SHIPPED_BACKGROUNDS)[number]["id"];
@@ -54,6 +59,23 @@ export function resolveBackgroundUrl(
   const custom = settings.backgroundUrl?.trim();
   if (custom) return custom;
   return DEFAULT_BACKGROUND_URL;
+}
+
+/**
+ * The image to paint on a narrow screen, or `null` when the stage shows none.
+ *
+ * The shipped artwork has a phone copy; an upload is already capped at
+ * `BACKGROUND_MAX_CHARS` (~375 KB) and is painted as-is. The stage hands both
+ * URLs to CSS and a media query picks between them, so a phone never starts the
+ * 33-megapixel decode.
+ */
+export function resolvePhoneBackgroundUrl(
+  settings: Pick<SiteSettings, "backgroundUrl" | "backgroundEnabled">,
+): string | null {
+  const url = resolveBackgroundUrl(settings);
+  if (!url) return null;
+  const shipped = shippedBackgroundFor(url);
+  return shipped ? appUrl(shipped.phoneUrl) : url;
 }
 
 /** True when the painted image is the shipped one (i.e. nothing uploaded). */

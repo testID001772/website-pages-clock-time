@@ -23,7 +23,7 @@
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { isMainModule, projectRoot } from "./with-app-env.mjs";
 
@@ -42,7 +42,9 @@ export function normalizeBase(raw) {
 const REQUIRED = [
   "index.html",
   "ferric-wash.jpg",
+  "ferric-wash-phone.jpg",
   "space-nebula.jpg",
+  "space-nebula-phone.jpg",
   "manifest.webmanifest",
   "favicon.svg",
   "icon-192.png",
@@ -94,8 +96,32 @@ function postProcess(base) {
     throw new Error(`index.html does not reference the mount point ${base}`);
   }
   assertCatalogue();
+  stampManifest(base);
   stampServiceWorker(html);
   return html;
+}
+
+/**
+ * Point the installed app at the deployed copy.
+ *
+ * `start_url` is absolute on purpose. A relative `.` resolves to the bare
+ * directory, and the launch of a home-screen app then depends on whatever the
+ * host serves for that one path — on GitHub Pages that was a stale 404, which
+ * failed the install and killed the app on launch. The query keeps the launch
+ * URL out of any cache key an edge has already answered for the directory, and
+ * `id`/`scope` are explicit so the app keeps one identity across deploys.
+ */
+export function stampManifest(base, outDir = OUT) {
+  const path = join(outDir, "manifest.webmanifest");
+  const doc = JSON.parse(readFileSync(path, "utf8"));
+  doc.id = base;
+  doc.scope = base;
+  doc.start_url = `${base}?source=pwa`;
+  if (!doc.start_url.startsWith(base) || !doc.scope.startsWith(base)) {
+    throw new Error(`manifest would launch outside the mount point ${base}`);
+  }
+  writeFileSync(path, `${JSON.stringify(doc, null, 2)}\n`);
+  console.log(`[pages] manifest.webmanifest → start_url ${doc.start_url}`);
 }
 
 /**
@@ -127,15 +153,21 @@ export function stampServiceWorker(html, outDir = OUT) {
   const path = join(outDir, "sw.js");
   const source = readFileSync(path, "utf8");
   const stamp = createHash("sha256").update(html).digest("hex").slice(0, 8);
-  const stamped = source.replace(
-    /const VERSION = "[^"]*";/,
-    `const VERSION = "clock-time-${stamp}";`,
-  );
-  if (stamped === source) {
-    throw new Error("sw.js: could not stamp the cache version (VERSION line changed?)");
+  // The stylesheet and client bundles of this build, so an offline launch boots
+  // the real app rather than an unstyled document.
+  const assets = readdirSync(join(outDir, "assets"))
+    .filter((name) => name.endsWith(".js") || name.endsWith(".css"))
+    .sort()
+    .map((name) => `assets/${name}`);
+  if (assets.length === 0) throw new Error("sw.js: no client assets to precache");
+  const stamped = source
+    .replace(/const VERSION = "[^"]*";/, `const VERSION = "clock-time-${stamp}";`)
+    .replace(/const BUILD_ASSETS = \[\];/, `const BUILD_ASSETS = ${JSON.stringify(assets)};`);
+  if (stamped === source || stamped.includes("const BUILD_ASSETS = [];")) {
+    throw new Error("sw.js: could not stamp the cache version or the asset list");
   }
   writeFileSync(path, stamped);
-  console.log(`[pages] sw.js cache version → clock-time-${stamp}`);
+  console.log(`[pages] sw.js cache version → clock-time-${stamp}, ${assets.length} assets precached`);
 }
 
 function main() {
