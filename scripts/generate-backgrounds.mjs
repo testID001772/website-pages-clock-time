@@ -56,7 +56,7 @@ async function writeAll() {
 
 function check() {
   let bad = 0;
-  for (const { source, phone } of PHONE_BACKGROUNDS) {
+  for (const { phone } of PHONE_BACKGROUNDS) {
     const to = join(projectRoot(), OUT_DIR, phone);
     if (!existsSync(to)) {
       console.error(`MISSING ${OUT_DIR}/${phone} (run: node scripts/generate-backgrounds.mjs)`);

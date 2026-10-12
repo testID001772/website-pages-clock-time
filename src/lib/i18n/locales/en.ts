@@ -40,6 +40,7 @@ export const en = {
       `${months} months ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`,
   },
   event: {
+    expected: (year: string | number) => `${year} (expected)`,
     label: "Coming up",
     releases: (date: string) => `Releases ${date}`,
     outNow: "Out now",

@@ -37,6 +37,7 @@ export const zh: Dictionary = {
     ) => `${months}个月${days}天${hours}小时${minutes}分${seconds}秒`,
   },
   event: {
+    expected: (year: string | number) => `${year}（预计）`,
     label: "即将到来",
     releases: (date: string) => `将于${date}发售`,
     outNow: "现已推出",

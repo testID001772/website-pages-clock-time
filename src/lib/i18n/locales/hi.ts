@@ -37,6 +37,7 @@ export const hi: Dictionary = {
     ) => `${months} महीने ${days} दिन ${hours} घंटे ${minutes} मिनट ${seconds} सेकंड`,
   },
   event: {
+    expected: (year: string | number) => `${year} (अपेक्षित)`,
     label: "आगामी",
     releases: (date: string) => `${date} को रिलीज़ होगा`,
     outNow: "अभी उपलब्ध",

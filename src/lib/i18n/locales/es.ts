@@ -38,6 +38,7 @@ export const es: Dictionary = {
       `${months} meses ${days} días ${hours} horas ${minutes} minutos ${seconds} segundos`,
   },
   event: {
+    expected: (year: string | number) => `${year} (previsto)`,
     label: "Próximamente",
     releases: (date: string) => `Se lanza el ${date}`,
     outNow: "Ya disponible",

@@ -37,6 +37,7 @@ export const tr: Dictionary = {
     ) => `${months} ay ${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`,
   },
   event: {
+    expected: (year: string | number) => `${year} (bekleniyor)`,
     label: "Yakında",
     releases: (date: string) => `${date} tarihinde çıkıyor`,
     outNow: "Şimdi satışta",

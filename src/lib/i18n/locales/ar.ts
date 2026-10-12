@@ -38,6 +38,7 @@ export const ar: Dictionary = {
       `${months} أشهر ${days} أيام ${hours} ساعات ${minutes} دقائق ${seconds} ثوانٍ`,
   },
   event: {
+    expected: (year: string | number) => `${year} (متوقع)`,
     label: "الحدث القادم",
     releases: (date: string) => `يصدر بتاريخ ${date}`,
     outNow: "متاح الآن",

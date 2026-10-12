@@ -38,6 +38,7 @@ export const ru: Dictionary = {
       `${months} месяцев ${days} дней ${hours} часов ${minutes} минут ${seconds} секунд`,
   },
   event: {
+    expected: (year: string | number) => `${year} (ожидается)`,
     label: "Скоро",
     releases: (date: string) => `Выходит ${date}`,
     outNow: "Уже вышла",

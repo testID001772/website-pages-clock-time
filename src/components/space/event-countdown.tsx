@@ -1,7 +1,12 @@
 import { Fragment, useEffect, useState } from "react";
 import { formatTarget, splitRange } from "@/lib/countdown";
-import { currentEvent, liveGames, type ScheduledEvent } from "@/lib/events";
-import { useLocale } from "@/lib/i18n";
+import {
+  currentEvent,
+  eventMoment,
+  liveGames,
+  type ScheduledEvent,
+} from "@/lib/events";
+import { useLocale, type Dictionary } from "@/lib/i18n";
 import { formatInteger } from "@/lib/numbers";
 import { playSfx } from "@/lib/sfx";
 
@@ -12,7 +17,11 @@ type Snap = {
   released: boolean;
 };
 
-type GameSnap = { event: ScheduledEvent; snap: Snap };
+type GameSnap = {
+  event: ScheduledEvent;
+  /** `null` when the release has a window but no date to count to. */
+  snap: Snap | null;
+};
 
 type Snapshot = {
   /** All games worth counting to right now, soonest first. */
@@ -25,7 +34,8 @@ type Snapshot = {
 function snapshot(now: Date): Snapshot | null {
   const defaultEvent = currentEvent(now);
   if (!defaultEvent) return null;
-  const snapOf = (target: Date): Snap => {
+  const snapOf = (target: Date | null): Snap | null => {
+    if (!target) return null;
     const ms = target.getTime() - now.getTime();
     return {
       parts: splitRange(now, target),
@@ -34,9 +44,18 @@ function snapshot(now: Date): Snapshot | null {
     };
   };
   return {
-    games: liveGames(now).map((event) => ({ event, snap: snapOf(event.target) })),
+    games: liveGames(now).map((event) => ({ event, snap: snapOf(eventMoment(event)) })),
     defaultEvent,
   };
+}
+
+/**
+ * "2027 (expected)" — the label for a release that has a window but no date.
+ * The year is a number like every other in the app, so it follows the visitor's
+ * language: `٢٠٢٧ (متوقع)` in Arabic, `2027（预计）` in Chinese.
+ */
+function expectedLabel(event: ScheduledEvent, locale: string, t: Dictionary): string {
+  return t.event.expected(formatInteger(event.expectedYear ?? 0, locale));
 }
 
 /** `62d` — total days left, no month/year units, in the visitor's digits. */
@@ -72,6 +91,7 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
     snap.games.find((game) => game.event.id === snap.defaultEvent.id) ??
     snap.games[0];
   const { snap: main } = selected;
+
   const allGames = snap.games;
 
   return (
@@ -89,10 +109,12 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink">{selected.event.title}</p>
           <p className="mt-0.5 text-xs text-muted">
-            {t.event.releases(formatTarget(selected.event.target, locale))}
+            {selected.event.target
+              ? t.event.releases(formatTarget(selected.event.target, locale))
+              : expectedLabel(selected.event, locale, t)}
           </p>
         </div>
-        {main.released ? (
+        {!main ? null : main.released ? (
           <p className="rounded-full bg-sun/15 px-3 py-1 text-xs font-bold tracking-[0.12em] text-sun uppercase">
             {t.event.outNow}
           </p>
@@ -148,10 +170,16 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
                           {game.event.title}
                         </span>
                         <span className="block text-xs text-muted">
-                          {t.event.releases(formatTarget(game.event.target, locale))}
+                          {game.event.target
+                            ? t.event.releases(formatTarget(game.event.target, locale))
+                            : expectedLabel(game.event, locale, t)}
                         </span>
                       </span>
-                      {game.snap.released ? (
+                      {!game.snap ? (
+                        <span className="flex-none text-xs text-muted">
+                          {expectedLabel(game.event, locale, t)}
+                        </span>
+                      ) : game.snap.released ? (
                         <span className="flex-none text-[0.65rem] font-bold tracking-[0.12em] text-sun uppercase">
                           {t.event.outNow}
                         </span>

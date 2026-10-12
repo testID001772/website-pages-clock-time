@@ -309,7 +309,7 @@ export const TRACKS = [
   {
     id: "starter-years-end",
     file: "years-end.mp3",
-    title: "Year\'s End",
+    title: "Year's End",
     artist: "Clock Time",
     style: "pad",
     seed: 29303,
