@@ -1,5 +1,3 @@
-import { env } from "../env.server.ts";
-
 /**
  * Owner bootstrap list. Comma-separated emails from `ADMIN_EMAILS`,
  * lowercased and trimmed. Anyone on this list is (re-)granted the owner
@@ -9,7 +7,9 @@ import { env } from "../env.server.ts";
  * "first account wins" can't be relied on.
  */
 export function adminEmails(): string[] {
-  const raw = env("ADMIN_EMAILS");
+  // Read process.env directly: importing env.server.ts here pulled a server-only
+  // module into the client graph (import protection), which broke the home page.
+  const raw = process.env.ADMIN_EMAILS?.trim();
   if (!raw) return [];
   return raw
     .split(",")
