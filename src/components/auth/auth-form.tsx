@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { authClient, authEnabled } from "@/lib/auth/client";
-import { AuthArt } from "@/components/auth/auth-art";
 import { SpaceStage } from "@/components/space/space-stage";
 import { AppChrome } from "@/components/chrome/app-chrome";
 import { useLocale } from "@/lib/i18n";
@@ -106,12 +105,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
   return (
     <SpaceStage>
       <AppChrome hideAuth />
-      <main className="mx-auto grid min-h-dvh w-full max-w-5xl items-center px-4 py-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
-        <div className="glass hidden overflow-hidden rounded-[32px] lg:block">
-          <AuthArt title={title} />
-        </div>
-
-        <section className="glass mt-6 rounded-[32px] p-6 sm:p-8 lg:mt-0">
+      <main className="mx-auto grid min-h-dvh w-full max-w-md items-center px-4 py-24">
+        <section className="glass rounded-[32px] p-6 sm:p-8">
           <p className="text-xs font-medium tracking-[0.28em] text-muted uppercase">Clock Time</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">{title}</h1>
           <p className="mt-2 text-sm text-muted">{subtitle}</p>
