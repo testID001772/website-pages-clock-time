@@ -49,6 +49,8 @@ const OUT_DIR = "public/music";
 /** Where the files are served from (the `source` stored in the library). */
 const SERVE_PATH = "/music";
 const MIGRATION = "migrations/0010_music_library.sql";
+/** Added later: the ten long tracks. A separate file, so 0010 never changes. */
+const EXTRA_MIGRATION = "migrations/0011_music_extra.sql";
 /** The catalogue the static (serverless) build reads. */
 const LIBRARY_FILE = "public/music/library.json";
 
@@ -326,8 +328,107 @@ export const TRACKS = [
   },
 ];
 
+/** Ten longer tracks, added after the 30 starters. Rendered with `--extra`. */
+export const EXTRA_TRACKS = [
+  {
+    id: "extra-years-end-sad-friends",
+    file: "years-end-sad-friends.mp3",
+    title: "Years End: Sad Friends",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 5101,
+    seconds: 600,
+  },
+  {
+    id: "extra-years-end-happy-friends",
+    file: "years-end-happy-friends.mp3",
+    title: "Years End: Happy Friends",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 5102,
+    seconds: 420,
+  },
+  {
+    id: "extra-the-end-sad-leaving",
+    file: "the-end-sad-leaving.mp3",
+    title: "The End: Sad Leaving",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 5103,
+    seconds: 720,
+  },
+  {
+    id: "extra-minecraft-steve-herobrine-2010-2026",
+    file: "minecraft-steve-herobrine-2010-2026.mp3",
+    title: "Minecraft: Steve & Herobrine 2010–2026",
+    artist: "Clock Time",
+    style: "pulse",
+    seed: 5104,
+    seconds: 1800,
+  },
+  {
+    id: "extra-minecraft-the-end-steve-herobrine-2010-2026",
+    file: "minecraft-the-end-steve-herobrine-2010-2026.mp3",
+    title: "Minecraft: The End, Steve & Herobrine 2010–2026",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 5105,
+    seconds: 1800,
+  },
+  {
+    id: "extra-minecraft-found-herobrine-2010",
+    file: "minecraft-found-herobrine-2010.mp3",
+    title: "Minecraft: Found Herobrine 2010",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 5106,
+    seconds: 1500,
+  },
+  {
+    id: "extra-minecraft-sad-friends-years-end",
+    file: "minecraft-sad-friends-years-end.mp3",
+    title: "Minecraft: Sad Friends, Years End",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 5107,
+    seconds: 960,
+  },
+  {
+    id: "extra-minecraft-sad-leaving",
+    file: "minecraft-sad-leaving.mp3",
+    title: "Minecraft: Sad Leaving",
+    artist: "Clock Time",
+    style: "pad",
+    seed: 5108,
+    seconds: 1080,
+  },
+  {
+    id: "extra-minecraft-play-world-end",
+    file: "minecraft-play-world-end.mp3",
+    title: "Minecraft: Play World End",
+    artist: "Clock Time",
+    style: "pulse",
+    seed: 5109,
+    seconds: 1560,
+  },
+  {
+    id: "extra-leaving-the-end",
+    file: "leaving-the-end.mp3",
+    title: "Leaving the End",
+    artist: "Clock Time",
+    style: "arp",
+    seed: 5110,
+    seconds: 420,
+  },
+];
+
+/** Every track the app ships: the starters first, then the extras. */
+export const ALL_TRACKS = [...TRACKS, ...EXTRA_TRACKS];
+
 const args = process.argv.slice(2);
 const CHECK = args.includes("--check");
+/** `--extra` renders only the ten long tracks, leaving the starter files alone. */
+const EXTRA_ONLY = args.includes("--extra");
 
 /** Deterministic RNG (mulberry32). */
 function rng(seed) {
@@ -874,7 +975,7 @@ export function parseMp3Duration(bytes) {
 /** Duration of each track on disk, or `null` when the file is missing/short. */
 export function readTrackDurations(root = projectRoot()) {
   const out = {};
-  for (const track of TRACKS) {
+  for (const track of ALL_TRACKS) {
     const path = join(root, OUT_DIR, track.file);
     try {
       const bytes = readFileSync(path);
@@ -888,18 +989,26 @@ export function readTrackDurations(root = projectRoot()) {
 
 /** Seed rows read back out of the migration, keyed by track id. */
 export function readSeedRows(root = projectRoot()) {
-  const sql = readFileSync(join(root, MIGRATION), "utf8");
   const rows = {};
   const pattern = /\(\s*'([a-z0-9-]+)'\s*,\s*'((?:[^']|'')*)'\s*,\s*'((?:[^']|'')*)'\s*,\s*'([^']+)'\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/g;
-  let match;
-  while ((match = pattern.exec(sql))) {
-    rows[match[1]] = {
-      title: match[2].replace(/''/g, "'"),
-      artist: match[3].replace(/''/g, "'"),
-      source: match[4],
-      seconds: Number(match[5]),
-      order: Number(match[6]),
-    };
+  for (const file of [MIGRATION, EXTRA_MIGRATION]) {
+    let sql;
+    try {
+      sql = readFileSync(join(root, file), "utf8");
+    } catch {
+      continue; // 0011 is optional for a checkout that predates the extra tracks
+    }
+    let match;
+    pattern.lastIndex = 0;
+    while ((match = pattern.exec(sql))) {
+      rows[match[1]] = {
+        title: match[2].replace(/''/g, "'"),
+        artist: match[3].replace(/''/g, "'"),
+        source: match[4],
+        seconds: Number(match[5]),
+        order: Number(match[6]),
+      };
+    }
   }
   return rows;
 }
@@ -912,7 +1021,7 @@ export function readSeedRows(root = projectRoot()) {
  */
 export function libraryRows(root = projectRoot()) {
   const rows = readSeedRows(root);
-  return TRACKS.map((track) => {
+  return ALL_TRACKS.map((track) => {
     const row = rows[track.id];
     if (!row) return null;
     return {
@@ -971,6 +1080,31 @@ export function seedMigrationDocument() {
   ].join("\n");
 }
 
+/**
+ * Migration 0011: the ten long tracks. Plain inserts (no delete), so the rows
+ * already in a database are never touched and the starter seed stays as it was.
+ */
+export function extraMigrationDocument() {
+  const quote = (value) => `'${value.replace(/'/g, "''")}'`;
+  const rows = EXTRA_TRACKS.map((track, index) =>
+    `  (${quote(track.id)}, ${quote(track.title)}, ${quote(track.artist)}, ${quote(
+      `${SERVE_PATH}/${track.file}`,
+    )}, ${track.seconds}, ${TRACKS.length + index + 1})`,
+  );
+  return [
+    "-- Music library: ten longer tracks (10–30 minutes each).",
+    "--",
+    "-- Synthesized by `scripts/generate-music.mjs --extra` and served from",
+    "-- `public/music/`. Plain inserts: a row that already exists is left alone.",
+    "--",
+    "-- Keep in sync with the generator: `node scripts/generate-music.mjs --check`.",
+    "insert into music_tracks (id, title, artist, source, seconds, sort_order) values",
+    `${rows.join(",\n")}`,
+    "on conflict (id) do nothing;",
+    "",
+  ].join("\n");
+}
+
 function writeLibrary() {
   const path = join(projectRoot(), LIBRARY_FILE);
   writeFileSync(path, libraryDocument());
@@ -991,9 +1125,10 @@ export function analyse(buf) {
 
 function writeTracks() {
   mkdirSync(join(projectRoot(), OUT_DIR), { recursive: true });
-  assertDistinctScores();
+  assertDistinctScores(ALL_TRACKS);
   const started = Date.now();
-  for (const track of TRACKS) {
+  const batch = EXTRA_ONLY ? EXTRA_TRACKS : ALL_TRACKS;
+  for (const track of batch) {
     const rendered = renderTrack(track);
     const { peak, rms } = analyse(rendered);
     if (!(peak > 0.5 && peak <= 0.95) || rms < 0.03) {
@@ -1006,15 +1141,18 @@ function writeTracks() {
     writeFileSync(path, bytes);
     const seconds = parseMp3Duration(bytes);
     console.log(
-      `${track.file.padEnd(20)} ${(bytes.length / 1024).toFixed(0).padStart(4)} KB  ` +
+      `${track.file.padEnd(48)} ${(bytes.length / 1024).toFixed(0).padStart(6)} KB  ` +
         `${seconds.toFixed(1)}s  ${track.title}`,
     );
   }
-  const path = join(projectRoot(), MIGRATION);
-  writeFileSync(path, seedMigrationDocument());
-  console.log(`${MIGRATION}  ${TRACKS.length} rows`);
+  if (!EXTRA_ONLY) {
+    writeFileSync(join(projectRoot(), MIGRATION), seedMigrationDocument());
+    console.log(`${MIGRATION}  ${TRACKS.length} rows`);
+  }
+  writeFileSync(join(projectRoot(), EXTRA_MIGRATION), extraMigrationDocument());
+  console.log(`${EXTRA_MIGRATION}  ${EXTRA_TRACKS.length} rows`);
   writeLibrary();
-  console.log(`${TRACKS.length} tracks in ${((Date.now() - started) / 1000).toFixed(0)}s`);
+  console.log(`${batch.length} tracks in ${((Date.now() - started) / 1000).toFixed(0)}s`);
 }
 
 function checkTracks() {
@@ -1022,16 +1160,16 @@ function checkTracks() {
   const rows = readSeedRows();
   let bad = 0;
   try {
-    assertDistinctScores();
+    assertDistinctScores(ALL_TRACKS);
   } catch (error) {
     console.error(`DUPLICATE SCORE ${error.message}`);
     bad++;
   }
-  for (const track of TRACKS) {
+  for (const track of ALL_TRACKS) {
     const row = rows[track.id];
     const seconds = durations[track.file];
     if (!row) {
-      console.error(`MISSING ROW  ${track.id} in ${MIGRATION}`);
+      console.error(`MISSING ROW  ${track.id} in the seed migrations`);
       bad++;
       continue;
     }
@@ -1056,7 +1194,7 @@ function checkTracks() {
   // The files themselves must differ: two rows that play the same audio was the
   // defect this check exists to keep out (three pairs shipped that way once).
   const digests = new Map();
-  for (const track of TRACKS) {
+  for (const track of ALL_TRACKS) {
     let digest = null;
     try {
       digest = createHash("sha256").update(readFileSync(join(projectRoot(), OUT_DIR, track.file))).digest("hex");
@@ -1070,8 +1208,8 @@ function checkTracks() {
     }
     digests.set(digest, track.file);
   }
-  if (digests.size !== TRACKS.length) {
-    console.error(`DISTINCT FILES ${digests.size} of ${TRACKS.length} tracks are unique`);
+  if (digests.size !== ALL_TRACKS.length) {
+    console.error(`DISTINCT FILES ${digests.size} of ${ALL_TRACKS.length} tracks are unique`);
     bad++;
   }
   if (bad) {
@@ -1098,8 +1236,14 @@ function checkTracks() {
     process.exitCode = 1;
     return;
   }
+  const extraSql = readFileSync(join(projectRoot(), EXTRA_MIGRATION), "utf8");
+  if (extraSql !== extraMigrationDocument()) {
+    console.error(`STALE FILE   ${EXTRA_MIGRATION} — regenerate with: node scripts/generate-music.mjs --extra`);
+    process.exitCode = 1;
+    return;
+  }
   console.log(
-    `${TRACKS.length} starter tracks match ${MIGRATION} (and ${LIBRARY_FILE})`,
+    `${ALL_TRACKS.length} tracks match ${MIGRATION} + ${EXTRA_MIGRATION} (and ${LIBRARY_FILE})`,
   );
 }
 

@@ -17,6 +17,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 import {
+  ALL_TRACKS,
   libraryRows,
   parseMp3Duration,
   readSeedRows,
@@ -55,17 +56,17 @@ const LIST_SQL = `
   limit 200
 `;
 
-test("the library ships exactly the starter tracks", async () => {
+test("the library ships exactly the catalogue, starters then extras", async () => {
   const db = await migratedDb();
   const rows = await db.query(LIST_SQL);
   assert.deepEqual(
     rows.rows.map((row) => row.id),
-    TRACKS.map((track) => track.id),
+    ALL_TRACKS.map((track) => track.id),
     "a fresh database must ship the starter tracks in playlist order",
   );
   assert.equal(
     rows.rows.length,
-    TRACKS.length,
+    ALL_TRACKS.length,
     "the shipped playlist is exactly the catalogue, not the old 100-row manifest",
   );
   await db.close();
@@ -95,8 +96,8 @@ test("no shipped track is a dead link", async () => {
 
 test("the seed migration, the generator recipes and the rows agree", async () => {
   const rows = readSeedRows();
-  assert.equal(Object.keys(rows).length, TRACKS.length);
-  for (const track of TRACKS) {
+  assert.equal(Object.keys(rows).length, ALL_TRACKS.length);
+  for (const track of ALL_TRACKS) {
     const row = rows[track.id];
     assert.ok(row, `${track.id} is missing from ${MIGRATION_NAME}`);
     assert.equal(row.title, track.title);
@@ -192,7 +193,7 @@ test("the check constraints reject a track the editor could not render", async (
   await assert.rejects(insert("ok", "", 21_601), /check|violates/i);
   await insert("Long Enough", "", 2_000); // the boundaries themselves are fine
   const rows = await db.query("select count(*) as n from music_tracks");
-  assert.equal(Number(rows.rows[0].n), 1 + TRACKS.length);
+  assert.equal(Number(rows.rows[0].n), 1 + ALL_TRACKS.length);
   await db.close();
 });
 

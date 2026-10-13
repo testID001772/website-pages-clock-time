@@ -239,6 +239,86 @@
       "source": "/music/countdown.mp3",
       "seconds": 180,
       "order": 30
+    },
+    {
+      "id": "extra-years-end-sad-friends",
+      "title": "Years End: Sad Friends",
+      "artist": "Clock Time",
+      "source": "/music/years-end-sad-friends.mp3",
+      "seconds": 600,
+      "order": 31
+    },
+    {
+      "id": "extra-years-end-happy-friends",
+      "title": "Years End: Happy Friends",
+      "artist": "Clock Time",
+      "source": "/music/years-end-happy-friends.mp3",
+      "seconds": 420,
+      "order": 32
+    },
+    {
+      "id": "extra-the-end-sad-leaving",
+      "title": "The End: Sad Leaving",
+      "artist": "Clock Time",
+      "source": "/music/the-end-sad-leaving.mp3",
+      "seconds": 720,
+      "order": 33
+    },
+    {
+      "id": "extra-minecraft-steve-herobrine-2010-2026",
+      "title": "Minecraft: Steve & Herobrine 2010–2026",
+      "artist": "Clock Time",
+      "source": "/music/minecraft-steve-herobrine-2010-2026.mp3",
+      "seconds": 1800,
+      "order": 34
+    },
+    {
+      "id": "extra-minecraft-the-end-steve-herobrine-2010-2026",
+      "title": "Minecraft: The End, Steve & Herobrine 2010–2026",
+      "artist": "Clock Time",
+      "source": "/music/minecraft-the-end-steve-herobrine-2010-2026.mp3",
+      "seconds": 1800,
+      "order": 35
+    },
+    {
+      "id": "extra-minecraft-found-herobrine-2010",
+      "title": "Minecraft: Found Herobrine 2010",
+      "artist": "Clock Time",
+      "source": "/music/minecraft-found-herobrine-2010.mp3",
+      "seconds": 1500,
+      "order": 36
+    },
+    {
+      "id": "extra-minecraft-sad-friends-years-end",
+      "title": "Minecraft: Sad Friends, Years End",
+      "artist": "Clock Time",
+      "source": "/music/minecraft-sad-friends-years-end.mp3",
+      "seconds": 960,
+      "order": 37
+    },
+    {
+      "id": "extra-minecraft-sad-leaving",
+      "title": "Minecraft: Sad Leaving",
+      "artist": "Clock Time",
+      "source": "/music/minecraft-sad-leaving.mp3",
+      "seconds": 1080,
+      "order": 38
+    },
+    {
+      "id": "extra-minecraft-play-world-end",
+      "title": "Minecraft: Play World End",
+      "artist": "Clock Time",
+      "source": "/music/minecraft-play-world-end.mp3",
+      "seconds": 1560,
+      "order": 39
+    },
+    {
+      "id": "extra-leaving-the-end",
+      "title": "Leaving the End",
+      "artist": "Clock Time",
+      "source": "/music/leaving-the-end.mp3",
+      "seconds": 420,
+      "order": 40
     }
   ]
 }
