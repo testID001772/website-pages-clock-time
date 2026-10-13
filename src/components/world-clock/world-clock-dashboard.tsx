@@ -78,6 +78,8 @@ export function WorldClockDashboard() {
   const featuredOffset = now ? offsetMinutes(FEATURED_ZONE.timeZone, now) : 0;
   const localOffset = now ? offsetMinutes(localZone, now) : 0;
   const featuredCity = cityName(FEATURED_ZONE, appLocale);
+  const localOption = optionFor(localZone);
+  const localCity = localOption ? cityName(localOption, appLocale) : localZone;
   const weatherCode = weather.data ? conditionKey(weather.data.code) : null;
 
   function addZone(timeZone: string) {
@@ -105,23 +107,23 @@ export function WorldClockDashboard() {
   const nextTheme = theme === "dark" ? "light" : "dark";
 
   return (
-    <div dir={locale.dir} className="space-y-8">
-      <header className="flex flex-wrap items-center justify-between gap-4">
+    <div dir={locale.dir} className="flex flex-col gap-[2rem]">
+      <header className="flex flex-wrap items-center justify-between gap-[1rem]">
         <div>
           <p className="text-xs tracking-[0.28em] text-muted uppercase">{copy.eyebrow}</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">{copy.title}</h1>
+          <h1 className="mt-[0.25rem] text-3xl font-semibold tracking-tight">{copy.title}</h1>
         </div>
         <button
           type="button"
           onClick={() => setTheme(nextTheme)}
-          className="rounded-full border border-white/15 px-4 py-2 text-sm transition-colors duration-300 hover:bg-white/10"
+          className="rounded-full border border-white/15 px-[1rem] py-[0.5rem] text-sm transition-colors duration-300 hover:bg-white/10"
         >
           {theme === "dark" ? copy.lightMode : copy.darkMode}
         </button>
       </header>
 
       {/* Featured: Cairo, with live weather beneath the clock. */}
-      <section aria-label={copy.featuredLabel} className="space-y-3">
+      <section aria-label={copy.featuredLabel} className="flex flex-col gap-[0.75rem]">
         <p className="text-xs tracking-[0.2em] text-muted uppercase">{copy.featuredLabel}</p>
         <ClockCard
           city={featuredCity}
@@ -135,10 +137,10 @@ export function WorldClockDashboard() {
           }
           featured
         >
-          <div className="mt-6 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-3">
+          <div className="mt-[1.5rem] grid gap-[1rem] border-t border-white/10 pt-[1.25rem] sm:grid-cols-3">
             <div className="sm:col-span-1">
               <p className="text-xs text-muted uppercase tracking-[0.16em]">{copy.weatherTitle}</p>
-              <p className="mt-1 text-lg font-medium" aria-live="polite">
+              <p className="mt-[0.25rem] text-lg font-medium" aria-live="polite">
                 {weatherCode
                   ? copy.conditions[weatherCode]
                   : weather.status === "error"
@@ -149,7 +151,7 @@ export function WorldClockDashboard() {
                 <button
                   type="button"
                   onClick={weather.retry}
-                  className="mt-2 rounded-full border border-white/15 px-3 py-1 text-xs transition-colors hover:bg-white/10"
+                  className="mt-[0.5rem] rounded-full border border-white/15 px-[0.75rem] py-[0.25rem] text-xs transition-colors hover:bg-white/10"
                 >
                   {copy.retry}
                 </button>
@@ -157,7 +159,7 @@ export function WorldClockDashboard() {
             </div>
             <div>
               <p className="text-xs text-muted uppercase tracking-[0.16em]">{copy.temperature}</p>
-              <p className="mt-1 text-3xl font-semibold tabular-nums">
+              <p className="mt-[0.25rem] text-3xl font-semibold tabular-nums">
                 {weather.data
                   ? `${formatInteger(Math.round(weather.data.temperatureC), appLocale)}°C`
                   : "—"}
@@ -165,7 +167,7 @@ export function WorldClockDashboard() {
             </div>
             <div>
               <p className="text-xs text-muted uppercase tracking-[0.16em]">{copy.humidity}</p>
-              <p className="mt-1 text-3xl font-semibold tabular-nums">
+              <p className="mt-[0.25rem] text-3xl font-semibold tabular-nums">
                 {weather.data
                   ? `${formatInteger(Math.round(weather.data.humidity), appLocale)}%`
                   : "—"}
@@ -176,10 +178,10 @@ export function WorldClockDashboard() {
       </section>
 
       {/* Your local time: always shown, never removable. */}
-      <section aria-label={copy.localLabel} className="space-y-3">
+      <section aria-label={copy.localLabel} className="flex flex-col gap-[0.75rem]">
         <p className="text-xs tracking-[0.2em] text-muted uppercase">{copy.localLabel}</p>
         <ClockCard
-          city={localZone}
+          city={localCity}
           timeZone={localZone}
           offset={formatOffset(localOffset)}
           now={now}
@@ -190,7 +192,7 @@ export function WorldClockDashboard() {
       </section>
 
       {/* Add a zone, with suggestions. */}
-      <section aria-label={copy.addTitle} className="space-y-3">
+      <section aria-label={copy.addTitle} className="flex flex-col gap-[0.75rem]">
         <label htmlFor="world-clock-search" className="text-sm font-medium">
           {copy.addTitle}
         </label>
@@ -203,22 +205,22 @@ export function WorldClockDashboard() {
           disabled={atLimit}
           placeholder={atLimit ? copy.limitReached : copy.addPlaceholder}
           autoComplete="off"
-          className="w-full rounded-xl border border-white/15 bg-transparent px-4 py-3 outline-none transition-colors duration-300 focus:border-indigo-400 disabled:opacity-50"
+          className="w-full rounded-xl border border-white/15 bg-transparent px-[1rem] py-[0.75rem] outline-none transition-colors duration-300 focus:border-indigo-400 disabled:opacity-50"
         />
         {!atLimit && suggestions.length > 0 && (
-          <ul className="glass grid gap-1 rounded-2xl p-2 sm:grid-cols-2">
+          <ul className="glass grid gap-[0.25rem] rounded-2xl p-[0.5rem] sm:grid-cols-2">
             {suggestions.map((option) => (
               <li key={option.timeZone}>
                 <button
                   type="button"
                   onClick={() => addZone(option.timeZone)}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-start transition-colors duration-200 hover:bg-white/10"
+                  className="flex w-full items-center justify-between gap-[0.75rem] rounded-xl px-[0.75rem] py-[0.5rem] text-start transition-colors duration-200 hover:bg-white/10"
                 >
-                  <span>
+                  <span className="flex min-w-0 flex-col">
                     <span className="font-medium">{cityName(option, appLocale)}</span>
-                    <span className="ms-2 text-sm text-muted">{option.timeZone}</span>
+                    <span className="truncate text-xs text-muted">{option.timeZone}</span>
                   </span>
-                  <span className="text-xs text-muted">+ {copy.addAction}</span>
+                  <span className="shrink-0 whitespace-nowrap text-xs text-muted">+ {copy.addAction}</span>
                 </button>
               </li>
             ))}
@@ -231,7 +233,7 @@ export function WorldClockDashboard() {
         {zones.length === 0 ? (
           <p className="text-sm text-muted">{copy.empty}</p>
         ) : (
-          <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid gap-[1.25rem] sm:grid-cols-2 xl:grid-cols-3">
             {cards.map((card, index) => {
               const option = optionFor(card.timeZone);
               const zoneOffset = now ? offsetMinutes(card.timeZone, now) : 0;
@@ -254,26 +256,26 @@ export function WorldClockDashboard() {
                           onClick={() => moveCard(index, -1)}
                           disabled={index === 0}
                           aria-label={copy.moveEarlier(card.city)}
-                          className="rounded-lg p-1.5 transition-colors hover:bg-white/10 disabled:opacity-30"
+                          className="rounded-lg p-[0.375rem] transition-colors hover:bg-white/10 disabled:opacity-30"
                         >
-                          <ChevronLeft className="size-4 rtl:rotate-180" aria-hidden="true" />
+                          <ChevronLeft className="size-[1rem] rtl:rotate-180" aria-hidden="true" />
                         </button>
                         <button
                           type="button"
                           onClick={() => moveCard(index, 1)}
                           disabled={index === cards.length - 1}
                           aria-label={copy.moveLater(card.city)}
-                          className="rounded-lg p-1.5 transition-colors hover:bg-white/10 disabled:opacity-30"
+                          className="rounded-lg p-[0.375rem] transition-colors hover:bg-white/10 disabled:opacity-30"
                         >
-                          <ChevronRight className="size-4 rtl:rotate-180" aria-hidden="true" />
+                          <ChevronRight className="size-[1rem] rtl:rotate-180" aria-hidden="true" />
                         </button>
                         <button
                           type="button"
                           onClick={() => removeZone(card.timeZone)}
                           aria-label={copy.removeCity(card.city)}
-                          className="ms-auto flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-muted transition-colors hover:bg-white/10"
+                          className="ms-auto flex items-center gap-[0.25rem] rounded-lg px-[0.5rem] py-[0.25rem] text-sm text-muted transition-colors hover:bg-white/10"
                         >
-                          <X className="size-3.5" aria-hidden="true" />
+                          <X className="size-[0.875rem]" aria-hidden="true" />
                           {copy.remove}
                         </button>
                       </>

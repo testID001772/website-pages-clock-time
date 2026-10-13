@@ -7,7 +7,7 @@ export const Route = createFileRoute("/world-clock")({
 
 function WorldClockPage() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+    <main className="mx-auto w-full max-w-6xl px-[1rem] py-[2.5rem] sm:px-[1.5rem]">
       <WorldClockDashboard />
     </main>
   );
