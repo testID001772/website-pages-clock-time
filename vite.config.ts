@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import viteReact from "@vitejs/plugin-react";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import { appEnvPlugin } from "./scripts/app-env-plugin.mjs";
 
@@ -43,6 +44,10 @@ export default defineConfig({
     // demand. `prerender.js` discovers the routes and writes them as
     // `dist/client/**/index.html`; a failure here fails the Pages deploy.
     tanstackStart(pagesBuild ? { prerender: { enabled: true } } : {}),
+    // Nitro packages the server build (`.output/`, or `.vercel/output` when the
+    // build runs on Vercel). Without it the app has no server entry point and
+    // every request 404s. Skipped for the static GitHub Pages build.
+    ...(pagesBuild ? [] : [nitro()]),
     viteReact(),
   ],
   resolve: {
