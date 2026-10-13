@@ -47,7 +47,9 @@ export default defineConfig({
     // Nitro packages the server build (`.output/`, or `.vercel/output` when the
     // build runs on Vercel). Without it the app has no server entry point and
     // every request 404s. Skipped for the static GitHub Pages build.
-    ...(pagesBuild ? [] : [nitro()]),
+    // Build-only: in dev, Nitro's extra environments changed how the route chunks
+    // are served, and the dev preview failed to fetch them.
+    ...(pagesBuild ? [] : nitro().map((plugin) => ({ ...plugin, apply: "build" as const }))),
     viteReact(),
   ],
   resolve: {
