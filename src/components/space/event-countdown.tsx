@@ -81,7 +81,7 @@ function daysLeft(totalDays: number, locale: string) {
 export function EventCountdown({
   variant = "card",
 }: {
-  variant?: "card" | "inline";
+  variant?: "card" | "inline" | "page";
 }) {
   const { t, locale } = useLocale();
   const [snap, setSnap] = useState<Snapshot | null>(() => snapshot(new Date()));
@@ -134,9 +134,11 @@ export function EventCountdown({
   return (
     <div
       className={
-        variant === "card"
-          ? "event-art glass relative mx-auto w-full max-w-md overflow-hidden rounded-[28px] px-5 py-4"
-          : "event-art relative mx-auto w-full max-w-md overflow-hidden"
+        variant === "page"
+          ? "event-art glass relative mx-auto w-full max-w-4xl overflow-hidden rounded-[32px] px-8 py-8"
+          : variant === "card"
+            ? "event-art glass relative mx-auto w-full max-w-md overflow-hidden rounded-[28px] px-5 py-4"
+            : "event-art relative mx-auto w-full max-w-md overflow-hidden"
       }
     >
       {/* The selected release's artwork, behind the card's content. */}
@@ -166,7 +168,7 @@ export function EventCountdown({
             </p>
           ) : (
             <p
-              className="num text-xl tabular-nums"
+              className={`num tabular-nums ${variant === "page" ? "text-4xl sm:text-5xl" : "text-xl"}`}
               role="timer"
               aria-label={t.event.timerAria(
                 formatInteger(main.parts.months, locale),

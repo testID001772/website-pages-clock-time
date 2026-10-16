@@ -12,8 +12,8 @@ function ComingUpPage() {
   return (
     <SpaceStage>
       <AppChrome />
-      <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col items-center justify-center px-4 pb-16 pt-24">
-        <EventCountdown />
+      <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col items-center justify-center px-4 pb-16 pt-24">
+        <EventCountdown variant="page" />
       </main>
     </SpaceStage>
   );
