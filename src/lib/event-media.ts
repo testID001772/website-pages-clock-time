@@ -20,5 +20,5 @@ export function eventTrack(id: string): string {
  * the scrim, or they vanish into the black card.
  */
 export function eventArt(id: string): string {
-  return `linear-gradient(to right, rgb(0 0 0 / 0.78), rgb(0 0 0 / 0.35)), ${eventBackground(id)}`;
+  return `linear-gradient(to right, rgb(0 0 0 / 0.45), rgb(0 0 0 / 0.1)), ${eventBackground(id)}`;
 }

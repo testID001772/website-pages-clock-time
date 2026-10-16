@@ -142,7 +142,7 @@ export function EventCountdown({
       {/* The selected release's artwork, behind the card's content. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-90 transition-opacity duration-500"
+        className="pointer-events-none absolute inset-0 bg-cover bg-center brightness-150 opacity-90 transition-opacity duration-500"
         style={{ backgroundImage: eventArt(selected.event.id) }}
       />
       <div className="relative">
@@ -196,7 +196,7 @@ export function EventCountdown({
                 >
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-70"
+                    className="pointer-events-none absolute inset-0 bg-cover bg-center brightness-150 opacity-80"
                     style={{ backgroundImage: eventArt(game.event.id) }}
                   />
                   <div className="relative flex items-center gap-x-2">
