@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { eventArt, eventTrack } from "@/lib/event-media";
+import { eventArt, eventThumb, eventTrack } from "@/lib/event-media";
 import { formatTarget, splitRange } from "@/lib/countdown";
 import {
   currentEvent,
@@ -10,6 +10,21 @@ import {
 import { useLocale, type Dictionary } from "@/lib/i18n";
 import { formatInteger } from "@/lib/numbers";
 import { playSfx } from "@/lib/sfx";
+
+type IconSize = "xl" | "large" | "medium";
+
+/** Explorer-style icon sizes for the release thumbnails on the full page. */
+const ICON_SIZES: { id: IconSize; label: string }[] = [
+  { id: "xl", label: "Extra large" },
+  { id: "large", label: "Large" },
+  { id: "medium", label: "Medium" },
+];
+
+const ICON_CLASS: Record<IconSize, string> = {
+  xl: "h-20 w-36",
+  large: "h-14 w-24",
+  medium: "h-9 w-16",
+};
 
 type Snap = {
   parts: ReturnType<typeof splitRange>;
@@ -87,6 +102,7 @@ export function EventCountdown({
   const [snap, setSnap] = useState<Snapshot | null>(() => snapshot(new Date()));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [iconSize, setIconSize] = useState<IconSize>("large");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // One release track at a time; stop it when the card unmounts.
@@ -187,76 +203,110 @@ export function EventCountdown({
         </div>
 
         {allGames.length > 1 ? (
-          <ul className="event-list mt-3 space-y-1 border-t border-white/10 pt-2 text-left">
-            {allGames.map((game) => {
-              const current = game.event.id === selected.event.id;
-              const playing = playingId === game.event.id;
-              return (
-                <li
-                  key={game.event.id}
-                  className="relative overflow-hidden rounded-xl"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-cover bg-center brightness-150 opacity-80"
-                    style={{ backgroundImage: eventArt(game.event.id) }}
-                  />
-                  <div className="relative flex items-center gap-x-2">
-                    <button
-                      type="button"
-                      className="flex min-w-0 flex-1 items-baseline justify-between gap-x-4 rounded-xl px-2.5 py-1.5 text-left transition-colors hover:bg-white/5"
-                      aria-current={current ? "true" : undefined}
-                      onClick={() => {
-                        if (!current) playSfx("pop");
-                        setSelectedId(game.event.id);
-                        if (playingId !== game.event.id)
-                          togglePlay(game.event.id);
-                      }}
-                    >
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-medium text-ink">
-                          {game.event.title}
+          <>
+            {variant === "page" ? (
+              <div
+                role="radiogroup"
+                aria-label="Icon size"
+                className="mt-4 flex flex-wrap gap-2"
+              >
+                {ICON_SIZES.map((size) => (
+                  <button
+                    key={size.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={iconSize === size.id}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold tracking-wide transition-colors ${
+                      iconSize === size.id
+                        ? "border-white/60 bg-white/20 text-white"
+                        : "border-white/15 text-white/80 hover:bg-white/10"
+                    }`}
+                    onClick={() => setIconSize(size.id)}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            <ul className="event-list mt-3 space-y-1 border-t border-white/10 pt-2 text-left">
+              {allGames.map((game) => {
+                const current = game.event.id === selected.event.id;
+                const playing = playingId === game.event.id;
+                return (
+                  <li
+                    key={game.event.id}
+                    className="relative overflow-hidden rounded-xl"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 bg-cover bg-center brightness-150 opacity-80"
+                      style={{ backgroundImage: eventArt(game.event.id) }}
+                    />
+                    <div className="relative flex items-center gap-x-2">
+                      {variant === "page" ? (
+                        <img
+                          src={eventThumb(game.event.id)}
+                          alt=""
+                          loading="lazy"
+                          className={`flex-none rounded-lg object-cover ${ICON_CLASS[iconSize]}`}
+                        />
+                      ) : null}
+                      <button
+                        type="button"
+                        className="flex min-w-0 flex-1 items-baseline justify-between gap-x-4 rounded-xl px-2.5 py-1.5 text-left transition-colors hover:bg-white/5"
+                        aria-current={current ? "true" : undefined}
+                        onClick={() => {
+                          if (!current) playSfx("pop");
+                          setSelectedId(game.event.id);
+                          if (playingId !== game.event.id)
+                            togglePlay(game.event.id);
+                        }}
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-medium text-ink">
+                            {game.event.title}
+                          </span>
+                          <span className="block text-xs text-muted">
+                            {game.event.target
+                              ? t.event.releases(
+                                  formatTarget(game.event.target, locale),
+                                )
+                              : expectedLabel(game.event, locale, t)}
+                          </span>
                         </span>
-                        <span className="block text-xs text-muted">
-                          {game.event.target
-                            ? t.event.releases(
-                                formatTarget(game.event.target, locale),
-                              )
-                            : expectedLabel(game.event, locale, t)}
-                        </span>
-                      </span>
-                      {!game.snap ? (
-                        <span className="flex-none text-xs text-muted">
-                          {expectedLabel(game.event, locale, t)}
-                        </span>
-                      ) : game.snap.released ? (
-                        <span className="flex-none text-[0.65rem] font-bold tracking-[0.12em] text-sun uppercase">
-                          {t.event.outNow}
-                        </span>
-                      ) : (
-                        <span className="flex-none text-xs tabular-nums text-muted">
-                          {daysLeft(game.snap.totalDays, locale)}
-                        </span>
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      className="flex-none rounded-full border border-white/15 px-2.5 py-1 text-xs font-semibold text-ink transition-colors hover:bg-white/10"
-                      aria-label={
-                        playing
-                          ? `Pause ${game.event.title}`
-                          : `Play ${game.event.title}`
-                      }
-                      aria-pressed={playing}
-                      onClick={() => togglePlay(game.event.id)}
-                    >
-                      {playing ? "Pause" : "Play"}
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                        {!game.snap ? (
+                          <span className="flex-none text-xs text-muted">
+                            {expectedLabel(game.event, locale, t)}
+                          </span>
+                        ) : game.snap.released ? (
+                          <span className="flex-none text-[0.65rem] font-bold tracking-[0.12em] text-sun uppercase">
+                            {t.event.outNow}
+                          </span>
+                        ) : (
+                          <span className="flex-none text-xs tabular-nums text-muted">
+                            {daysLeft(game.snap.totalDays, locale)}
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="flex-none rounded-full border border-white/15 px-2.5 py-1 text-xs font-semibold text-ink transition-colors hover:bg-white/10"
+                        aria-label={
+                          playing
+                            ? `Pause ${game.event.title}`
+                            : `Play ${game.event.title}`
+                        }
+                        aria-pressed={playing}
+                        onClick={() => togglePlay(game.event.id)}
+                      >
+                        {playing ? "Pause" : "Play"}
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         ) : null}
       </div>
     </div>

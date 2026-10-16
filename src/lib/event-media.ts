@@ -22,3 +22,8 @@ export function eventTrack(id: string): string {
 export function eventArt(id: string): string {
   return `linear-gradient(to right, rgb(0 0 0 / 0.38), rgb(0 0 0 / 0.28)), ${eventBackground(id)}`;
 }
+
+/** The release's artwork as a small thumbnail (same file, used at icon sizes). */
+export function eventThumb(id: string): string {
+  return appUrl(`/event/${id}.jpg`);
+}
