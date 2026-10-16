@@ -866,3 +866,28 @@ html[data-motion="off"] .num.tick {
   }
 }
 
+
+/* The Coming up card sits on release artwork, which is dark in both themes, so
+   its text is light in both (the light theme would otherwise pick dark ink). */
+.event-art {
+  color: #fff;
+}
+
+.event-art .text-ink {
+  color: #fff;
+}
+
+.event-art .text-muted {
+  color: rgb(255 255 255 / 0.78);
+}
+
+.event-art .text-sun {
+  color: #ffd166;
+}
+
+/* The countdown digits on the artwork: solid white in both themes (the gradient
+   fill is light-on-dark only). */
+html .event-art .num {
+  background-image: none;
+  color: #fff;
+}

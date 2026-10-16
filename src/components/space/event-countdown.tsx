@@ -135,8 +135,8 @@ export function EventCountdown({
     <div
       className={
         variant === "card"
-          ? "glass relative mx-auto w-full max-w-md overflow-hidden rounded-[28px] px-5 py-4"
-          : "relative mx-auto w-full max-w-md overflow-hidden"
+          ? "event-art glass relative mx-auto w-full max-w-md overflow-hidden rounded-[28px] px-5 py-4"
+          : "event-art relative mx-auto w-full max-w-md overflow-hidden"
       }
     >
       {/* The selected release's artwork, behind the card's content. */}

@@ -1,15 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AppChrome } from "@/components/chrome/app-chrome";
 import { EventCountdown } from "@/components/space/event-countdown";
+import { SpaceStage } from "@/components/space/space-stage";
 
 export const Route = createFileRoute("/coming-up")({
   component: ComingUpPage,
 });
 
-/** The full Coming up card on its own page: every release, each with its artwork and track. */
+/** The full Coming up card on its own page, on the same backdrop as the home screen. */
 function ComingUpPage() {
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col items-center px-[1rem] py-[2.5rem] sm:px-[1.5rem]">
-      <EventCountdown />
-    </main>
+    <SpaceStage>
+      <AppChrome />
+      <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col items-center justify-center px-4 pb-16 pt-24">
+        <EventCountdown />
+      </main>
+    </SpaceStage>
   );
 }
