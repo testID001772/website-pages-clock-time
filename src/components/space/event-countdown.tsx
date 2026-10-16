@@ -11,19 +11,15 @@ import { useLocale, type Dictionary } from "@/lib/i18n";
 import { formatInteger } from "@/lib/numbers";
 import { playSfx } from "@/lib/sfx";
 
-type IconSize = "xl" | "large" | "medium";
+type IconSize = "xl";
 
 /** Explorer-style icon sizes for the release thumbnails on the full page. */
 const ICON_SIZES: { id: IconSize; label: string }[] = [
   { id: "xl", label: "Extra large" },
-  { id: "large", label: "Large" },
-  { id: "medium", label: "Medium" },
 ];
 
 const ICON_CLASS: Record<IconSize, string> = {
   xl: "h-20 w-36",
-  large: "h-14 w-24",
-  medium: "h-9 w-16",
 };
 
 type Snap = {
@@ -102,7 +98,7 @@ export function EventCountdown({
   const [snap, setSnap] = useState<Snapshot | null>(() => snapshot(new Date()));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const [iconSize, setIconSize] = useState<IconSize>("large");
+  const [iconSize, setIconSize] = useState<IconSize>("xl");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // One release track at a time; stop it when the card unmounts.
