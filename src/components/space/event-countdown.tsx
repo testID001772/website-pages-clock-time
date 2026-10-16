@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { eventBackground, eventTrack } from "@/lib/event-media";
+import { eventArt, eventTrack } from "@/lib/event-media";
 import { formatTarget, splitRange } from "@/lib/countdown";
 import {
   currentEvent,
@@ -142,8 +142,8 @@ export function EventCountdown({
       {/* The selected release's artwork, behind the card's content. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-30 transition-opacity duration-500"
-        style={{ backgroundImage: eventBackground(selected.event.id) }}
+        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-90 transition-opacity duration-500"
+        style={{ backgroundImage: eventArt(selected.event.id) }}
       />
       <div className="relative">
         <p className="text-[0.65rem] font-bold tracking-[0.28em] text-muted uppercase">
@@ -196,8 +196,8 @@ export function EventCountdown({
                 >
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20"
-                    style={{ backgroundImage: eventBackground(game.event.id) }}
+                    className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-70"
+                    style={{ backgroundImage: eventArt(game.event.id) }}
                   />
                   <div className="relative flex items-center gap-x-2">
                     <button

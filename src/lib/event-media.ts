@@ -13,3 +13,12 @@ export function eventBackground(id: string): string {
 export function eventTrack(id: string): string {
   return appUrl(`/event/${id}.mp3`);
 }
+
+/**
+ * The artwork with a left-to-right dark scrim, so text stays readable on top of
+ * it. The generated backdrops are mostly dark, so they need the lift as well as
+ * the scrim, or they vanish into the black card.
+ */
+export function eventArt(id: string): string {
+  return `linear-gradient(to right, rgb(0 0 0 / 0.78), rgb(0 0 0 / 0.35)), ${eventBackground(id)}`;
+}
