@@ -110,19 +110,35 @@ export function EventCountdown({
   }, []);
 
   function togglePlay(id: string) {
-    const audio = audioRef.current;
-    if (playingId === id && audio) {
-      audio.pause();
+    const current = audioRef.current;
+    if (playingId === id && current) {
+      current.pause();
       setPlayingId(null);
       return;
     }
-    audio?.pause();
-    const next = new Audio(eventTrack(id));
-    next.loop = true;
-    next.volume = 0.6;
-    audioRef.current = next;
+    // One element for the whole card, the same way the playlist player does it:
+    // set the source after creating it, and retry once if the first fetch fails.
+    const audio = current ?? new Audio();
+    audio.preload = "none";
+    audio.loop = true;
+    audio.volume = 0.6;
+    audioRef.current = audio;
+    let retried = false;
+    const onError = () => {
+      if (!retried && audioRef.current === audio) {
+        retried = true;
+        window.setTimeout(() => {
+          audio.src = eventTrack(id);
+          void audio.play().catch(() => setPlayingId(null));
+        }, 700);
+        return;
+      }
+      setPlayingId(null);
+    };
+    audio.addEventListener("error", onError, { once: true });
+    audio.src = eventTrack(id);
     setPlayingId(id);
-    void next.play().catch(() => setPlayingId(null));
+    void audio.play().catch(() => setPlayingId(null));
   }
 
   useEffect(() => {
