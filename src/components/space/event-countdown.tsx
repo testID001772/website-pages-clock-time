@@ -300,7 +300,28 @@ export function EventCountdown({
                         aria-pressed={playing}
                         onClick={() => togglePlay(game.event.id)}
                       >
-                        {playing ? "Pause" : "Play"}
+                        {playing ? (
+                          <span className="inline-flex items-center gap-1">
+                            <span
+                              aria-hidden
+                              className="flex h-3 items-end gap-[2px]"
+                            >
+                              {[0, 1, 2].map((bar) => (
+                                <span
+                                  key={bar}
+                                  className="motion-safe:animate-bounce w-[3px] rounded-full bg-sun"
+                                  style={{
+                                    height: `${[60, 100, 75][bar]}%`,
+                                    animationDelay: `${bar * 150}ms`,
+                                  }}
+                                />
+                              ))}
+                            </span>
+                            Pause
+                          </span>
+                        ) : (
+                          "Play"
+                        )}
                       </button>
                     </div>
                   </li>
