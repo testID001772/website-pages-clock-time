@@ -916,7 +916,7 @@ export function renderTrack({ seed, style, seconds }) {
 }
 
 /** Float samples → mp3 bytes (mono, MPEG1 Layer III). */
-function encodeMp3(buf) {
+export function encodeMp3(buf) {
   const pcm = new Int16Array(buf.length);
   for (let i = 0; i < buf.length; i++) {
     pcm[i] = Math.max(-32768, Math.min(32767, Math.round(buf[i] * 32767)));

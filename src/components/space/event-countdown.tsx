@@ -1,4 +1,5 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { eventBackground, eventTrack } from "@/lib/event-media";
 import { formatTarget, splitRange } from "@/lib/countdown";
 import {
   currentEvent,
@@ -44,7 +45,10 @@ function snapshot(now: Date): Snapshot | null {
     };
   };
   return {
-    games: liveGames(now).map((event) => ({ event, snap: snapOf(eventMoment(event)) })),
+    games: liveGames(now).map((event) => ({
+      event,
+      snap: snapOf(eventMoment(event)),
+    })),
     defaultEvent,
   };
 }
@@ -54,7 +58,11 @@ function snapshot(now: Date): Snapshot | null {
  * The year is a number like every other in the app, so it follows the visitor's
  * language: `٢٠٢٧ (متوقع)` in Arabic, `2027（预计）` in Chinese.
  */
-function expectedLabel(event: ScheduledEvent, locale: string, t: Dictionary): string {
+function expectedLabel(
+  event: ScheduledEvent,
+  locale: string,
+  t: Dictionary,
+): string {
   return t.event.expected(formatInteger(event.expectedYear ?? 0, locale));
 }
 
@@ -70,11 +78,40 @@ function daysLeft(totalDays: number, locale: string) {
  * switch back). Self-ticking, so it drops into any page. Shows "Out now" once
  * a release passes and renders nothing once every event is long past.
  */
-export function EventCountdown({ variant = "card" }: { variant?: "card" | "inline" }) {
+export function EventCountdown({
+  variant = "card",
+}: {
+  variant?: "card" | "inline";
+}) {
   const { t, locale } = useLocale();
   const [snap, setSnap] = useState<Snapshot | null>(() => snapshot(new Date()));
-  const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // One release track at a time; stop it when the card unmounts.
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, []);
+
+  function togglePlay(id: string) {
+    const audio = audioRef.current;
+    if (playingId === id && audio) {
+      audio.pause();
+      setPlayingId(null);
+      return;
+    }
+    audio?.pause();
+    const next = new Audio(eventTrack(id));
+    next.loop = true;
+    next.volume = 0.6;
+    audioRef.current = next;
+    setPlayingId(id);
+    void next.play().catch(() => setPlayingId(null));
+  }
 
   useEffect(() => {
     const tick = () => setSnap(snapshot(new Date()));
@@ -98,67 +135,74 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
     <div
       className={
         variant === "card"
-          ? "glass mx-auto w-full max-w-md rounded-[28px] px-5 py-4"
-          : "mx-auto w-full max-w-md"
+          ? "glass relative mx-auto w-full max-w-md overflow-hidden rounded-[28px] px-5 py-4"
+          : "relative mx-auto w-full max-w-md overflow-hidden"
       }
     >
-      <p className="text-[0.65rem] font-bold tracking-[0.28em] text-muted uppercase">
-        {t.event.label}
-      </p>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-ink">{selected.event.title}</p>
-          <p className="mt-0.5 text-xs text-muted">
-            {selected.event.target
-              ? t.event.releases(formatTarget(selected.event.target, locale))
-              : expectedLabel(selected.event, locale, t)}
-          </p>
+      {/* The selected release's artwork, behind the card's content. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-30 transition-opacity duration-500"
+        style={{ backgroundImage: eventBackground(selected.event.id) }}
+      />
+      <div className="relative">
+        <p className="text-[0.65rem] font-bold tracking-[0.28em] text-muted uppercase">
+          {t.event.label}
+        </p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-ink">
+              {selected.event.title}
+            </p>
+            <p className="mt-0.5 text-xs text-muted">
+              {selected.event.target
+                ? t.event.releases(formatTarget(selected.event.target, locale))
+                : expectedLabel(selected.event, locale, t)}
+            </p>
+          </div>
+          {!main ? null : main.released ? (
+            <p className="rounded-full bg-sun/15 px-3 py-1 text-xs font-bold tracking-[0.12em] text-sun uppercase">
+              {t.event.outNow}
+            </p>
+          ) : (
+            <p
+              className="num text-xl tabular-nums"
+              role="timer"
+              aria-label={t.event.timerAria(
+                formatInteger(main.parts.months, locale),
+                formatInteger(main.parts.days, locale),
+                formatInteger(main.parts.hours, locale, 2),
+                formatInteger(main.parts.minutes, locale, 2),
+              )}
+              suppressHydrationWarning
+            >
+              {daysLeft(main.totalDays, locale)}{" "}
+              {formatInteger(main.parts.hours, locale, 2)}:
+              {formatInteger(main.parts.minutes, locale, 2)}:
+              {formatInteger(main.parts.seconds, locale, 2)}
+            </p>
+          )}
         </div>
-        {!main ? null : main.released ? (
-          <p className="rounded-full bg-sun/15 px-3 py-1 text-xs font-bold tracking-[0.12em] text-sun uppercase">
-            {t.event.outNow}
-          </p>
-        ) : (
-          <p
-            className="num text-xl tabular-nums"
-            role="timer"
-            aria-label={t.event.timerAria(
-              formatInteger(main.parts.months, locale),
-              formatInteger(main.parts.days, locale),
-              formatInteger(main.parts.hours, locale, 2),
-              formatInteger(main.parts.minutes, locale, 2),
-            )}
-            suppressHydrationWarning
-          >
-            {daysLeft(main.totalDays, locale)} {formatInteger(main.parts.hours, locale, 2)}:
-            {formatInteger(main.parts.minutes, locale, 2)}:
-            {formatInteger(main.parts.seconds, locale, 2)}
-          </p>
-        )}
-      </div>
 
-      {allGames.length > 1 ? (
-        <Fragment>
-          <button
-            type="button"
-            className="mt-3 text-xs font-semibold tracking-wide text-muted underline-offset-4 hover:text-ink hover:underline"
-            aria-expanded={open}
-            onClick={() => {
-              playSfx(open ? "close" : "open");
-              setOpen((next) => !next);
-            }}
-          >
-            {open ? t.event.less : t.event.more(formatInteger(allGames.length, locale))}
-          </button>
-          {open ? (
-            <ul className="event-list mt-3 space-y-1 border-t border-white/10 pt-2 text-left">
-              {allGames.map((game) => {
-                const current = game.event.id === selected.event.id;
-                return (
-                  <li key={game.event.id}>
+        {allGames.length > 1 ? (
+          <ul className="event-list mt-3 space-y-1 border-t border-white/10 pt-2 text-left">
+            {allGames.map((game) => {
+              const current = game.event.id === selected.event.id;
+              const playing = playingId === game.event.id;
+              return (
+                <li
+                  key={game.event.id}
+                  className="relative overflow-hidden rounded-xl"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: eventBackground(game.event.id) }}
+                  />
+                  <div className="relative flex items-center gap-x-2">
                     <button
                       type="button"
-                      className="flex w-full items-baseline justify-between gap-x-4 rounded-xl px-2.5 py-1.5 text-left transition-colors hover:bg-white/5"
+                      className="flex min-w-0 flex-1 items-baseline justify-between gap-x-4 rounded-xl px-2.5 py-1.5 text-left transition-colors hover:bg-white/5"
                       aria-current={current ? "true" : undefined}
                       onClick={() => {
                         if (!current) playSfx("pop");
@@ -171,7 +215,9 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
                         </span>
                         <span className="block text-xs text-muted">
                           {game.event.target
-                            ? t.event.releases(formatTarget(game.event.target, locale))
+                            ? t.event.releases(
+                                formatTarget(game.event.target, locale),
+                              )
                             : expectedLabel(game.event, locale, t)}
                         </span>
                       </span>
@@ -189,13 +235,26 @@ export function EventCountdown({ variant = "card" }: { variant?: "card" | "inlin
                         </span>
                       )}
                     </button>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : null}
-        </Fragment>
-      ) : null}
+                    <button
+                      type="button"
+                      className="flex-none rounded-full px-2 py-1 text-xs font-semibold text-muted transition-colors hover:text-ink"
+                      aria-label={
+                        playing
+                          ? `Pause ${game.event.title}`
+                          : `Play ${game.event.title}`
+                      }
+                      aria-pressed={playing}
+                      onClick={() => togglePlay(game.event.id)}
+                    >
+                      {playing ? "❚❚" : "▶"}
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+      </div>
     </div>
   );
 }
