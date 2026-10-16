@@ -87,8 +87,7 @@
   overflow: hidden;
   background:
     radial-gradient(120% 80% at 50% -10%, #2a1458 0%, transparent 55%),
-    radial-gradient(90% 60% at 80% 110%, #1a0b3d 0%, transparent 50%),
-    #050505;
+    radial-gradient(90% 60% at 80% 110%, #1a0b3d 0%, transparent 50%), #050505;
   opacity: 1;
   visibility: visible;
   transition:
@@ -184,7 +183,12 @@ html[data-theme="light"] .field input[type="range"] {
 }
 
 html[data-theme="light"] .num {
-  background-image: linear-gradient(180deg, #2b2358 0%, #4a3f9e 60%, #6a5cd0 100%);
+  background-image: linear-gradient(
+    180deg,
+    #2b2358 0%,
+    #4a3f9e 60%,
+    #6a5cd0 100%
+  );
 }
 
 html[data-theme="light"] .colon {
@@ -517,7 +521,12 @@ html[data-theme="light"] select:focus-visible {
 .num {
   font-weight: 700;
   letter-spacing: -0.04em;
-  background-image: linear-gradient(180deg, #ffffff 0%, #d7d0ff 58%, #b7ade8 100%);
+  background-image: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #d7d0ff 58%,
+    #b7ade8 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -864,31 +873,4 @@ html[data-motion="off"] .num.tick {
   html {
     --space-ms: 0.01s;
   }
-}
-
-
-/* The Coming up card sits on release artwork, which is dark in both themes, so
-   its text is light in both (the light theme would otherwise pick dark ink). */
-.event-art {
-  color: #fff;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
-}
-
-.event-art .text-ink {
-  color: #fff;
-}
-
-.event-art .text-muted {
-  color: rgb(255 255 255 / 0.78);
-}
-
-.event-art .text-sun {
-  color: #ffd166;
-}
-
-/* The countdown digits on the artwork: solid white in both themes (the gradient
-   fill is light-on-dark only). */
-html .event-art .num {
-  background-image: none;
-  color: #fff;
 }

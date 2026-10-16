@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { eventArt, eventThumb, eventTrack } from "@/lib/event-media";
+import { eventThumb, eventTrack } from "@/lib/event-media";
 import { formatTarget, splitRange } from "@/lib/countdown";
 import {
   currentEvent,
@@ -151,18 +151,12 @@ export function EventCountdown({
     <div
       className={
         variant === "page"
-          ? "event-art glass relative mx-auto w-full max-w-4xl overflow-hidden rounded-[32px] px-8 py-8"
+          ? "glass relative mx-auto w-full max-w-4xl overflow-hidden rounded-[32px] px-8 py-8"
           : variant === "card"
-            ? "event-art glass relative mx-auto w-full max-w-md overflow-hidden rounded-[28px] px-5 py-4"
-            : "event-art relative mx-auto w-full max-w-md overflow-hidden"
+            ? "glass relative mx-auto w-full max-w-md overflow-hidden rounded-[28px] px-5 py-4"
+            : "relative mx-auto w-full max-w-md overflow-hidden"
       }
     >
-      {/* The selected release's artwork, behind the card's content. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-cover bg-center brightness-150 opacity-90 transition-opacity duration-500"
-        style={{ backgroundImage: eventArt(selected.event.id) }}
-      />
       <div className="relative">
         <p className="text-[0.65rem] font-bold tracking-[0.28em] text-muted uppercase">
           {t.event.label}
@@ -218,8 +212,8 @@ export function EventCountdown({
                     aria-checked={iconSize === size.id}
                     className={`rounded-full border px-3 py-1 text-xs font-semibold tracking-wide transition-colors ${
                       iconSize === size.id
-                        ? "border-white/60 bg-white/20 text-white"
-                        : "border-white/15 text-white/80 hover:bg-white/10"
+                        ? "border-white/60 bg-white/20 text-ink"
+                        : "border-white/15 text-muted hover:bg-white/10 hover:text-ink"
                     }`}
                     onClick={() => setIconSize(size.id)}
                   >
@@ -237,11 +231,6 @@ export function EventCountdown({
                     key={game.event.id}
                     className="relative overflow-hidden rounded-xl"
                   >
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 bg-cover bg-center brightness-150 opacity-80"
-                      style={{ backgroundImage: eventArt(game.event.id) }}
-                    />
                     <div className="relative flex items-center gap-x-2">
                       {variant === "page" ? (
                         <img
