@@ -207,6 +207,8 @@ export function EventCountdown({
                       onClick={() => {
                         if (!current) playSfx("pop");
                         setSelectedId(game.event.id);
+                        if (playingId !== game.event.id)
+                          togglePlay(game.event.id);
                       }}
                     >
                       <span className="min-w-0">
@@ -237,7 +239,7 @@ export function EventCountdown({
                     </button>
                     <button
                       type="button"
-                      className="flex-none rounded-full px-2 py-1 text-xs font-semibold text-muted transition-colors hover:text-ink"
+                      className="flex-none rounded-full border border-white/15 px-2.5 py-1 text-xs font-semibold text-ink transition-colors hover:bg-white/10"
                       aria-label={
                         playing
                           ? `Pause ${game.event.title}`
@@ -246,7 +248,7 @@ export function EventCountdown({
                       aria-pressed={playing}
                       onClick={() => togglePlay(game.event.id)}
                     >
-                      {playing ? "❚❚" : "▶"}
+                      {playing ? "Pause" : "Play"}
                     </button>
                   </div>
                 </li>
