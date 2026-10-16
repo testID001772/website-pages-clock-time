@@ -56,18 +56,13 @@ const LIST_SQL = `
   limit 200
 `;
 
-test("the library ships exactly the catalogue, starters then extras", async () => {
+test("migration 0012 clears the shipped catalogue, so a fresh database has an empty playlist", async () => {
   const db = await migratedDb();
   const rows = await db.query(LIST_SQL);
   assert.deepEqual(
     rows.rows.map((row) => row.id),
-    ALL_TRACKS.map((track) => track.id),
-    "a fresh database must ship the starter tracks in playlist order",
-  );
-  assert.equal(
-    rows.rows.length,
-    ALL_TRACKS.length,
-    "the shipped playlist is exactly the catalogue, not the old 100-row manifest",
+    [],
+    "0010 and 0011 seed the catalogue, then 0012 deletes the starter-* and extra-* rows",
   );
   await db.close();
 });
@@ -193,7 +188,7 @@ test("the check constraints reject a track the editor could not render", async (
   await assert.rejects(insert("ok", "", 21_601), /check|violates/i);
   await insert("Long Enough", "", 2_000); // the boundaries themselves are fine
   const rows = await db.query("select count(*) as n from music_tracks");
-  assert.equal(Number(rows.rows[0].n), 1 + ALL_TRACKS.length);
+  assert.equal(Number(rows.rows[0].n), 1);
   await db.close();
 });
 
