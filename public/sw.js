@@ -107,6 +107,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Media seeking sends Range requests, which answer 206 (partial content).
+  // The Cache API cannot store a 206, so the put below would throw and the
+  // player would get a network error. Let the network answer those directly.
+  if (request.headers.has("range")) return;
+
   event.respondWith(
     (async () => {
       try {
