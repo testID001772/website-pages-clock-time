@@ -1,15 +1,14 @@
-# Build the installable apps: an Android APK and a Windows installer.
+# Build native packages for Android, Windows, and the iOS/iPadOS simulator.
 #
-# The web app is a static build (see pages.yml), so both packages are thin
-# native shells around the same prerendered bundle — no server, no database,
-# no network after install. Building them needs toolchains a container should
-# not carry (a JDK plus the Android SDK, and the Electron binaries), which is
-# exactly what GitHub's runners already have. That is why the artifacts are
-# produced here rather than committed.
+# The web app is a static build (see pages.yml), so each package wraps the same
+# prerendered bundle — no server, no database, no network after install. The
+# platform toolchains belong on GitHub's hosted runners, not in the source tree.
+# The simulator build is deliberately unsigned and is not a physical-device or
+# App Store package; iOS distribution needs Apple signing and provisioning.
 #
-# Nothing is signed for distribution: the APK uses Gradle's debug key and the
-# Windows installer is unsigned, so Windows SmartScreen will warn on first run.
-# See INSTALL.md for adding a release keystore and a code-signing certificate.
+# Nothing is signed for distribution: Android uses Gradle's debug key and the
+# Windows installers are unsigned, so Windows SmartScreen will warn on first
+# run. See INSTALL.md for release-signing requirements.
 name: Build installers
 
 on:
@@ -80,6 +79,48 @@ jobs:
             --notes "Installers built from ${GITHUB_SHA:0:7}. Legacy Windows 7 packages use end-of-life Electron 22 / Chromium 108 and receive no security fixes." \
             --verify-tag \
           || gh release upload "$GITHUB_REF_NAME" ClockTime-android.apk --clobber
+
+  ios-simulator:
+    name: iPhone and iPad simulator app (unsigned)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and sync the shared app to iOS
+        run: npm run app:ios:sync
+
+      - name: Build unsigned iPhone and iPad simulator app
+        run: >-
+          xcodebuild
+          -workspace ios/App/App.xcworkspace
+          -scheme App
+          -configuration Debug
+          -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build/ios
+          CODE_SIGNING_REQUIRED=NO
+          CODE_SIGNING_ALLOWED=NO
+          build
+
+      - name: Package simulator app
+        run: >-
+          ditto -c -k --sequesterRsrc --keepParent
+          build/ios/Build/Products/Debug-iphonesimulator/App.app
+          ClockTime-ios-simulator.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClockTime-ios-simulator
+          path: ClockTime-ios-simulator.zip
+          if-no-files-found: error
 
   windows:
     name: Windows installer

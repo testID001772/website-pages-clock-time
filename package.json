@@ -21,6 +21,7 @@
     "build:pages": "node scripts/build-pages.mjs",
     "app:icons": "node scripts/generate-app-icons.mjs",
     "app:sync": "npm run build:pages && node scripts/generate-app-icons.mjs && npx cap sync android && node desktop/scripts/sync-web.mjs",
+    "app:ios:sync": "npm run build:pages && node scripts/generate-app-icons.mjs && npx cap sync ios",
     "app:apk": "npm run app:sync && node scripts/gradle.mjs assembleDebug",
     "app:exe": "npm run app:sync && npm --prefix desktop run dist:win",
     "build:dev": "node scripts/with-app-env.mjs vite build --mode development",
@@ -36,6 +37,7 @@
   "dependencies": {
     "@capacitor/android": "^7.6.9",
     "@capacitor/core": "^7.6.9",
+    "@capacitor/ios": "^7.6.9",
     "@electric-sql/pglite": "^0.5.4",
     "@hookform/resolvers": "^5.7.0",
     "@radix-ui/react-accordion": "^1.2.12",

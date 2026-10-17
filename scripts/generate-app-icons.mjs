@@ -8,9 +8,10 @@
  *   android/app/src/main/res/mipmap-{density}/ic_launcher_foreground.png  108…432 px
  *   desktop/buildResources/icon.png                          512 px (Linux)
  *   desktop/buildResources/icon.ico                          16…256 px (Windows)
+ *   ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png  1024 px
  *
- * Run it after `npx cap add android` (which ships Capacitor's placeholder
- * artwork) and whenever the master changes:
+ * Run it after adding the native platforms (which ship placeholder artwork)
+ * and whenever the master changes:
  *
  *   node scripts/generate-app-icons.mjs          write the files
  *   node scripts/generate-app-icons.mjs --check  verify sizes, no writes
@@ -29,6 +30,15 @@ import { squareSvg } from "./generate-icons.mjs";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const androidRes = join(root, "android", "app", "src", "main", "res");
 const desktopResources = join(root, "desktop", "buildResources");
+const iosAppIcon = join(
+  root,
+  "ios",
+  "App",
+  "App",
+  "Assets.xcassets",
+  "AppIcon.appiconset",
+  "AppIcon-512@2x.png",
+);
 
 /** Launcher icon size per Android density bucket. */
 const DENSITIES = [
@@ -105,6 +115,9 @@ async function write() {
   }
 
   mkdirSync(desktopResources, { recursive: true });
+  await writeFile(iosAppIcon, await png(1024));
+  console.log("wrote iOS AppIcon (1024×1024)");
+
   await writeFile(join(desktopResources, "icon.png"), await png(512));
   console.log("wrote desktop/buildResources/icon.png (512×512)");
 
@@ -145,6 +158,14 @@ async function check() {
     }
   }
   try {
+    const meta = await sharp(readFileSync(iosAppIcon)).metadata();
+    if (meta.width !== 1024 || meta.height !== 1024) {
+      problems.push(`iOS AppIcon: ${meta.width}×${meta.height}, want 1024×1024`);
+    }
+  } catch {
+    problems.push("iOS AppIcon: missing");
+  }
+  try {
     const ico = readFileSync(join(desktopResources, "icon.ico"));
     if (ico.readUInt16LE(2) !== 1) problems.push("icon.ico: not an icon container");
     if (ico.readUInt16LE(4) !== ICO_SIZES.length) {
@@ -158,7 +179,7 @@ async function check() {
     console.error(problems.join("\n"));
     process.exit(1);
   }
-  console.log("app icons: android launcher set and desktop icons present at the declared sizes");
+  console.log("app icons: android, iOS, and desktop icons present at the declared sizes");
 }
 
 if (process.argv.includes("--check")) {

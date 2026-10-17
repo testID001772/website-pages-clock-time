@@ -1,10 +1,10 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * Clock Time as an Android app.
+ * Clock Time as native mobile apps.
  *
- * The app packages the same static build GitHub Pages serves
- * (`npm run build:pages` → `dist/client`), so it needs no server, no database
+ * Android and iOS package the same static build GitHub Pages serves
+ * (`npm run build:pages` → `dist/client`), so they need no server, no database,
  * and no network after install. `VITE_STATIC_SITE` is set by that build, which
  * is also what drops the sign-in UI — there is nothing to sign in to offline.
  *
