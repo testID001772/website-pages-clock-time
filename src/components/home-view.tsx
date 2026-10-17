@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Download } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { AppChrome } from "@/components/chrome/app-chrome";
+import { SiteFooter } from "@/components/chrome/site-footer";
 import { CountdownClock } from "@/components/space/countdown-clock";
 import { EventCountdown } from "@/components/space/event-countdown";
 import { Fireworks } from "@/components/space/fireworks";
 import { SpaceStage } from "@/components/space/space-stage";
+import { YearRing } from "@/components/space/year-ring";
 import {
   formatMetaParts,
   formatNow,
@@ -35,6 +38,7 @@ export function HomeView() {
   });
   const [clockNow, setClockNow] = useState(() => formatNow(new Date(), locale));
   const [progress, setProgress] = useState(() => yearProgress(new Date()));
+  const [yearLabel, setYearLabel] = useState(() => formatInteger(new Date().getFullYear(), locale));
   const [progressLabel, setProgressLabel] = useState(() => {
     const now = new Date();
     return t.home.yearComplete(
@@ -104,6 +108,7 @@ export function HomeView() {
         lastSecond.current = stamp;
         const pct = yearProgress(now);
         setProgress(pct);
+        setYearLabel(formatInteger(now.getFullYear(), locale));
         setProgressLabel(
           t.home.yearComplete(
             formatInteger(now.getFullYear(), locale),
@@ -165,9 +170,16 @@ export function HomeView() {
       <AppChrome />
       {fx ? <Fireworks active={fx} /> : null}
 
-      <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col items-center justify-center px-4 pb-16 pt-24 text-center">
+      <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col items-center justify-center px-5 pb-8 pt-28 text-center sm:pt-32">
         <p
-          className={`num mt-2 text-4xl tabular-nums transition-opacity duration-300 sm:text-5xl ${party ? "opacity-0" : "opacity-100"}`}
+          className={`transition-opacity duration-300 ${party ? "opacity-0" : "opacity-100"}`}
+          aria-hidden={party}
+        >
+          <span className="eyebrow">{t.home.eyebrow}</span>
+        </p>
+
+        <p
+          className={`tnum mt-7 text-2xl font-medium tabular-nums text-muted transition-opacity duration-300 sm:text-3xl ${party ? "opacity-0" : "opacity-100"}`}
           role="timer"
           aria-label={clockNow}
           suppressHydrationWarning
@@ -176,49 +188,55 @@ export function HomeView() {
         </p>
 
         <div
-          className={`mt-6 w-full transition-opacity duration-300 ${party ? "pointer-events-none opacity-0" : "opacity-100"}`}
+          className={`mt-7 w-full transition-opacity duration-300 ${party ? "pointer-events-none opacity-0" : "opacity-100"}`}
         >
           <CountdownClock parts={parts} />
 
           <p className="mt-8 text-sm text-muted">
-            {t.home.target} <strong className="font-medium text-ink">{targetLabel}</strong>
+            {t.home.target} <strong className="font-semibold text-ink">{targetLabel}</strong>
           </p>
 
-          <div className="mx-auto mt-6 w-full max-w-md">
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${progress.toFixed(3)}%`,
-                  background: "linear-gradient(90deg, var(--color-ice), #e8e2ff, var(--color-sun))",
-                }}
-              />
+          {/* v2: the year's progress is a ring, and the reading of it sits
+              beside it — the sentence the ring's accessible name carries. */}
+          <div className="mx-auto mt-10 flex w-full max-w-2xl flex-col items-center gap-7 sm:flex-row sm:justify-center sm:gap-10">
+            <YearRing
+              percent={progress}
+              value={`${formatDecimal(progress, locale, 2)}%`}
+              caption={yearLabel}
+              label={progressLabel}
+            />
+            <div className="space-y-2 text-xs tracking-wide text-muted sm:text-start">
+              <p className="tnum text-base text-ink">{progressLabel}</p>
+              <p>{meta}</p>
+              {readyMs !== null ? (
+                <p className="tnum">{t.home.loadedIn(formatDecimal(readyMs / 1000, locale, 1))}</p>
+              ) : null}
             </div>
-            <p className="mt-3 text-xs tracking-wide text-muted">{progressLabel}</p>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-9">
             <EventCountdown />
           </div>
 
-          <div className="mt-6 space-y-2 text-xs tracking-wide text-muted">
-            <p>{meta}</p>
-            {readyMs !== null ? (
-              <p>{t.home.loadedIn(formatDecimal(readyMs / 1000, locale, 1))}</p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            {!partyStarted.current ? (
+              <button type="button" className="btn btn-primary" onClick={onPreview}>
+                {t.home.previewFinale}
+              </button>
             ) : null}
+
+            <Link to="/world-clock" className="btn btn-ghost">
+              {copyFor(locale).title}
+            </Link>
+
+            <Link to="/download" className="btn btn-ghost">
+              <Download className="size-4" aria-hidden="true" />
+              {t.download.footer}
+            </Link>
           </div>
-
-          {!partyStarted.current ? (
-            <button type="button" className="btn btn-ghost mt-6" onClick={onPreview}>
-              {t.home.previewFinale}
-            </button>
-          ) : null}
-
-          <Link to="/world-clock" className="btn btn-ghost mt-3">
-            {copyFor(locale).title}
-          </Link>
-
         </div>
+
+        <SiteFooter />
       </main>
 
       {party ? (

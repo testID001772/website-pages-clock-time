@@ -2,6 +2,7 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-r
 import { AuthProvider } from "@/lib/auth/provider";
 import { LocaleProvider } from "@/lib/i18n";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
+import { InteractionSounds } from "@/components/chrome/interaction-sounds";
 import { ThemeProvider } from "@/components/theme-provider";
 import { appUrl } from "@/lib/base-url";
 import { getPublicSettings } from "@/lib/server/site";
@@ -35,7 +36,8 @@ export const Route = createRootRoute({
       { name: "apple-mobile-web-app-title", content: APP_NAME },
     ],
     links: [
-      { rel: "icon", type: "image/svg+xml", href: appUrl("/favicon.svg") },
+      { rel: "icon", type: "image/svg+xml", sizes: "any", href: appUrl("/favicon.svg") },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: appUrl("/favicon-32.png") },
       { rel: "manifest", href: appUrl("/manifest.webmanifest") },
       { rel: "apple-touch-icon", sizes: "180x180", href: appUrl("/apple-touch-icon.png") },
       { rel: "stylesheet", href: appCss },
@@ -53,6 +55,7 @@ function RootComponent() {
       </head>
       <body>
         <PreviewHostBridge />
+        <InteractionSounds />
         <AuthProvider>
           <ThemeProvider initialSettings={initialSettings}>
             <LocaleProvider>

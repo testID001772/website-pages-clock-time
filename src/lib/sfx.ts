@@ -1,17 +1,22 @@
 /**
  * Tiny synthesized UI sound effects — Web Audio oscillators, no audio files.
  *
- * Effects follow the site's audio intent: when background music is muted
- * (`clock-time-music === "false"` in localStorage), effects stay silent too.
- * The AudioContext is created lazily inside the first gesture-driven call, so
- * autoplay policies never block it and SSR never touches it.
+ * UI effects are independent of background music: muting the playlist does not
+ * silence clicks. They share the volume slider, are synthesized in Web Audio,
+ * and create the AudioContext lazily on a user gesture (so SSR and autoplay
+ * policies never start audio unexpectedly).
  */
-import { readPref } from "./prefs";
 import { readVolume } from "./volume";
 
 export type SfxName = "click" | "pop" | "open" | "close" | "chime";
 
 let ctx: AudioContext | null = null;
+let explicitSfxThisTask = false;
+
+/** Lets the delegated UI listener avoid adding a generic click on top. */
+export function sfxWasPlayedInCurrentTask(): boolean {
+  return explicitSfxThisTask;
+}
 
 function audioCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -35,11 +40,6 @@ export function getAudioContext(): AudioContext | null {
 
 /** `clock-time-music`, exported so the music picker shares one key. */
 export const MUSIC_PREF = "music";
-
-function sfxEnabled(): boolean {
-  if (typeof window === "undefined") return false;
-  return readPref(MUSIC_PREF) !== "false";
-}
 
 type Tone = {
   /** Start frequency (Hz). */
@@ -72,9 +72,7 @@ function tone(ac: AudioContext, { from, to, dur, gain, delay = 0, type = "sine" 
   osc.stop(at + dur + 0.02);
 }
 
-const SOUNDS: Record<SfxName, Tone[]> = {
-  /** Soft tick — header toggles. */
-  click: [{ from: 660, to: 440, dur: 0.07, gain: 0.05 }],
+const SOUNDS: Record<Exclude<SfxName, "click">, Tone[]> = {
   /** Friendly pop — picking a game, choosing a language. */
   pop: [{ from: 480, to: 840, dur: 0.09, gain: 0.07, type: "triangle" }],
   /** Rising sweep — opening the release list / language menu. */
@@ -90,12 +88,47 @@ const SOUNDS: Record<SfxName, Tone[]> = {
   ],
 };
 
-/** Play a UI sound. Silent when muted, at volume 0, on SSR, or without Web Audio. */
+/** A short, non-musical noise transient for a tactile click. */
+function click(ac: AudioContext, volume: number) {
+  const at = ac.currentTime;
+  const dur = 0.028;
+  const sampleCount = Math.ceil(ac.sampleRate * dur);
+  const buffer = ac.createBuffer(1, sampleCount, ac.sampleRate);
+  const samples = buffer.getChannelData(0);
+  const decay = ac.sampleRate * 0.0035;
+  for (let i = 0; i < sampleCount; i++) {
+    samples[i] = (Math.random() * 2 - 1) * Math.exp(-i / decay);
+  }
+
+  const source = ac.createBufferSource();
+  const filter = ac.createBiquadFilter();
+  const amp = ac.createGain();
+  source.buffer = buffer;
+  filter.type = "highpass";
+  filter.frequency.setValueAtTime(900, at);
+  amp.gain.setValueAtTime(0.0001, at);
+  amp.gain.exponentialRampToValueAtTime(0.045 * volume, at + 0.001);
+  amp.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+  source.connect(filter).connect(amp).connect(ac.destination);
+  source.start(at);
+  source.stop(at + dur);
+}
+
+/** Play a UI sound. Silent at volume 0, on SSR, or without Web Audio. */
 export function playSfx(name: SfxName) {
-  if (!sfxEnabled()) return;
+  if (typeof window !== "undefined") {
+    explicitSfxThisTask = true;
+    queueMicrotask(() => {
+      explicitSfxThisTask = false;
+    });
+  }
   const volume = readVolume();
   if (volume <= 0) return;
   const ac = audioCtx();
   if (!ac) return;
+  if (name === "click") {
+    click(ac, volume);
+    return;
+  }
   for (const t of SOUNDS[name]) tone(ac, { ...t, gain: t.gain * volume });
 }

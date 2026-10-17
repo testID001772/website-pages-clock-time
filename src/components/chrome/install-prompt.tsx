@@ -1,62 +1,30 @@
 import { Download } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n";
-import { appUrl } from "@/lib/base-url";
+import { useInstallPrompt } from "@/lib/use-install-prompt";
 import { playSfx } from "@/lib/sfx";
 
-type InstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
-
 /**
- * PWA glue: registers the service worker (public/sw.js) for offline
- * support, and surfaces an "Install app" button when the browser fires
- * `beforeinstallprompt` (Chrome, Edge, Samsung, Android). Safari/iOS never
- * fires it — there the button stays hidden and iOS uses Share → Add to
- * Home Screen (see the apple-touch-icon meta in the root route).
+ * "Install app" in the header. Appears only when the browser offers an install
+ * (`beforeinstallprompt`); Safari/iOS never fires it and uses Share → Add to
+ * Home Screen, so there the chip stays hidden. The download page explains that
+ * case in words — see `use-install-prompt.ts` for the shared state.
  */
 export function InstallPrompt() {
   const { t } = useLocale();
-  const [promptEvent, setPromptEvent] = useState<InstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
+  const { available, installed, install } = useInstallPrompt();
 
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      void navigator.serviceWorker.register(appUrl("/sw.js")).catch(() => undefined);
-    }
-    const onBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setPromptEvent(e as InstallPromptEvent);
-    };
-    const onInstalled = () => {
-      setInstalled(true);
-      setPromptEvent(null);
-    };
-    window.addEventListener("beforeinstallprompt", onBeforeInstall);
-    window.addEventListener("appinstalled", onInstalled);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
+  if (installed || !available) return null;
 
-  if (installed || !promptEvent) return null;
-
-  const install = async () => {
+  const onClick = () => {
     playSfx("click");
-    const event = promptEvent;
-    setPromptEvent(null);
-    await event.prompt().catch(() => undefined);
-    const choice = await event.userChoice.catch(() => ({ outcome: "dismissed" as const }));
-    if (choice.outcome === "dismissed") setPromptEvent(event);
+    void install();
   };
 
   return (
     <button
       type="button"
       className="icon-btn glass"
-      onClick={() => void install()}
+      onClick={onClick}
       aria-label={t.chrome.install}
     >
       <Download className="size-4" />

@@ -45,6 +45,7 @@ test("an offline launch boots the app, not a bare document", () => {
   const shell = SW.slice(SW.indexOf("const SHELL = ["), SW.indexOf("/** The audio"));
   assert.ok(!shell.includes("ferric-wash"), "the backdrop is not precached");
   assert.ok(shell.includes("manifest.webmanifest") && shell.includes("icon-512.png"));
+  assert.ok(shell.includes("favicon.svg") && shell.includes("favicon-32.png"));
 });
 
 test("the Pages build stamps the cache version from the built HTML", () => {
@@ -78,5 +79,5 @@ test("the Pages build stamps the cache version from the built HTML", () => {
 test("the shipped worker still matches what the build rewrites", () => {
   // `stampServiceWorker` rewrites this exact line; if the worker is refactored
   // without it, the build throws — assert that here so it is caught locally.
-  assert.match(SW, /const VERSION = "clock-time-v7";/);
+  assert.match(SW, /const VERSION = "clock-time-v2";/);
 });

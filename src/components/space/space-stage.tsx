@@ -6,6 +6,11 @@ import { resolveBackgroundUrl, resolvePhoneBackgroundUrl } from "@/lib/backgroun
  * Paints the page backdrop: the gradient lives on `.space-bg` and the image (an
  * upload or the shipped default) on `.space-bg-custom`.
  *
+ * v2 stacks three decorative layers on top of that gradient — a pair of
+ * drifting aurora fields, a thin star field and a horizon glow under the stage —
+ * so the page reads as a sky rather than a flat wash. They are CSS-only (no
+ * bitmap, no canvas) and the light theme switches all three off.
+ *
  * The stage reads its settings from the theme provider, which the root route
  * seeds from the server — so the background image is part of the first paint,
  * not something that pops in after hydration.
@@ -32,6 +37,10 @@ export function SpaceStage({ children }: { children: ReactNode }) {
               : undefined
           }
         />
+        <div className="space-aurora" />
+        <div className="space-stars" />
+        <div className="space-horizon" />
+        <div className="space-vignette" />
       </div>
       <div className="space-content">{children}</div>
     </div>

@@ -1,0 +1,258 @@
+# Build native packages for Android, Windows, and the iOS/iPadOS simulator.
+#
+# The web app is a static build (see pages.yml), so each package wraps the same
+# prerendered bundle — no server, no database, no network after install. The
+# platform toolchains belong on GitHub's hosted runners, not in the source tree.
+# The simulator build is deliberately unsigned and is not a physical-device or
+# App Store package; iOS distribution needs Apple signing and provisioning.
+#
+# Nothing is signed for distribution: Android uses Gradle's debug key and the
+# Windows installers are unsigned, so Windows SmartScreen will warn on first
+# run. See INSTALL.md for release-signing requirements.
+name: Build installers
+
+on:
+  # Installers are built on demand: they take minutes and only matter when
+  # someone wants a file to hand to a device.
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  # Release publishing, on a tag push. Everything else only needs the artifact.
+  contents: write
+
+concurrency:
+  group: installers-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      # Capacitor 7 builds against JDK 21; the runner has one, but pinning it
+      # keeps the APK reproducible when the image's default moves.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the static site and sync it into the native project
+        run: npm run app:sync
+
+      - name: Assemble the APK
+        run: node scripts/gradle.mjs assembleDebug --no-daemon
+
+      # Gradle always calls its output `app-debug.apk`. The download page links
+      # at one fixed name, so the file is renamed here rather than the link
+      # chasing a build number.
+      - name: Name the artifact
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk ClockTime-android.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClockTime-android-apk
+          path: ClockTime-android.apk
+          if-no-files-found: error
+
+      - name: Publish to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Two jobs publish two files to one release; whichever arrives second
+        # finds it already there and uploads into it.
+        run: |
+          gh release create "$GITHUB_REF_NAME" ClockTime-android.apk \
+            --title "Clock Time $GITHUB_REF_NAME" \
+            --notes "Installers built from ${GITHUB_SHA:0:7}. Legacy Windows 7 packages use end-of-life Electron 22 / Chromium 108 and receive no security fixes." \
+            --verify-tag \
+          || gh release upload "$GITHUB_REF_NAME" ClockTime-android.apk --clobber
+
+  ios-simulator:
+    name: iPhone and iPad simulator app (unsigned)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and sync the shared app to iOS
+        run: npm run app:ios:sync
+
+      - name: Build unsigned iPhone and iPad simulator app
+        run: >-
+          xcodebuild
+          -workspace ios/App/App.xcworkspace
+          -scheme App
+          -configuration Debug
+          -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build/ios
+          CODE_SIGNING_REQUIRED=NO
+          CODE_SIGNING_ALLOWED=NO
+          build
+
+      - name: Package simulator app
+        run: >-
+          ditto -c -k --sequesterRsrc --keepParent
+          build/ios/Build/Products/Debug-iphonesimulator/App.app
+          ClockTime-ios-simulator.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClockTime-ios-simulator
+          path: ClockTime-ios-simulator.zip
+          if-no-files-found: error
+
+  windows:
+    name: Windows 10/11 installer (x64)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the static site
+        run: npm run build:pages
+
+      # electron-builder needs an .ico; it is generated from the same vector
+      # master as the web icons rather than kept as a hand-made binary.
+      - name: Build the installer icon
+        run: npm run app:icons
+
+      - name: Install the desktop shell
+        working-directory: desktop
+        run: npm ci
+
+      - name: Package the installer
+        working-directory: desktop
+        env:
+          # No certificate is configured, so do not go looking for one: the
+          # build must produce an unsigned installer, not fail on a missing key.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run dist:win
+
+      - name: Verify packaged main-process files
+        working-directory: desktop
+        run: |
+          $asar = Join-Path $PWD "node_modules/.bin/asar.cmd"
+          $files = & $asar list "dist/win-unpacked/resources/app.asar"
+          if ($LASTEXITCODE -ne 0) { throw "Could not inspect the packaged app.asar" }
+          if (-not ($files -match 'static-server[.]cjs$')) {
+            throw "static-server.cjs is missing from the Windows app bundle"
+          }
+
+      - name: Report the artifact
+        working-directory: desktop/dist
+        run: Get-ChildItem -Filter *.exe | Select-Object Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClockTime-windows-installer
+          # A fixed name, not a glob: the download page links at exactly this.
+          path: desktop/dist/ClockTime-windows-setup.exe
+          if-no-files-found: error
+
+      - name: Publish to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: desktop/dist
+        # bash, not the runner's default pwsh: `$GITHUB_REF_NAME` and the
+        # `${VAR:0:7}` slice are shell syntax, and under PowerShell they would
+        # expand to nothing and publish an untitled release.
+        shell: bash
+        run: |
+          gh release create "$GITHUB_REF_NAME" ClockTime-windows-setup.exe \
+            --title "Clock Time $GITHUB_REF_NAME" \
+            --notes "Installers built from ${GITHUB_SHA:0:7}. Legacy Windows 7 packages use end-of-life Electron 22 / Chromium 108 and receive no security fixes." \
+            --verify-tag \
+          || gh release upload "$GITHUB_REF_NAME" ClockTime-windows-setup.exe --clobber
+
+  windows-legacy:
+    name: Windows 7 legacy installer (x64)
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Build the static site for Chromium 108
+        env:
+          # Electron 22 embeds Chromium 108, so its JS output must target the
+          # engine present on the Windows 7 legacy lane.
+          VITE_BUILD_TARGET: chrome108
+        run: npm run build:pages
+
+      - name: Generate app icons
+        run: npm run app:icons
+
+      - name: Sync the shared desktop bundle
+        run: node desktop/scripts/sync-web.mjs
+
+      - name: Install the isolated Electron 22 shell
+        working-directory: desktop/legacy
+        run: npm ci
+
+      - name: Package Windows 7 installers
+        working-directory: desktop/legacy
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run dist:win
+
+      - name: Report legacy installers
+        working-directory: desktop/legacy/dist
+        run: Get-ChildItem -Filter *.exe | Select-Object Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClockTime-windows-legacy-x64-installer
+          path: |
+            desktop/legacy/dist/ClockTime-windows-legacy-x64-setup.exe
+          if-no-files-found: error
+
+      - name: Publish legacy installers to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: desktop/legacy/dist
+        shell: bash
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            ClockTime-windows-legacy-x64-setup.exe \
+            --title "Clock Time $GITHUB_REF_NAME" \
+            --notes "Legacy Windows 7 x64 installer uses end-of-life Electron 22 / Chromium 108 and receives no security updates. Built from ${GITHUB_SHA:0:7}." \
+            --verify-tag \
+          || gh release upload "$GITHUB_REF_NAME" \
+            ClockTime-windows-legacy-x64-setup.exe \
+            --clobber

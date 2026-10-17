@@ -3,8 +3,8 @@
  * to fetch. A fetched mp3 can silently fail to load (flaky preview networks,
  * strict mobile proxies), while code always plays. Four soft chords
  * (Am9 → Fmaj9 → Cmaj7 → G6) crossfade on a slow loop under a drifting
- * low-pass filter — quiet enough to sit under the UI. Follows the same
- * mute intent as the SFX (`clock-time-music` in localStorage).
+ * low-pass filter — quiet enough to sit under the UI. Follows the music mute
+ * preference (`clock-time-music` in localStorage); UI click effects are separate.
  */
 import { getAudioContext } from "./sfx";
 import { readVolume } from "./volume";

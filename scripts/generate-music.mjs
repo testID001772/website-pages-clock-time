@@ -600,8 +600,8 @@ function pluck(buf, at, freq, gain, decay) {
   }
 }
 
-/** Bass voice: sine fundamental with two quiet harmonics and a soft envelope. */
-function bassVoice(buf, at, dur, freq, gain) {
+/** Bass voice: sine fundamental with quiet harmonics and a soft envelope. */
+function bassVoice(buf, at, dur, freq, gain, profile = "standard") {
   const i0 = Math.floor(at * SR);
   const i1 = Math.min(buf.length, Math.floor((at + dur) * SR));
   const attack = Math.min(0.6, dur * 0.3);
@@ -614,7 +614,11 @@ function bassVoice(buf, at, dur, freq, gain) {
       t < attack ? t / attack : t < dur - release ? 1 : Math.max(0, (dur - t) / release);
     if (env <= 0) continue;
     phase += (2 * Math.PI * freq) / SR;
-    const s = Math.sin(phase) + 0.26 * Math.sin(phase * 2) + 0.07 * Math.sin(phase * 3);
+    // The event mix uses less of the third harmonic: on small speakers it can
+    // read as a narrow ~124 Hz tone instead of a rounded bass note.
+    const secondHarmonic = profile === "medium" ? 0.3 : 0.26;
+    const thirdHarmonic = profile === "medium" ? 0.02 : 0.07;
+    const s = Math.sin(phase) + secondHarmonic * Math.sin(phase * 2) + thirdHarmonic * Math.sin(phase * 3);
     buf[i] += s * gain * env;
   }
 }
@@ -793,8 +797,14 @@ export function assertDistinctScores(tracks = TRACKS) {
 }
 
 /** Render one track to mono float samples (exported for analysis/checks). */
-export function renderTrack({ seed, style, seconds }) {
+export function renderTrack({ seed, style, seconds, bassProfile = "standard" }) {
+  if (bassProfile !== "standard" && bassProfile !== "medium") {
+    throw new Error(`Unknown bass profile: ${bassProfile}`);
+  }
   const score = scoreFor({ seed, style, seconds });
+  // Event previews should all carry a balanced, audible bass line rather than
+  // relying on the standard catalogue's seeded on/off bass-layer draw.
+  if (bassProfile === "medium") score.layers.bass = true;
   const rand = rng((seed ^ 0x9e3779b9) >>> 0);
   const buf = new Float32Array(SR * seconds);
   // Melodic layers are rendered separately so the delay and the reverb sit
@@ -836,7 +846,9 @@ export function renderTrack({ seed, style, seconds }) {
       const at = c * chordDur;
       const degree = score.progression[c % score.progression.length];
       const freq = midiToFreq(score.key - 12 + scale[degree % 7]);
-      bassVoice(buf, at, chordDur * 0.92, freq, score.bassLevel);
+      const duration = chordDur * (bassProfile === "medium" ? 0.76 : 0.92);
+      const level = score.bassLevel * (bassProfile === "medium" ? 0.72 : 1);
+      bassVoice(buf, at, duration, freq, level, bassProfile);
     }
   }
 
@@ -877,7 +889,10 @@ export function renderTrack({ seed, style, seconds }) {
     const beats = Math.floor(seconds / beat);
     for (let b = 0; b < beats; b++) {
       const strong = b % 4 === 0;
-      if (strong || b % 2 === 0) thump(buf, b * beat, strong ? 0.22 : 0.12);
+      if (strong || b % 2 === 0) {
+        const thumpLevel = strong ? 0.22 : 0.12;
+        thump(buf, b * beat, thumpLevel * (bassProfile === "medium" ? 0.8 : 1));
+      }
       if (b % 2 === 1) tick(buf, b * beat, 0.028 + rand() * 0.014, rand);
     }
   }

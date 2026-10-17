@@ -22,8 +22,9 @@
  */
 const BASE = new URL(self.registration.scope).pathname;
 // Stamped with the build hash by `scripts/build-pages.mjs`; this value is what
-// the dev server (and a manual `npm run build`) serves.
-const VERSION = "clock-time-v7";
+// the dev server (and a manual `npm run build`) serves. It matches
+// `CACHE_VERSION` in `src/lib/version.ts`, the release the footer badge names.
+const VERSION = "clock-time-v2";
 /**
  * Everything needed to boot the app: the page, the manifest, the icons. The
  * backdrop is deliberately *not* here — it is 1.6 MB and the app renders fine
@@ -35,6 +36,7 @@ const SHELL = [
   `${BASE}icon-192.png`,
   `${BASE}icon-512.png`,
   `${BASE}favicon.svg`,
+  `${BASE}favicon-32.png`,
 ];
 /**
  * The hashed stylesheet and client bundles of the build this worker shipped

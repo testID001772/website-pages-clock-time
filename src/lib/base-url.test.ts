@@ -24,6 +24,7 @@ describe("mount point", () => {
     const base = "/website-pages-clock-time-/";
     assert.equal(joinBase(base, "/ferric-wash.jpg"), `${base}ferric-wash.jpg`);
     assert.equal(joinBase("/website-pages-clock-time-", "/favicon.svg"), `${base}favicon.svg`);
+    assert.equal(joinBase("/website-pages-clock-time-", "/favicon-32.png"), `${base}favicon-32.png`);
     assert.equal(joinBase("/", "/favicon.svg"), "/favicon.svg");
     assert.equal(appUrl("/music/first-light.mp3"), "/music/first-light.mp3");
   });

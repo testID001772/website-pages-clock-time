@@ -97,11 +97,10 @@ export function EventCountdown({
   const { t, locale } = useLocale();
   const [snap, setSnap] = useState<Snapshot | null>(() => snapshot(new Date()));
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
   const [iconSize, setIconSize] = useState<IconSize>("xl");
+  const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // One release track at a time; stop it when the card unmounts.
   useEffect(() => {
     return () => {
       audioRef.current?.pause();
@@ -109,36 +108,23 @@ export function EventCountdown({
     };
   }, []);
 
-  function togglePlay(id: string) {
-    const current = audioRef.current;
-    if (playingId === id && current) {
-      current.pause();
-      setPlayingId(null);
+  function toggleMusic() {
+    let audio = audioRef.current;
+    if (audio && !audio.paused) {
+      audio.pause();
+      setPlaying(false);
       return;
     }
-    // One element for the whole card, the same way the playlist player does it:
-    // set the source after creating it, and retry once if the first fetch fails.
-    const audio = current ?? new Audio();
-    audio.preload = "none";
-    audio.loop = true;
-    audio.volume = 0.6;
-    audioRef.current = audio;
-    let retried = false;
-    const onError = () => {
-      if (!retried && audioRef.current === audio) {
-        retried = true;
-        window.setTimeout(() => {
-          audio.src = eventTrack(id);
-          void audio.play().catch(() => setPlayingId(null));
-        }, 700);
-        return;
-      }
-      setPlayingId(null);
-    };
-    audio.addEventListener("error", onError, { once: true });
-    audio.src = eventTrack(id);
-    setPlayingId(id);
-    void audio.play().catch(() => setPlayingId(null));
+    if (!audio) {
+      audio = new Audio(eventTrack());
+      audio.preload = "none";
+      audio.loop = true;
+      audio.volume = 0.6;
+      audio.onerror = () => setPlaying(false);
+      audioRef.current = audio;
+    }
+    setPlaying(true);
+    void audio.play().catch(() => setPlaying(false));
   }
 
   useEffect(() => {
@@ -163,34 +149,30 @@ export function EventCountdown({
     <div
       className={
         variant === "page"
-          ? "glass relative mx-auto w-full max-w-4xl overflow-hidden rounded-[32px] px-8 py-8"
+          ? "glass relative mx-auto w-full max-w-4xl overflow-hidden rounded-[26px] p-6 sm:p-8"
           : variant === "card"
-            ? "glass relative mx-auto w-full max-w-md overflow-hidden rounded-[28px] px-5 py-4"
+            ? "glass relative mx-auto w-full max-w-md overflow-hidden rounded-[22px] px-5 py-4"
             : "relative mx-auto w-full max-w-md overflow-hidden"
       }
     >
       <div className="relative">
-        <p className="text-[0.65rem] font-bold tracking-[0.28em] text-muted uppercase">
-          {t.event.label}
-        </p>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <p className="eyebrow">{t.event.label}</p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-ink">
+            <p className="text-base font-semibold text-ink">
               {selected.event.title}
             </p>
-            <p className="mt-0.5 text-xs text-muted">
+            <p className="mt-1 text-xs text-muted">
               {selected.event.target
                 ? t.event.releases(formatTarget(selected.event.target, locale))
                 : expectedLabel(selected.event, locale, t)}
             </p>
           </div>
           {!main ? null : main.released ? (
-            <p className="rounded-full bg-sun/15 px-3 py-1 text-xs font-bold tracking-[0.12em] text-sun uppercase">
-              {t.event.outNow}
-            </p>
+            <p className="badge badge-sun">{t.event.outNow}</p>
           ) : (
             <p
-              className={`num tabular-nums ${variant === "page" ? "text-4xl sm:text-5xl" : "text-xl"}`}
+              className={`tnum ${variant === "page" ? "text-4xl font-semibold sm:text-5xl" : "text-xl font-medium"}`}
               role="timer"
               aria-label={t.event.timerAria(
                 formatInteger(main.parts.months, locale),
@@ -206,6 +188,19 @@ export function EventCountdown({
               {formatInteger(main.parts.seconds, locale, 2)}
             </p>
           )}
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm flex-none"
+            aria-label={
+              playing
+                ? "Pause Coming Up medium-bass music"
+                : "Play Coming Up medium-bass music"
+            }
+            aria-pressed={playing}
+            onClick={toggleMusic}
+          >
+            {playing ? "Pause music" : "Play music"}
+          </button>
         </div>
 
         {allGames.length > 1 ? (
@@ -214,7 +209,7 @@ export function EventCountdown({
               <div
                 role="radiogroup"
                 aria-label="Icon size"
-                className="mt-4 flex flex-wrap gap-2"
+                className="mt-5 flex flex-wrap gap-2"
               >
                 {ICON_SIZES.map((size) => (
                   <button
@@ -222,10 +217,10 @@ export function EventCountdown({
                     type="button"
                     role="radio"
                     aria-checked={iconSize === size.id}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold tracking-wide transition-colors ${
+                    className={`badge transition-colors ${
                       iconSize === size.id
-                        ? "border-white/60 bg-white/20 text-ink"
-                        : "border-white/15 text-muted hover:bg-white/10 hover:text-ink"
+                        ? "badge-accent"
+                        : "text-muted hover:text-ink"
                     }`}
                     onClick={() => setIconSize(size.id)}
                   >
@@ -234,14 +229,13 @@ export function EventCountdown({
                 ))}
               </div>
             ) : null}
-            <ul className="event-list mt-3 space-y-1 border-t border-white/10 pt-2 text-left">
+            <ul className="event-list mt-4 space-y-1.5 border-t border-white/10 pt-3 text-left">
               {allGames.map((game) => {
                 const current = game.event.id === selected.event.id;
-                const playing = playingId === game.event.id;
                 return (
                   <li
                     key={game.event.id}
-                    className="relative overflow-hidden rounded-xl"
+                    className="relative overflow-hidden rounded-[16px]"
                   >
                     <div className="relative flex items-center gap-x-2">
                       {variant === "page" ? (
@@ -249,18 +243,16 @@ export function EventCountdown({
                           src={eventThumb(game.event.id)}
                           alt=""
                           loading="lazy"
-                          className={`flex-none rounded-lg object-cover ${ICON_CLASS[iconSize]}`}
+                          className={`flex-none rounded-[12px] object-cover ${ICON_CLASS[iconSize]}`}
                         />
                       ) : null}
                       <button
                         type="button"
-                        className="flex min-w-0 flex-1 items-baseline justify-between gap-x-4 rounded-xl px-2.5 py-1.5 text-left transition-colors hover:bg-white/5"
+                        className="flex min-w-0 flex-1 items-baseline justify-between gap-x-4 rounded-[14px] px-3 py-2 text-left transition-colors hover:bg-white/5"
                         aria-current={current ? "true" : undefined}
                         onClick={() => {
                           if (!current) playSfx("pop");
                           setSelectedId(game.event.id);
-                          if (playingId !== game.event.id)
-                            togglePlay(game.event.id);
                         }}
                       >
                         <span className="min-w-0">
@@ -280,47 +272,13 @@ export function EventCountdown({
                             {expectedLabel(game.event, locale, t)}
                           </span>
                         ) : game.snap.released ? (
-                          <span className="flex-none text-[0.65rem] font-bold tracking-[0.12em] text-sun uppercase">
+                          <span className="badge badge-sun flex-none">
                             {t.event.outNow}
                           </span>
                         ) : (
-                          <span className="flex-none text-xs tabular-nums text-muted">
+                          <span className="tnum flex-none text-xs text-muted">
                             {daysLeft(game.snap.totalDays, locale)}
                           </span>
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        className="flex-none rounded-full border border-white/15 px-2.5 py-1 text-xs font-semibold text-ink transition-colors hover:bg-white/10"
-                        aria-label={
-                          playing
-                            ? `Pause ${game.event.title}`
-                            : `Play ${game.event.title}`
-                        }
-                        aria-pressed={playing}
-                        onClick={() => togglePlay(game.event.id)}
-                      >
-                        {playing ? (
-                          <span className="inline-flex items-center gap-1">
-                            <span
-                              aria-hidden
-                              className="flex h-3 items-end gap-[2px]"
-                            >
-                              {[0, 1, 2].map((bar) => (
-                                <span
-                                  key={bar}
-                                  className="motion-safe:animate-bounce w-[3px] rounded-full bg-sun"
-                                  style={{
-                                    height: `${[60, 100, 75][bar]}%`,
-                                    animationDelay: `${bar * 150}ms`,
-                                  }}
-                                />
-                              ))}
-                            </span>
-                            Pause
-                          </span>
-                        ) : (
-                          "Play"
                         )}
                       </button>
                     </div>

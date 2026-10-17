@@ -105,11 +105,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
   return (
     <SpaceStage>
       <AppChrome hideAuth />
-      <main className="mx-auto grid min-h-dvh w-full max-w-md items-center px-4 py-24">
-        <section className="glass rounded-[32px] p-6 sm:p-8">
-          <p className="text-xs font-medium tracking-[0.28em] text-muted uppercase">Clock Time</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight">{title}</h1>
-          <p className="mt-2 text-sm text-muted">{subtitle}</p>
+      <main className="mx-auto grid min-h-dvh w-full max-w-md items-center px-4 pb-10 pt-28">
+        <section className="glass panel">
+          <p className="eyebrow">Clock Time</p>
+          <h1 className="h1 mt-3">{title}</h1>
+          <p className="lede mt-3">{subtitle}</p>
 
           <form className="mt-8 space-y-4" onSubmit={(e) => void onSubmit(e)}>
             {mode === "register" ? (
@@ -176,9 +176,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
               </label>
             ) : null}
 
-            {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+            {error ? <p className="note note-error">{error}</p> : null}
 
-            <button className="btn btn-primary w-full" type="submit" disabled={busy}>
+            <button className="btn btn-primary btn-lg w-full" type="submit" disabled={busy}>
               {busy ? t.auth.pleaseWait : title}
             </button>
           </form>

@@ -190,13 +190,13 @@ export function MusicEditor() {
             return (
               <li
                 key={track.id}
-                className="flex flex-wrap items-center gap-3 rounded-[18px] bg-white/5 p-3"
+                className="row"
               >
                 <span className="w-7 flex-none text-right text-[0.65rem] tabular-nums text-muted">
                   {formatInteger(i + 1, locale, 2)}
                 </span>
                 <input
-                  className="min-h-11 min-w-[9rem] flex-1 rounded-xl bg-black/30 px-3 text-sm"
+                  className="min-h-11 min-w-[9rem] flex-1 rounded-[14px] bg-white/5 px-3 text-sm shadow-[inset_0_0_0_1px_var(--hairline)]"
                   aria-label={t.music.titleLabel}
                   value={draft.title}
                   onChange={(e) =>
@@ -204,7 +204,7 @@ export function MusicEditor() {
                   }
                 />
                 <input
-                  className="min-h-11 min-w-[7rem] flex-1 rounded-xl bg-black/30 px-3 text-sm"
+                  className="min-h-11 min-w-[7rem] flex-1 rounded-[14px] bg-white/5 px-3 text-sm shadow-[inset_0_0_0_1px_var(--hairline)]"
                   aria-label={t.music.artistLabel}
                   placeholder={t.music.artistLabel}
                   value={draft.artist}
@@ -320,8 +320,8 @@ export function MusicEditor() {
           </label>
         </div>
         <p className="text-xs text-muted">{t.music.fileKinds}</p>
-        {error ? <p className="text-sm text-rose-300">{error}</p> : null}
-        {status ? <p className="text-sm text-ice">{status}</p> : null}
+        {error ? <p className="note note-error">{error}</p> : null}
+        {status ? <p className="note note-ok">{status}</p> : null}
         <button className="btn btn-primary" type="submit" disabled={busy}>
           {busy ? t.admin.saving : t.music.add}
         </button>

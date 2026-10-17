@@ -2,6 +2,7 @@
 /**
  * Writes the Clock Time icon set from one vector master:
  *   public/favicon.svg        64×64 rounded tab icon (transparent corners)
+ *   public/favicon-32.png     PNG fallback for browsers without SVG favicons
  *   public/icon-192.png       full-bleed square, clock inside the maskable safe zone
  *   public/icon-512.png       same artwork at 512 (valid as "any" and "maskable")
  *   public/apple-touch-icon.png 180×180 full-bleed (iOS applies its own mask)
@@ -16,6 +17,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { isMainModule } from "./with-app-env.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = join(root, "public");
@@ -55,6 +57,7 @@ export function squareSvg() {
 
 const outputs = [
   { file: "favicon.svg", svg: faviconSvg(), size: null },
+  { file: "favicon-32.png", svg: faviconSvg(), size: 32 },
   { file: "icon-192.png", svg: squareSvg(), size: 192 },
   { file: "icon-512.png", svg: squareSvg(), size: 512 },
   { file: "apple-touch-icon.png", svg: squareSvg(), size: 180 },
@@ -97,8 +100,12 @@ async function check() {
   console.log("icons: every file present at the declared sizes");
 }
 
-if (process.argv.includes("--check")) {
-  await check();
-} else {
-  await write();
+/* Guarded so `generate-app-icons.mjs` can import `squareSvg` without this
+ * module rewriting the web icons as a side effect of being imported. */
+if (isMainModule(import.meta.url)) {
+  if (process.argv.includes("--check")) {
+    await check();
+  } else {
+    await write();
+  }
 }

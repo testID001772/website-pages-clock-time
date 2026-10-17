@@ -93,17 +93,18 @@ function Settings() {
 
   return (
     <GatePage current="/settings" role={profile?.role ?? null}>
-      <section className="glass rounded-[32px] p-6 sm:p-8">
-        <h1 className="text-3xl font-semibold tracking-tight">{t.settings.title}</h1>
-        <p className="mt-2 text-sm text-muted">{t.settings.subtitle}</p>
+      <section className="glass panel">
+        <p className="eyebrow">{t.dashboard.memberOrbit}</p>
+        <h1 className="h1 mt-2">{t.settings.title}</h1>
+        <p className="lede mt-2">{t.settings.subtitle}</p>
 
         <form className="mt-8 space-y-5" onSubmit={(e) => void onSave(e)}>
           <div className="flex flex-wrap items-center gap-4">
-            <div className="size-20 overflow-hidden rounded-full bg-white/10">
+            <div className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-full bg-white/10 shadow-[inset_0_0_0_1px_var(--hairline-strong)]">
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="size-full object-cover" />
               ) : (
-                <div className="grid size-full place-items-center text-xl">
+                <div className="grid size-full place-items-center text-xl font-semibold">
                   {(displayName || "M").charAt(0).toUpperCase()}
                 </div>
               )}
@@ -144,19 +145,17 @@ function Settings() {
             </label>
           ) : null}
 
-          {error ? <p className="text-sm text-rose-300">{error}</p> : null}
-          {status ? <p className="text-sm text-ice">{status}</p> : null}
+          {error ? <p className="note note-error">{error}</p> : null}
+          {status ? <p className="note note-ok">{status}</p> : null}
           <button className="btn btn-primary" type="submit" disabled={busy}>
             {busy ? t.settings.saving : t.settings.saveProfile}
           </button>
         </form>
       </section>
 
-      <section className="glass mt-4 rounded-[32px] p-6 sm:p-8">
-        <h2 className="text-xl font-semibold">{t.settings.passwordTitle}</h2>
-        <p className="mt-1 text-sm text-muted">
-          {t.settings.passwordBlurb}
-        </p>
+      <section className="glass panel mt-5">
+        <h2 className="h2">{t.settings.passwordTitle}</h2>
+        <p className="lede mt-2">{t.settings.passwordBlurb}</p>
         <form className="mt-6 space-y-4" onSubmit={(e) => void onPassword(e)}>
           <label className="field">
             <span>{t.settings.currentPassword}</span>
@@ -189,7 +188,11 @@ function Settings() {
               required
             />
           </label>
-          {pwStatus ? <p className="text-sm text-muted">{pwStatus}</p> : null}
+          {pwStatus ? (
+            <p className={`note ${pwStatus === t.settings.updated ? "note-ok" : "note-error"}`}>
+              {pwStatus}
+            </p>
+          ) : null}
           <button className="btn btn-primary" type="submit">
             {t.settings.updatePassword}
           </button>

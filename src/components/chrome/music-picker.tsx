@@ -27,10 +27,9 @@ const fmt = (seconds: number, locale: string) =>
  * Music button + playlist panel. The first row is the live generative ambience
  * (no file); below it is the library staff maintain in the admin music editor,
  * which ships with 30 starter tracks, three minutes each. Play state follows the
- * shared audio
- * intent (`clock-time-music`), so unpausing also re-enables the UI sound
- * effects. If a track fails to load, playback falls back to the live ambience
- * and the row is flagged.
+ * shared audio intent (`clock-time-music`); UI click effects remain available
+ * when music is muted. If a track fails to load, playback falls back to the live
+ * ambience and the row is flagged.
  *
  * `STATIC_SITE` (the GitHub Pages build) has no `listTracks` to call, so the
  * panel reads the shipped `music/library.json` instead — same rows, no

@@ -47,6 +47,7 @@ const REQUIRED = [
   "space-nebula-phone.jpg",
   "manifest.webmanifest",
   "favicon.svg",
+  "favicon-32.png",
   "icon-192.png",
   "sw.js",
   "music/library.json",
