@@ -22,7 +22,7 @@
 import { spawn } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
 import { constants as osConstants } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, win32 } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const APP_ENV_REL_PATH = ".grok/app-env.json";
@@ -88,6 +88,27 @@ export function projectRoot() {
 }
 
 /**
+ * Windows cannot spawn npm's `.cmd` Vite shim directly with shell disabled.
+ * Launch the package's JS entry point through Node instead, keeping arguments
+ * intact and avoiding shell quoting/injection. Other commands stay untouched.
+ */
+export function resolveCommand(
+  command,
+  args,
+  platform = process.platform,
+  root = projectRoot(),
+  nodeExecutable = process.execPath,
+) {
+  if (platform === "win32" && command === "vite") {
+    return {
+      command: nodeExecutable,
+      args: [win32.join(root, "node_modules", "vite", "bin", "vite.js"), ...args],
+    };
+  }
+  return { command, args };
+}
+
+/**
  * Whether `moduleUrl` is the script node was asked to run.
  *
  * Both sides are resolved through symlinks: node realpaths `import.meta.url`
@@ -111,7 +132,8 @@ function main(argv) {
     process.exit(2);
   }
   const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
-  const child = spawn(command, args, { stdio: "inherit", env });
+  const resolved = resolveCommand(command, args);
+  const child = spawn(resolved.command, resolved.args, { stdio: "inherit", env });
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
     process.on(signal, () => child.kill(signal));

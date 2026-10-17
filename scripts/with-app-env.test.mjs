@@ -11,6 +11,7 @@ import {
   parseAppEnv,
   projectRoot,
   readAppEnv,
+  resolveCommand,
 } from "./with-app-env.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -75,6 +76,26 @@ test("vite loadEnv resolves the wrapped value", () => {
   const root = makeWorkspace('{"VITE_AUTH_ENABLED":"false"}');
   const merged = mergeAppEnv(readAppEnv(root), { PATH: "/usr/bin" });
   assert.equal(merged.VITE_AUTH_ENABLED, "false");
+});
+
+test("Windows runs Vite through Node instead of spawning its .cmd shim", () => {
+  assert.deepEqual(
+    resolveCommand(
+      "vite",
+      ["build"],
+      "win32",
+      String.raw`C:\repo`,
+      String.raw`C:\node\node.exe`,
+    ),
+    {
+      command: String.raw`C:\node\node.exe`,
+      args: [String.raw`C:\repo\node_modules\vite\bin\vite.js`, "build"],
+    },
+  );
+  assert.deepEqual(resolveCommand("vite", ["build"], "linux", "/repo"), {
+    command: "vite",
+    args: ["build"],
+  });
 });
 
 test("the wrapped command runs with the app env applied", async () => {
