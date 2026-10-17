@@ -30,6 +30,8 @@ export const RELEASE_BASE: string =
 
 /** Names must match what the workflow uploads, or the links 404. */
 export const WINDOWS_ASSET = "ClockTime-windows-setup.exe";
+export const WINDOWS_7_X64_ASSET = "ClockTime-windows-legacy-x64-setup.exe";
+export const WINDOWS_7_IA32_ASSET = "ClockTime-windows-legacy-ia32-setup.exe";
 export const ANDROID_ASSET = "ClockTime-android.apk";
 
 /** Pure join, so the URLs can be tested without a Vite environment. */
@@ -40,6 +42,14 @@ export function releaseAssetUrl(base: string, asset: string): string {
 
 export function windowsDownloadUrl(base = RELEASE_BASE): string {
   return releaseAssetUrl(base, WINDOWS_ASSET);
+}
+
+export function windows7X64DownloadUrl(base = RELEASE_BASE): string {
+  return releaseAssetUrl(base, WINDOWS_7_X64_ASSET);
+}
+
+export function windows7Ia32DownloadUrl(base = RELEASE_BASE): string {
+  return releaseAssetUrl(base, WINDOWS_7_IA32_ASSET);
 }
 
 export function androidDownloadUrl(base = RELEASE_BASE): string {

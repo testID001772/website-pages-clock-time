@@ -34,9 +34,14 @@ import { appEnvPlugin } from "./scripts/app-env-plugin.mjs";
 /** The GitHub Pages build: static output mounted under `PAGES_BASE`. */
 const pagesBuild = process.env.PAGES_BUILD === "1";
 const pagesBase = pagesBuild && process.env.PAGES_BASE ? process.env.PAGES_BASE : "/";
+// The isolated Electron 22 package embeds Chromium 108 for Windows 7. Its
+// bundle gets a matching target; the ordinary site and maintained desktop build
+// continue using Vite's modern default target.
+const buildTarget = process.env.VITE_BUILD_TARGET;
 
 export default defineConfig({
   base: pagesBase,
+  ...(buildTarget ? { build: { target: buildTarget } } : {}),
   plugins: [
     tailwindcss(),
     appEnvPlugin(),

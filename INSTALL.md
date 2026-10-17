@@ -72,6 +72,20 @@ website in a compatible browser and use its install option where available.
 Same as Android, the `Build installers` workflow will produce the `.exe` on a
 `windows-latest` runner if you would rather not install the toolchain.
 
+### Legacy Windows 7 installers (unsupported runtime)
+
+The workflow also builds separate x64 and x86 installers with Electron 22.3.27
+for Windows 7-era devices:
+
+- `ClockTime-windows-legacy-x64-setup.exe`
+- `ClockTime-windows-legacy-ia32-setup.exe`
+
+**Security warning:** Electron 22 / Chromium 108 reached end of support in 2023
+and receives no security fixes. Keep these legacy builds offline or use them
+only for the countdown on a trusted, isolated machine. Prefer the maintained
+Windows 10/11 x64 installer for everyday use. The legacy and modern app IDs are
+separate so the two variants do not overwrite one another.
+
 ---
 
 ## 4. What the website's download page links at
@@ -80,7 +94,9 @@ Same as Android, the `Build installers` workflow will produce the `.exe` on a
 
 | Install | Name the site links at |
 | --- | --- |
-| Windows | `ClockTime-windows-setup.exe` |
+| Windows 10/11 x64 | `ClockTime-windows-setup.exe` |
+| Legacy Windows 7 x64 | `ClockTime-windows-legacy-x64-setup.exe` |
+| Legacy Windows 7 x86 | `ClockTime-windows-legacy-ia32-setup.exe` |
 | Android | `ClockTime-android.apk` |
 
 Both are resolved through GitHub's release endpoint,

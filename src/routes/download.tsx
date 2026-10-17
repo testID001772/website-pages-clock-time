@@ -5,7 +5,12 @@ import { SiteFooter } from "@/components/chrome/site-footer";
 import { SpaceStage } from "@/components/space/space-stage";
 import { useLocale } from "@/lib/i18n";
 import { APP_VERSION } from "@/lib/version";
-import { androidDownloadUrl, windowsDownloadUrl } from "@/lib/downloads";
+import {
+  androidDownloadUrl,
+  windows7Ia32DownloadUrl,
+  windows7X64DownloadUrl,
+  windowsDownloadUrl,
+} from "@/lib/downloads";
 import { useInstallPrompt } from "@/lib/use-install-prompt";
 import { playSfx } from "@/lib/sfx";
 
@@ -56,6 +61,30 @@ function DownloadPage() {
               <Download className="size-4" />
               {t.download.windowsAction}
             </a>
+            <div className="mt-5 border-t border-white/10 pt-4">
+              <h3 className="text-sm font-semibold text-ink">{t.download.windowsLegacy}</h3>
+              <p className="micro mt-2 leading-relaxed normal-case tracking-normal text-sun">
+                {t.download.windowsLegacyBlurb}
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <a
+                  href={windows7X64DownloadUrl()}
+                  className="btn btn-ghost w-full text-xs"
+                  download
+                >
+                  <Download className="size-4" />
+                  {t.download.windowsLegacyX64Action}
+                </a>
+                <a
+                  href={windows7Ia32DownloadUrl()}
+                  className="btn btn-ghost w-full text-xs"
+                  download
+                >
+                  <Download className="size-4" />
+                  {t.download.windowsLegacyX86Action}
+                </a>
+              </div>
+            </div>
           </section>
 
           <section className="glass panel flex flex-col">

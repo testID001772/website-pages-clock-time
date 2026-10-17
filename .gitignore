@@ -26,4 +26,10 @@ node_modules/
 # Installable-app shells (the wrapped site is generated; the shells are source)
 desktop/web/
 desktop/dist/
+desktop/legacy/main.cjs
+desktop/legacy/preload.cjs
+desktop/legacy/static-server.cjs
+desktop/legacy/web/
+desktop/legacy/buildResources/
+desktop/legacy/dist/
 android/app/src/main/assets/public/

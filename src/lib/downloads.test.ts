@@ -5,8 +5,12 @@ import {
   DEFAULT_RELEASE_BASE,
   RELEASE_BASE,
   WINDOWS_ASSET,
+  WINDOWS_7_IA32_ASSET,
+  WINDOWS_7_X64_ASSET,
   androidDownloadUrl,
   releaseAssetUrl,
+  windows7Ia32DownloadUrl,
+  windows7X64DownloadUrl,
   windowsDownloadUrl,
 } from "./downloads.ts";
 
@@ -21,8 +25,10 @@ describe("installer links", () => {
     // `releases/latest/download/<name>` resolves by exact name: a version in
     // the filename would break the link on every release.
     assert.equal(WINDOWS_ASSET, "ClockTime-windows-setup.exe");
+    assert.equal(WINDOWS_7_X64_ASSET, "ClockTime-windows-legacy-x64-setup.exe");
+    assert.equal(WINDOWS_7_IA32_ASSET, "ClockTime-windows-legacy-ia32-setup.exe");
     assert.equal(ANDROID_ASSET, "ClockTime-android.apk");
-    for (const asset of [WINDOWS_ASSET, ANDROID_ASSET]) {
+    for (const asset of [WINDOWS_ASSET, WINDOWS_7_X64_ASSET, WINDOWS_7_IA32_ASSET, ANDROID_ASSET]) {
       assert.doesNotMatch(asset, /\d+\.\d+\.\d+/, `${asset} carries a version`);
     }
   });
@@ -42,6 +48,14 @@ describe("installer links", () => {
 
   it("produces the two URLs the download page links", () => {
     assert.equal(windowsDownloadUrl(), `${DEFAULT_RELEASE_BASE}/${WINDOWS_ASSET}`);
+    assert.equal(
+      windows7X64DownloadUrl(),
+      `${DEFAULT_RELEASE_BASE}/${WINDOWS_7_X64_ASSET}`,
+    );
+    assert.equal(
+      windows7Ia32DownloadUrl(),
+      `${DEFAULT_RELEASE_BASE}/${WINDOWS_7_IA32_ASSET}`,
+    );
     assert.equal(androidDownloadUrl(), `${DEFAULT_RELEASE_BASE}/${ANDROID_ASSET}`);
     // A fork can point the links somewhere else without touching the page.
     assert.equal(

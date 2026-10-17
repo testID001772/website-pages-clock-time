@@ -1,0 +1,54 @@
+{
+  "name": "clock-time-desktop-legacy",
+  "productName": "Clock Time Legacy",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Legacy Windows 7 shell for Clock Time. Uses end-of-life Electron 22.",
+  "main": "main.cjs",
+  "author": "Clock Time",
+  "license": "UNLICENSED",
+  "scripts": {
+    "stage": "node ../scripts/stage-legacy.mjs",
+    "dist:win": "npm run stage && electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "22.3.27",
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "app.clocktime.desktop.legacy",
+    "productName": "Clock Time Legacy",
+    "artifactName": "ClockTime-windows-legacy-${arch}-setup.${ext}",
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "static-server.cjs",
+      "web/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "buildResources"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "buildResources/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Clock Time Legacy"
+    }
+  }
+}
