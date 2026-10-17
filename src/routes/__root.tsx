@@ -2,6 +2,7 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-r
 import { AuthProvider } from "@/lib/auth/provider";
 import { LocaleProvider } from "@/lib/i18n";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
+import { InteractionSounds } from "@/components/chrome/interaction-sounds";
 import { ThemeProvider } from "@/components/theme-provider";
 import { appUrl } from "@/lib/base-url";
 import { getPublicSettings } from "@/lib/server/site";
@@ -54,6 +55,7 @@ function RootComponent() {
       </head>
       <body>
         <PreviewHostBridge />
+        <InteractionSounds />
         <AuthProvider>
           <ThemeProvider initialSettings={initialSettings}>
             <LocaleProvider>

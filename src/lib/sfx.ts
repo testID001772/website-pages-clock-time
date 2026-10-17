@@ -12,6 +12,12 @@ import { readVolume } from "./volume";
 export type SfxName = "click" | "pop" | "open" | "close" | "chime";
 
 let ctx: AudioContext | null = null;
+let explicitSfxThisTask = false;
+
+/** Lets the delegated UI listener avoid adding a generic click on top. */
+export function sfxWasPlayedInCurrentTask(): boolean {
+  return explicitSfxThisTask;
+}
 
 function audioCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -92,6 +98,12 @@ const SOUNDS: Record<SfxName, Tone[]> = {
 
 /** Play a UI sound. Silent when muted, at volume 0, on SSR, or without Web Audio. */
 export function playSfx(name: SfxName) {
+  if (typeof window !== "undefined") {
+    explicitSfxThisTask = true;
+    queueMicrotask(() => {
+      explicitSfxThisTask = false;
+    });
+  }
   if (!sfxEnabled()) return;
   const volume = readVolume();
   if (volume <= 0) return;
