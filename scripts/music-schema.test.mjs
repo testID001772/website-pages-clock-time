@@ -100,24 +100,17 @@ test("the seed migration, the generator recipes and the rows agree", async () =>
     assert.equal(row.source, `/music/${track.file}`);
     assert.equal(row.seconds, track.seconds);
   }
-  const bytes = await readFile(join(ROOT, "public/music", TRACKS[0].file));
-  assert.ok(parseMp3Duration(bytes) > 25, "a starter track must hold real audio");
 });
 
-test("the static catalogue mirrors the seeded library", async () => {
+test("the static catalogue is empty: the shipped music has been removed", async () => {
   // The GitHub Pages build has no database: it plays `public/music/library.json`
-  // (see `parseStaticTracks`). The rows there must be the seeded ones, or the
-  // static site would ship a playlist the app does not have.
+  // (see `parseStaticTracks`). The owner removed all shipped music, so the
+  // catalogue lists no tracks and no mp3 is left in public/music.
   const file = join(ROOT, "public/music/library.json");
   const document = JSON.parse(await readFile(file, "utf8"));
-  assert.deepEqual(document.tracks, libraryRows());
-  for (const row of document.tracks) {
-    assert.ok(row.source.startsWith("/music/"), `${row.id} must point at a shipped file`);
-    assert.ok(
-      existsSync(join(ROOT, "public/music", row.source.replace("/music/", ""))),
-      `${row.id} → ${row.source} is not in public/music`,
-    );
-  }
+  assert.deepEqual(document.tracks, []);
+  const leftover = (await readdir(join(ROOT, "public/music"))).filter((name) => name.endsWith(".mp3"));
+  assert.deepEqual(leftover, []);
 });
 
 test("the generated 100-track manifest stays gone", async () => {

@@ -133,14 +133,14 @@ export function stampManifest(base, outDir = OUT) {
 function assertCatalogue() {
   const catalogue = JSON.parse(readFileSync(join(OUT, "music", "library.json"), "utf8"));
   const rows = Array.isArray(catalogue?.tracks) ? catalogue.tracks : [];
-  if (rows.length === 0) throw new Error("music/library.json lists no tracks");
+  // An empty catalogue is valid: the playlist can be cleared to no tracks.
   const missing = rows
     .map((row) => String(row?.source ?? "").replace(/^\//, ""))
     .filter((rel) => rel === "" || !existsSync(join(OUT, rel)));
   if (missing.length > 0) {
     throw new Error(`missing from dist/client: ${missing.join(", ")}`);
   }
-  console.log(`[pages] music catalogue: ${rows.length} tracks, every file present`);
+  console.log(`[pages] music catalogue: ${rows.length} tracks${rows.length ? ", every file present" : " (empty)"}`);
 }
 
 /**
