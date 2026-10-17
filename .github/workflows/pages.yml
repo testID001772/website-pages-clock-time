@@ -19,6 +19,7 @@ on:
   push:
     branches:
       - arena/8c7bed09-website-pages-clock-time
+      - arena/87c414d1-website-pages-clock-time
       - main
   # Manual runs without a commit (e.g. after changing Pages settings).
   workflow_dispatch:
