@@ -29,15 +29,6 @@ export function SiteFooter() {
         <span aria-hidden="true" className="px-2 opacity-40">
           /
         </span>
-        <Link
-          to="/coming-up"
-          className="text-ink no-underline underline-offset-4 hover:underline"
-        >
-          {t.event.label}
-        </Link>
-        <span aria-hidden="true" className="px-2 opacity-40">
-          /
-        </span>
         <Link to="/download" className="text-ink no-underline underline-offset-4 hover:underline">
           {t.download.footer}
         </Link>
