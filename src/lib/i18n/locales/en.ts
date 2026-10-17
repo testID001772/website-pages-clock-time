@@ -5,6 +5,9 @@
  */
 export const en = {
   chrome: {
+    glass: "Glass",
+    useGlass: "Turn card glass on",
+    useSolid: "Turn card glass off",
     music: "Music",
     dashboard: "Dashboard",
     logIn: "Log in",
@@ -21,7 +24,6 @@ export const en = {
 
   countdown: {
     units: {
-      years: "Years",
       months: "Months",
       days: "Days",
       hours: "Hours",
@@ -29,25 +31,31 @@ export const en = {
       seconds: "Seconds",
     },
     ariaLabel: (
-      years: number,
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} years ${months} months ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`,
+      `${months} months ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`,
   },
   event: {
+    expected: (year: string | number) => `${year} (expected)`,
     label: "Coming up",
     releases: (date: string) => `Releases ${date}`,
     outNow: "Out now",
-    more: (count: number) => `More releases (${count})`,
+    more: (count: string | number) => `More releases (${count})`,
     less: "Show less",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `${years} years, ${months} months, ${days} days, ${hours} hours and ${minutes} minutes until the release`,
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
+      `${months} months, ${days} days, ${hours} hours and ${minutes} minutes until the release`,
   },
   playlist: {
+    volume: "Volume",
     title: "Playlist",
     play: "Play",
     pause: "Pause",
@@ -55,12 +63,38 @@ export const en = {
     failed: "Could not load this track",
     retry: "Retry",
     seek: "Seek",
-    count: (n: number) => `${n} tracks`,
+    count: (n: string | number) => `${n} tracks`,
+    empty: "No tracks yet.",
+    emptyHint: "Add music in the admin editor.",
+    emptyAction: "Open the music editor",
+  },
+
+  music: {
+    title: "Music",
+    subtitle: "Add tracks for the playlist — upload a file or link to one.",
+    empty: "The playlist is empty. Add the first track below.",
+    titleLabel: "Title",
+    artistLabel: "Artist",
+    upload: "Upload audio",
+    urlLabel: "…or paste a link",
+    add: "Add track",
+    save: "Save",
+    remove: "Delete",
+    up: "Move up",
+    down: "Move down",
+    saved: "Playlist saved.",
+    saveError: "Could not save the track.",
+    tooLarge: "That audio file is too large.",
+    badFile: "Choose an audio file.",
+    fileKinds: "MP3, OGG or WAV up to 3 MB.",
+    kindFile: "File",
+    kindLink: "Link",
+    limitReached: "The playlist is full — remove a track first.",
   },
 
   home: {
     target: "Target:",
-    yearComplete: (year: number, pct: string) => `${year} is ${pct}% complete`,
+    yearComplete: (year: string | number, pct: string) => `${year} is ${pct}% complete`,
     ringsIn: (when: string, timeZone: string) => `Rings in ${when} · ${timeZone}`,
     loadedIn: (seconds: string) => `Loaded in ${seconds}s`,
     previewFinale: "Preview the finale",
@@ -68,18 +102,28 @@ export const en = {
     partyWish: "Here is to a brilliant year ahead.",
     partyGo: "Here we go.",
     partyPeek: "A sneak peek of midnight.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${p(hours)}h ${p(minutes)}m ${p(seconds)}s of ${year} so far`;
     },
     startCountingTo: (year: string) => `Start counting to ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${days} days, ${hours} hours and ${minutes} minutes until ${year}`,
   },
   auth: {
     loginTitle: "Log in",
     registerTitle: "Create account",
-    loginSubtitle: "Return to System Space. Your orbit is saved.",
+    loginSubtitle: "Return to Clock Time. Your orbit is saved.",
     registerSubtitle: "Join as a member. The first account becomes owner.",
     name: "Name",
     namePlaceholder: "Your name",
@@ -118,7 +162,7 @@ export const en = {
     admin: "Admin",
     adminBlurb: "Background, blur, and glass.",
     roleTitle: "Role",
-    roleBlurb: "Members explore System Space. Admins shape the sky. Owners hold the keys.",
+    roleBlurb: "Members explore Clock Time. Admins shape the sky. Owners hold the keys.",
   },
   settings: {
     title: "Account",
@@ -150,15 +194,22 @@ export const en = {
     deniedTitle: "Admin only",
     deniedBlurb: "Ask the owner to promote your orbit.",
     title: "Admin",
-    subtitle: "Background, blur, and glass. Values start at 0px. Auto glass samples the upload.",
+    subtitle: "Background, blur, and cards. Values start at 0px. Readers switch card glass on from the header.",
     background: "Background",
+    shipped: "Built-in artwork",
+    shippedFerricWash: "Ferric wash",
+    shippedSpaceNebula: "Space nebula",
+    shippedDefault: "Default",
     uploadImage: "Upload image",
     clear: "Clear",
+    showBackground: "Show background image",
+    defaultImage: "Using the default image",
+    noBackground: "Image off — gradient only",
     backgroundBlur: (px: number) => `Background blur · ${px}px`,
     glassBlur: (px: number) => `Glass blur · ${px}px`,
     glassFill: (value: number) => `Glass fill · ${value}`,
     glassColor: "Glass color",
-    colorAuto: "Color glass auto",
+    colorAuto: "Glass uses the theme colour",
     imageError: "Could not use that image.",
     saved: "Appearance saved for everyone.",
     saveError: "Could not save.",
@@ -179,6 +230,11 @@ export const en = {
     dashboard: "Dashboard",
     account: "Account",
     admin: "Admin",
+  },
+  notFound: {
+    title: "Lost in space",
+    message: "That page drifted off. The countdown is still running.",
+    home: "Back to the countdown",
   },
   errorFallback: {
     title: "Something went wrong",

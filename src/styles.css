@@ -2,8 +2,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-void: #070411;
-  --color-space: #12082a;
+  --color-void: #050505;
+  --color-space: #0b0b0b;
   --color-nebula: #2a1458;
   --color-ink: #f3efff;
   --color-muted: #9b8ec4;
@@ -60,11 +60,16 @@
 
 :root {
   --bg-blur: 0px;
-  /* Pre-hydration glass: match DEFAULT_SETTINGS so the first paint already
-     shows real glass (the theme provider takes over with DB settings). */
+  /* Pre-hydration cards: the dark theme's own surface (black), so the first
+     paint matches what the theme provider computes from the staff settings
+     (`resolveCardSurface`). The light block below mirrors this in white. */
   --glass-blur: 12px;
-  --glass-rgb: 255, 255, 255;
-  --glass-alpha: 0.2;
+  --glass-rgb: 0, 0, 0;
+  --glass-alpha: 0.5;
+  /* Fully solid surfaces (the language menu): the theme's card colour exactly. */
+  --card-solid: #000000;
+  /* Hover tint for chips sitting on the stage (icon buttons). */
+  --chip-hover: rgb(255 255 255 / 0.12);
   --space-ms: 0.1s;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -82,8 +87,7 @@
   overflow: hidden;
   background:
     radial-gradient(120% 80% at 50% -10%, #2a1458 0%, transparent 55%),
-    radial-gradient(90% 60% at 80% 110%, #1a0b3d 0%, transparent 50%),
-    #12082a;
+    radial-gradient(90% 60% at 80% 110%, #1a0b3d 0%, transparent 50%), #050505;
   opacity: 1;
   visibility: visible;
   transition:
@@ -94,6 +98,11 @@
 /* Light theme: bright sky backdrop with dark content. Every data-theme
    rule below only applies in white mode, independent of space on/off. */
 html[data-theme="light"] {
+  /* Cards are white in light mode — the mirror of `:root` above. */
+  --glass-rgb: 255, 255, 255;
+  --glass-alpha: 0.62;
+  --card-solid: #ffffff;
+  --chip-hover: rgb(36 29 78 / 0.07);
   --color-void: #e9e6fa;
   --color-space: #ddd6f3;
   --color-nebula: #b9a8ee;
@@ -109,19 +118,22 @@ html[data-theme="light"] .space-bg {
     linear-gradient(180deg, #f2efff 0%, #e4e9ff 60%, #dfe4f7 100%);
 }
 
+/* The photograph (a shipped backdrop or a staff upload) is the dark stage's:
+   it is an almost black image, so painting it in white mode buried the pale
+   gradient and left the light theme's dark ink on a black page. White mode
+   keeps the gradient above and skips the image — `display: none` also means the
+   browser never spends the ~1.6 MB on it. The dark theme is unchanged. */
+html[data-theme="light"] .space-bg-custom {
+  display: none;
+}
+
 html[data-theme="light"] .glass {
-  background: rgb(255 255 255 / 0.6);
   box-shadow:
     0 0 0 1px rgb(36 29 78 / 0.12),
     0 8px 28px rgb(36 29 78 / 0.1);
 }
 
-html[data-theme="light"] .glass-strong {
-  background: rgb(255 255 255 / 0.78);
-}
-
 html[data-theme="light"] .lang-menu {
-  background: rgb(255 255 255);
   box-shadow:
     0 12px 40px rgb(36 29 78 / 0.18),
     0 0 0 1px rgb(36 29 78 / 0.1);
@@ -133,6 +145,10 @@ html[data-theme="light"] .lang-option:hover {
 
 html[data-theme="light"] .lang-option.current {
   background: rgb(36 29 78 / 0.1);
+}
+
+html[data-theme="light"] img {
+  outline-color: rgb(36 29 78 / 0.12);
 }
 
 html[data-theme="light"] .btn-ghost {
@@ -153,10 +169,6 @@ html[data-theme="light"] .icon-btn {
   color: #241d4e;
 }
 
-html[data-theme="light"] .icon-btn:hover {
-  background: rgb(36 29 78 / 0.07);
-}
-
 html[data-theme="light"] .field input,
 html[data-theme="light"] .field textarea,
 html[data-theme="light"] .field select {
@@ -171,7 +183,12 @@ html[data-theme="light"] .field input[type="range"] {
 }
 
 html[data-theme="light"] .num {
-  background-image: linear-gradient(180deg, #2b2358 0%, #4a3f9e 60%, #6a5cd0 100%);
+  background-image: linear-gradient(
+    180deg,
+    #2b2358 0%,
+    #4a3f9e 60%,
+    #6a5cd0 100%
+  );
 }
 
 html[data-theme="light"] .colon {
@@ -179,6 +196,12 @@ html[data-theme="light"] .colon {
 }
 
 /* Pale washes used for tracks, pills and rows become light-mode tints. */
+/* The hairline utilities are dark-theme values too: a white border on a white
+   card is invisible (the playlist header divider, the release-list separator). */
+html[data-theme="light"] [class*="border-white/"] {
+  border-color: rgb(36 29 78 / 0.12);
+}
+
 html[data-theme="light"] [class*="bg-white/"] {
   background-color: rgb(36 29 78 / 0.08);
 }
@@ -190,14 +213,28 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
 .space-bg-custom {
   position: absolute;
   inset: 0;
+  /* Set by the stage (`space-stage.tsx`): the full-size artwork, and the phone
+     copy a media query swaps in below. */
+  background-image: var(--bg-image);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   filter: blur(var(--bg-blur));
+  /* The blur samples past the edges; the over-scale hides that fringe. */
   transform: scale(1.08);
 }
 
 .space-bg-custom[hidden] {
   display: none;
+}
+
+/* A phone gets the 1920×1080 copy: the 8K original is 33 megapixels, and that
+   decode is what a cheap Android kills the tab over while the installed app is
+   starting. Behind the blur and the dark wash the two are indistinguishable. */
+@media (max-width: 900px) {
+  .space-bg-custom {
+    background-image: var(--bg-image-phone, var(--bg-image));
+  }
 }
 
 .space-content {
@@ -206,15 +243,30 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
   min-height: 100dvh;
 }
 
+/* Every card paints the theme's own colour first — black in dark, white in
+   light. Glass is a look the reader switches on (`html[data-glass="on"]`, the
+   GLASS chip in the header): the flat fill gives way to the staff-tuned
+   translucent one over the stage. Off is the default, so a first paint with no
+   JavaScript and no stored preference is already the finished look. */
 .glass {
-  background: rgb(var(--glass-rgb) / var(--glass-alpha));
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  background: var(--card-solid, #000000);
   box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
 }
 
 .glass-strong {
+  background: var(--card-solid, #000000);
+}
+
+html[data-glass="on"] .glass {
+  background: rgb(var(--glass-rgb) / var(--glass-alpha));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+html[data-glass="on"] .glass-strong {
   background: rgb(var(--glass-rgb) / calc(var(--glass-alpha) + 0.06));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 
 .lang-picker {
@@ -236,8 +288,12 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
   padding: 0.4rem;
   border-radius: 18px;
   list-style: none;
-  /* Fully solid panel: anything behind (e.g. the bright hero clock) must not ghost through. */
-  background: rgb(18 8 42);
+  /* Fully solid panel: anything behind (e.g. the bright hero clock) must not
+     ghost through. The colour is the theme's card colour — black in dark mode,
+     white in light — never the stage's violet. */
+  /* The fallback is the dark card colour: if the variable is ever missing the
+     panel still paints — it never goes transparent and never shows the stage. */
+  background: var(--card-solid, #000000);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow:
@@ -272,14 +328,24 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
   background: rgb(255 255 255 / 0.1);
 }
 
+/* The menu is white in white mode, so its states tint towards the ink. */
+html[data-theme="light"] .lang-option:hover {
+  background: rgb(36 29 78 / 0.07);
+}
+
+html[data-theme="light"] .lang-option.current {
+  background: rgb(36 29 78 / 0.1);
+}
+
 .lang-option > span {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Crowded header: the language picker rests on small screens. */
+/* Crowded header on phones: switching language is a control the reader needs and
+   this is the only way to reach it, so the *glass* look is what rests instead. */
 @media (max-width: 560px) {
-  .lang-picker {
+  .chip-glass {
     display: none;
   }
 }
@@ -305,7 +371,7 @@ html[data-theme="light"] div[class*="bg-white/10"] > div {
 }
 
 .icon-btn:hover {
-  background: rgb(var(--glass-rgb) / calc(var(--glass-alpha) + 0.08));
+  background: var(--chip-hover);
 }
 
 .icon-btn:active {
@@ -324,6 +390,14 @@ textarea:focus-visible,
 select:focus-visible {
   outline: 2px solid #c9c0ff;
   outline-offset: 3px;
+}
+
+html[data-theme="light"] .icon-btn:focus-visible,
+html[data-theme="light"] .btn:focus-visible,
+html[data-theme="light"] input:focus-visible,
+html[data-theme="light"] textarea:focus-visible,
+html[data-theme="light"] select:focus-visible {
+  outline-color: #4a3f9e;
 }
 
 .btn {
@@ -356,7 +430,7 @@ select:focus-visible {
 
 .btn-primary {
   background: #f4f0ff;
-  color: #12082a;
+  color: #050505;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -447,7 +521,12 @@ select:focus-visible {
 .num {
   font-weight: 700;
   letter-spacing: -0.04em;
-  background-image: linear-gradient(180deg, #ffffff 0%, #d7d0ff 58%, #b7ade8 100%);
+  background-image: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #d7d0ff 58%,
+    #b7ade8 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -479,6 +558,22 @@ select:focus-visible {
   padding: 0.25rem;
 }
 
+/* Both panels are 20rem wide and anchored to the chip that opened them. On a
+   narrow window the header row is wide enough to push those chips across, and a
+   panel anchored to them then ran off the left edge of the viewport — the page
+   cannot scroll sideways, so the panel was simply cut off. Under 800px they
+   anchor to the viewport instead, just under the header row (one row tall at
+   every width). At 800px and up the row never reaches far enough left. */
+@media (max-width: 800px) {
+  .music-menu,
+  .lang-menu {
+    position: fixed;
+    inset-inline-end: 1rem;
+    top: 4.75rem;
+    width: min(20rem, calc(100vw - 2rem));
+  }
+}
+
 .music-option {
   display: flex;
   align-items: center;
@@ -506,6 +601,46 @@ html[data-theme="light"] .music-option:hover {
 
 html[data-theme="light"] .music-option.current {
   background: rgb(36 29 78 / 0.1);
+}
+
+/* Volume row in the playlist panel: a slim bar plus the percentage it is at. */
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.volume-range {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  accent-color: var(--color-sun);
+  cursor: pointer;
+}
+
+.volume-range:focus-visible {
+  outline: 2px solid var(--color-sun);
+  outline-offset: 3px;
+}
+
+.volume-value {
+  min-width: 2.8rem;
+  flex: none;
+  text-align: end;
+  font-size: 0.65rem;
+  color: var(--color-muted);
+}
+
+html[data-theme="light"] .volume-row {
+  border-color: rgb(36 29 78 / 0.12);
+}
+
+html[data-theme="light"] .volume-range {
+  accent-color: #4a3f9e;
 }
 
 .music-title {
@@ -654,6 +789,10 @@ html[data-theme="light"] .event-list button[aria-current="true"] {
 .celebrate p {
   margin: 0;
   color: #d7d0ff;
+}
+
+html[data-theme="light"] .celebrate p {
+  color: var(--color-muted);
 }
 
 .celebrate .btn {

@@ -1,0 +1,130 @@
+# Publish the static build to GitHub Pages.
+#
+# Pages serves files only, so this workflow runs `npm run build:pages`
+# (prerendered HTML, `base` set to the project path, no server) and hands the
+# result to `actions/deploy-pages`. That is the whole deployment: the database,
+# Better Auth and the music library stay in the app's server build, which this
+# site does not use — the static build swaps the playlist for the shipped
+# `music/library.json` and hides the account UI.
+#
+# The repository must have Pages set to "GitHub Actions" as its source
+# (Settings → Pages → Build and deployment). `scripts/build-pages.mjs` fails the
+# job if the output could not work on a static host. Until that switch is made,
+# GitHub also publishes the branch root on every push (it has no index.html, so
+# it 404s) and the deploy job waits for that build before deploying, so this
+# artifact is the last writer.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - arena/8c7bed09-website-pages-clock-time
+      - main
+  # Manual runs without a commit (e.g. after changing Pages settings).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push supersedes a queued one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the static site
+        # A GitHub project site is served from `/<repo>/`; the build mounts the
+        # app and its assets there (a trailing hyphen in the repo name is part
+        # of the path, hence the slashes around the expression).
+        env:
+          PAGES_BASE: /${{ github.event.repository.name }}/
+        run: npm run build:pages
+
+      - uses: actions/configure-pages@v5
+
+      - name: Point Pages at this workflow
+        # Until the site's source is "GitHub Actions", GitHub also builds the
+        # branch root on every push and publishes it — and that build has no
+        # index.html, so it 404s (and can overwrite this deploy, whichever
+        # finishes last). A workflow token with `pages: write` can make the
+        # switch; the step is a no-op once it is already workflow-based.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current="$(curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" |
+            sed -n 's/.*"build_type": *"\([a-z]*\)".*/\1/p')"
+          echo "Pages source is currently: ${current:-unknown}"
+          if [ "$current" = "workflow" ]; then
+            echo "Already deploying from GitHub Actions."
+            exit 0
+          fi
+          code="$(curl -sS -o /tmp/pages-switch.json -w '%{http_code}' -X PUT \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" \
+            -d '{"build_type":"workflow"}')"
+          cat /tmp/pages-switch.json
+          echo "PUT /pages -> $code"
+          if [ "$code" = "204" ] || [ "$code" = "200" ]; then
+            echo "Pages now deploys from this workflow."
+          else
+            echo "::warning::Could not switch the Pages source automatically (HTTP $code). Set Settings → Pages → Build and deployment → Source to \"GitHub Actions\" once."
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/client
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Let the repository's own Pages build finish first
+        # While the site's source is still the branch ("legacy"), GitHub builds
+        # the branch root on every push as well, and the two deployments race:
+        # whichever finishes last serves the site. The branch build has no
+        # index.html, so if it lands last the whole site 404s — the app included.
+        # Deploying after it keeps this artifact live. Once Settings → Pages →
+        # Source is "GitHub Actions" there is no branch build to wait for and the
+        # loop exits on the first poll.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url="https://api.github.com/repos/${GITHUB_REPOSITORY}/pages/builds/latest"
+          for attempt in $(seq 1 36); do
+            info="$(curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" "$url" || echo '{}')"
+            sha="$(printf '%s' "$info" | sed -n 's/.*"commit": *"\([0-9a-f]*\)".*/\1/p')"
+            status="$(printf '%s' "$info" | sed -n 's/.*"status": *"\([a-z]*\)".*/\1/p')"
+            if [ "$sha" = "$GITHUB_SHA" ] && [ "$status" = "built" ]; then
+              echo "The branch build for $GITHUB_SHA has finished — deploying on top of it."
+              exit 0
+            fi
+            echo "waiting for the branch build (${attempt}/36): ${status:-none}"
+            sleep 5
+          done
+          echo "::warning::The branch Pages build never settled; deploying anyway."
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -2,10 +2,12 @@
  * Tiny synthesized UI sound effects — Web Audio oscillators, no audio files.
  *
  * Effects follow the site's audio intent: when background music is muted
- * (`system-space-music === "false"` in localStorage), effects stay silent
- * too. The AudioContext is created lazily inside the first gesture-driven
- * call, so autoplay policies never block it and SSR never touches it.
+ * (`clock-time-music === "false"` in localStorage), effects stay silent too.
+ * The AudioContext is created lazily inside the first gesture-driven call, so
+ * autoplay policies never block it and SSR never touches it.
  */
+import { readPref } from "./prefs";
+import { readVolume } from "./volume";
 
 export type SfxName = "click" | "pop" | "open" | "close" | "chime";
 
@@ -31,9 +33,12 @@ export function getAudioContext(): AudioContext | null {
   return audioCtx();
 }
 
+/** `clock-time-music`, exported so the music picker shares one key. */
+export const MUSIC_PREF = "music";
+
 function sfxEnabled(): boolean {
   if (typeof window === "undefined") return false;
-  return window.localStorage.getItem("system-space-music") !== "false";
+  return readPref(MUSIC_PREF) !== "false";
 }
 
 type Tone = {
@@ -51,6 +56,8 @@ type Tone = {
 };
 
 function tone(ac: AudioContext, { from, to, dur, gain, delay = 0, type = "sine" }: Tone) {
+  // The reader's volume scales the effects too — at 100% they are exactly the
+  // gains below (deliberately subtle); at 30% they are quietly proportional.
   const at = ac.currentTime + delay;
   const osc = ac.createOscillator();
   const amp = ac.createGain();
@@ -83,10 +90,12 @@ const SOUNDS: Record<SfxName, Tone[]> = {
   ],
 };
 
-/** Play a UI sound. Silent when muted, on SSR, or without Web Audio. */
+/** Play a UI sound. Silent when muted, at volume 0, on SSR, or without Web Audio. */
 export function playSfx(name: SfxName) {
   if (!sfxEnabled()) return;
+  const volume = readVolume();
+  if (volume <= 0) return;
   const ac = audioCtx();
   if (!ac) return;
-  for (const t of SOUNDS[name]) tone(ac, t);
+  for (const t of SOUNDS[name]) tone(ac, { ...t, gain: t.gain * volume });
 }

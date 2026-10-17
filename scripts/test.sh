@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Clock Years deploy smoke test — safe (read-only) by default.
+# Clock Time deploy smoke test — safe (read-only) by default.
 #
 #   bash test.sh                        # against http://localhost:8080
 #   BASE_URL=https://clock.example.com bash test.sh
@@ -50,7 +50,18 @@ check "login"                     200 "$(code /login)"
 check "dashboard (anon shell)"    200 "$(code /dashboard)"
 check "settings (anon shell)"     200 "$(code /settings)"
 check "admin (anon shell)"        200 "$(code /admin)"
+check "news removed"             404 "$(code /news)"
+check "unknown path"             404 "$(code /no-such-route)"
+check "og card"                  200 "$(code /og.jpg)"
+check "pwa icon"                 200 "$(code /icon-192.png)"
+check "default background"        200 "$(code /ferric-wash.jpg)"
+check "alternate background"      200 "$(code /space-nebula.jpg)"
+check "phone background"          200 "$(code /ferric-wash-phone.jpg)"
+check "phone alternate background" 200 "$(code /space-nebula-phone.jpg)"
 check "favicon"                   200 "$(code /favicon.svg)"
+check "music api 404"            404 "$(code /api/music/does-not-exist)"
+check "starter track"            200 "$(code /music/first-light.mp3)"
+check "static catalogue"         200 "$(code /music/library.json)"
 
 # --- Auth stack, read-only: bogus sign-in must 401 (proves API + DB read) ---
 bogus="nouser-$(date +%s)-$RANDOM@example.com"

@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Arabic copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const ar: Dictionary = {
   chrome: {
+    glass: "زجاج",
+    useGlass: "تشغيل زجاج البطاقات",
+    useSolid: "إيقاف زجاج البطاقات",
     music: "موسيقى",
     dashboard: "لوحة التحكم",
     logIn: "تسجيل الدخول",
@@ -19,7 +22,6 @@ export const ar: Dictionary = {
 
   countdown: {
     units: {
-      years: "سنوات",
       months: "أشهر",
       days: "أيام",
       hours: "ساعات",
@@ -27,26 +29,32 @@ export const ar: Dictionary = {
       seconds: "ثوانٍ",
     },
     ariaLabel: (
-      years: number,
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} سنوات ${months} أشهر ${days} أيام ${hours} ساعات ${minutes} دقائق ${seconds} ثوانٍ`,
+      `${months} أشهر ${days} أيام ${hours} ساعات ${minutes} دقائق ${seconds} ثوانٍ`,
   },
   event: {
+    expected: (year: string | number) => `${year} (متوقع)`,
     label: "الحدث القادم",
     releases: (date: string) => `يصدر بتاريخ ${date}`,
     outNow: "متاح الآن",
-    more: (count: number) => `المزيد من الإصدارات (${count})`,
+    more: (count: string | number) => `المزيد من الإصدارات (${count})`,
     less: "عرض أقل",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `متبقٍ ${years} سنوات و${months} أشهر و${days} أيام و${hours} ساعات و${minutes} دقيقة على الإصدار`,
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
+      `متبقٍ ${months} أشهر و${days} أيام و${hours} ساعات و${minutes} دقيقة على الإصدار`,
   },
 
   playlist: {
+    volume: "مستوى الصوت",
     title: "قائمة التشغيل",
     play: "تشغيل",
     pause: "إيقاف مؤقت",
@@ -54,12 +62,38 @@ export const ar: Dictionary = {
     failed: "تعذّر تحميل هذا المقطع",
     retry: "أعد المحاولة",
     seek: "التمرير",
-    count: (n: number) => `${n} مقطعًا`,
+    count: (n: string | number) => `${n} مقطعًا`,
+    empty: "لا توجد مقاطع بعد.",
+    emptyHint: "أضف موسيقى من محرّر المسؤول.",
+    emptyAction: "افتح محرّر الموسيقى",
+  },
+
+  music: {
+    title: "الموسيقى",
+    subtitle: "أضف مقاطع لقائمة التشغيل — ارفع ملفًا أو أضف رابطًا.",
+    empty: "قائمة التشغيل فارغة. أضف أول مقطع بالأسفل.",
+    titleLabel: "العنوان",
+    artistLabel: "الفنان",
+    upload: "رفع ملف صوتي",
+    urlLabel: "…أو الصق رابطًا",
+    add: "إضافة مقطع",
+    save: "حفظ",
+    remove: "حذف",
+    up: "تحريك لأعلى",
+    down: "تحريك لأسفل",
+    saved: "تم حفظ قائمة التشغيل.",
+    saveError: "تعذر حفظ المقطع.",
+    tooLarge: "ملف الصوت كبير جدًا.",
+    badFile: "اختر ملفًا صوتيًا.",
+    fileKinds: "MP3 أو OGG أو WAV حتى 3 ميجابايت.",
+    kindFile: "ملف",
+    kindLink: "رابط",
+    limitReached: "قائمة التشغيل ممتلئة — احذف مقطعًا أولًا.",
   },
 
   home: {
     target: "الهدف:",
-    yearComplete: (year: number, pct: string) => `اكتمل ${pct}% من ${year}`,
+    yearComplete: (year: string | number, pct: string) => `اكتمل ${pct}% من ${year}`,
     ringsIn: (when: string, timeZone: string) => `يبدأ ${when} · ${timeZone}`,
     loadedIn: (seconds: string) => `تم التحميل في ${seconds} ث`,
     previewFinale: "معاينة النهاية",
@@ -67,18 +101,28 @@ export const ar: Dictionary = {
     partyWish: "نتمنى لك سنة رائعة.",
     partyGo: "هيا بنا.",
     partyPeek: "لمحة عن منتصف الليل.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${p(hours)}س ${p(minutes)}د ${p(seconds)}ث من ${year} حتى الآن`;
     },
     startCountingTo: (year: string) => `ابدأ العد إلى ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${days} أيام و${hours} ساعات و${minutes} دقائق حتى ${year}`,
   },
   auth: {
     loginTitle: "تسجيل الدخول",
     registerTitle: "إنشاء حساب",
-    loginSubtitle: "عد إلى System Space. مدارك محفوظ.",
+    loginSubtitle: "عد إلى Clock Time. مدارك محفوظ.",
     registerSubtitle: "انضم كعضو. أول حساب يصبح المالك.",
     name: "الاسم",
     namePlaceholder: "اسمك",
@@ -117,7 +161,7 @@ export const ar: Dictionary = {
     admin: "الإدارة",
     adminBlurb: "الخلفية والضبابية والزجاج.",
     roleTitle: "الدور",
-    roleBlurb: "الأعضاء يستكشفون System Space. والمشرفون يشكلون السماء. والمالكون يحملون المفاتيح.",
+    roleBlurb: "الأعضاء يستكشفون Clock Time. والمشرفون يشكلون السماء. والمالكون يحملون المفاتيح.",
   },
   settings: {
     title: "الحساب",
@@ -149,16 +193,22 @@ export const ar: Dictionary = {
     deniedTitle: "للإدارة فقط",
     deniedBlurb: "اطلب من المالك ترقية مدارك.",
     title: "الإدارة",
-    subtitle:
-      "الخلفية والضبابية والزجاج. تبدأ القيم من 0px. الزجاج التلقائي يعاين الصورة المرفوعة.",
+    subtitle: "الخلفية والضبابية والبطاقات. تبدأ القيم من 0px. يفعّل الزوار زجاج البطاقات من الرأس.",
     background: "الخلفية",
+    shipped: "خلفيات جاهزة",
+    shippedFerricWash: "غسيل حديدي",
+    shippedSpaceNebula: "سديم فضائي",
+    shippedDefault: "الافتراضية",
     uploadImage: "رفع صورة",
     clear: "مسح",
+    showBackground: "إظهار صورة الخلفية",
+    defaultImage: "يتم استخدام الصورة الافتراضية",
+    noBackground: "الصورة متوقفة — التدرج فقط",
     backgroundBlur: (px: number) => `ضبابية الخلفية · ${px}px`,
     glassBlur: (px: number) => `ضبابية الزجاج · ${px}px`,
     glassFill: (value: number) => `تعبئة الزجاج · ${value}`,
     glassColor: "لون الزجاج",
-    colorAuto: "تلوين الزجاج تلقائيًا",
+    colorAuto: "الزجاج يستخدم لون المظهر",
     imageError: "تعذر استخدام هذه الصورة.",
     saved: "تم حفظ المظهر للجميع.",
     saveError: "تعذر الحفظ.",
@@ -179,6 +229,11 @@ export const ar: Dictionary = {
     dashboard: "لوحة التحكم",
     account: "الحساب",
     admin: "الإدارة",
+  },
+  notFound: {
+    title: "ضائع في الفضاء",
+    message: "هذه الصفحة انجرفت بعيدًا. العدّاد ما زال يعمل.",
+    home: "العودة إلى العدّاد",
   },
   errorFallback: {
     title: "حدث خطأ ما",

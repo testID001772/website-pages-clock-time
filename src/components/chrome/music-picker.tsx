@@ -1,25 +1,50 @@
+import { Link } from "@tanstack/react-router";
 import { Pause, Play, Radio, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { startAmbient, stopAmbient } from "@/lib/ambient";
+import { setAmbientVolume, startAmbient, stopAmbient } from "@/lib/ambient";
+import { STATIC_SITE } from "@/lib/base-url";
 import { useLocale } from "@/lib/i18n";
-import { PLAYLIST_TRACKS } from "@/lib/playlist-tracks";
-import { playSfx } from "@/lib/sfx";
+import {
+  loadStaticTracks,
+  playableTrackUrl,
+  trackDurationLabel,
+  trackLabel,
+  type MusicTrack,
+} from "@/lib/music";
+import { formatInteger, formatPercent } from "@/lib/numbers";
+import { readPref, writePref } from "@/lib/prefs";
+import { listTracks } from "@/lib/server/music";
+import { getMyProfile } from "@/lib/server/profiles";
+import { MUSIC_PREF, playSfx } from "@/lib/sfx";
+import { DEFAULT_VOLUME, readVolume, writeVolume } from "@/lib/volume";
+import { isStaff } from "@/lib/types";
 
-const fmt = (seconds: number) =>
-  `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+/** `m:ss` — the visitor's digits, like every other number in the app. */
+const fmt = (seconds: number, locale: string) =>
+  `${formatInteger(Math.floor(seconds / 60), locale)}:${formatInteger(Math.floor(seconds % 60), locale, 2)}`;
 
 /**
- * Music button + playlist panel. Track 0 is the live generative ambience
- * (no file); the other 100 are mp3s in /public/music (see
- * scripts/generate-music.mjs). Play state follows the shared audio intent
- * (`system-space-music`), so unpausing also re-enables the UI sound
- * effects. If an mp3 fails to load, playback falls back to the live
- * ambience and the row is flagged.
+ * Music button + playlist panel. The first row is the live generative ambience
+ * (no file); below it is the library staff maintain in the admin music editor,
+ * which ships with 30 starter tracks, three minutes each. Play state follows the
+ * shared audio
+ * intent (`clock-time-music`), so unpausing also re-enables the UI sound
+ * effects. If a track fails to load, playback falls back to the live ambience
+ * and the row is flagged.
+ *
+ * `STATIC_SITE` (the GitHub Pages build) has no `listTracks` to call, so the
+ * panel reads the shipped `music/library.json` instead — same rows, no
+ * database, and never an "ask staff to add tracks" link that cannot work.
  */
 export function MusicPicker() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [open, setOpen] = useState(false);
+  const [tracks, setTracks] = useState<MusicTrack[]>([]);
+  /** True when the signed-in visitor is staff and the library is empty. */
+  const [canEdit, setCanEdit] = useState(false);
   const [musicOn, setMusicOn] = useState(true);
+  /** 0–1, shared with the ambience and the UI effects. Full by default. */
+  const [volume, setVolume] = useState(DEFAULT_VOLUME);
   /** null = the live generative ambience. */
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [failedId, setFailedId] = useState<string | null>(null);
@@ -31,18 +56,22 @@ export function MusicPicker() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const playRef = useRef<(id: string | null) => void>(() => undefined);
+  /** Latest library, readable from the audio handlers registered once. */
+  const tracksRef = useRef<MusicTrack[]>([]);
   /** Track ids that already got their one automatic retry. */
   const retriedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    const intent = localStorage.getItem("system-space-music") !== "false";
+    const intent = readPref(MUSIC_PREF) !== "false";
     intentRef.current = intent;
     setMusicOn(intent);
     if (intent) startAmbient();
 
+    const storedVolume = readVolume();
+    setVolume(storedVolume);
     const audio = new Audio();
     audio.preload = "none"; // fetch a track only when it is picked
-    audio.volume = 0.6;
+    audio.volume = storedVolume;
     audio.addEventListener("error", () => {
       const id = currentRef.current;
       if (id === null) return;
@@ -75,9 +104,9 @@ export function MusicPicker() {
     audio.addEventListener("ended", () => {
       const id = currentRef.current;
       if (id === null) return;
-      const i = PLAYLIST_TRACKS.findIndex((track) => track.id === id);
-      const next = PLAYLIST_TRACKS[(i + 1) % PLAYLIST_TRACKS.length];
-      playRef.current(next.id);
+      const i = tracksRef.current.findIndex((track) => track.id === id);
+      const next = tracksRef.current[(i + 1) % tracksRef.current.length];
+      if (next) playRef.current(next.id);
     });
     audioRef.current = audio;
     return () => {
@@ -85,6 +114,36 @@ export function MusicPicker() {
       audio.removeAttribute("src");
     };
   }, []);
+
+  /**
+   * Load the library every time the panel opens — that is what makes a track
+   * added in the admin editor show up without reloading the page. An empty
+   * library additionally asks whether this visitor may add tracks, so staff
+   * get a link straight to the editor.
+   */
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    const loadLibrary: () => Promise<MusicTrack[]> = STATIC_SITE
+      ? loadStaticTracks
+      : (listTracks as () => Promise<MusicTrack[]>);
+    void loadLibrary()
+      .then((next) => {
+        if (cancelled) return;
+        tracksRef.current = next;
+        setTracks(next);
+        if (next.length > 0 || STATIC_SITE) return;
+        return getMyProfile()
+          .then((profile) => {
+            if (!cancelled) setCanEdit(isStaff(profile.role));
+          })
+          .catch(() => undefined);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -109,12 +168,12 @@ export function MusicPicker() {
     setCurrentId(id);
     currentRef.current = id;
     setElapsed(0);
-    const track = PLAYLIST_TRACKS.find((item) => item.id === id);
+    const track = tracksRef.current.find((item) => item.id === id);
     setDuration(track?.seconds ?? 0);
     if (!intentRef.current) {
       intentRef.current = true;
       setMusicOn(true);
-      localStorage.setItem("system-space-music", "true");
+      writePref(MUSIC_PREF, "true");
     }
     const audio = audioRef.current;
     if (id === null) {
@@ -125,10 +184,23 @@ export function MusicPicker() {
     }
     stopAmbient();
     if (!track || !audio) return;
-    audio.src = `/music/${track.file}`;
+    audio.src = playableTrackUrl(track);
     void audio.play().catch(() => undefined);
   };
   playRef.current = play;
+  tracksRef.current = tracks;
+
+  // The file player and the generative ambience share one volume.
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume;
+    setAmbientVolume(volume);
+  }, [volume]);
+
+  /** Slider handler: store the value, and let the sound change underneath it. */
+  const onVolume = (next: number) => {
+    const applied = writeVolume(next);
+    setVolume(applied);
+  };
 
   /** Click / tap on the seek bar jumps to that position. */
   const seekTo = (clientX: number, bar: HTMLElement) => {
@@ -165,7 +237,7 @@ export function MusicPicker() {
     playSfx("click");
     intentRef.current = next;
     setMusicOn(next);
-    localStorage.setItem("system-space-music", String(next));
+    writePref(MUSIC_PREF, String(next));
     const audio = audioRef.current;
     if (next) {
       if (currentRef.current === null) startAmbient();
@@ -177,6 +249,7 @@ export function MusicPicker() {
   };
 
   const rowClass = (current: boolean) => `music-option${current ? " current" : ""}`;
+  const currentTrack = currentId ? tracks.find((track) => track.id === currentId) : undefined;
 
   return (
     <div className="music-picker" ref={rootRef}>
@@ -203,7 +276,7 @@ export function MusicPicker() {
             </p>
             <div className="flex items-center gap-2">
               <span className="text-[0.65rem] tracking-wide text-muted">
-                {t.playlist.count(PLAYLIST_TRACKS.length)}
+                {t.playlist.count(formatInteger(tracks.length, locale))}
               </span>
               <button
                 type="button"
@@ -216,14 +289,29 @@ export function MusicPicker() {
             </div>
           </div>
 
+          <div className="volume-row">
+            <Volume2 className="size-3.5 flex-none text-muted" aria-hidden="true" />
+            <input
+              type="range"
+              className="volume-range"
+              min={0}
+              max={100}
+              step={5}
+              value={Math.round(volume * 100)}
+              onChange={(e) => onVolume(Number(e.target.value) / 100)}
+              aria-label={t.playlist.volume}
+            />
+            <span className="volume-value tabular-nums">{formatPercent(volume, locale)}</span>
+          </div>
+
           {currentId ? (
             <div className="now-playing">
               <div className="flex items-baseline justify-between gap-2">
                 <p className="music-title text-xs font-medium text-ink">
-                  {PLAYLIST_TRACKS.find((track) => track.id === currentId)?.title}
+                  {currentTrack ? trackLabel(currentTrack) : ""}
                 </p>
                 <p className="flex-none text-[0.65rem] tabular-nums text-muted">
-                  {fmt(Math.min(elapsed, duration))} / {fmt(duration)}
+                  {fmt(Math.min(elapsed, duration), locale)} / {fmt(duration, locale)}
                 </p>
               </div>
               <div
@@ -266,7 +354,24 @@ export function MusicPicker() {
                 ) : null}
               </button>
             </li>
-            {PLAYLIST_TRACKS.map((track, i) => {
+            {tracks.length === 0 ? (
+              <li className="px-3 py-3">
+                <p className="text-xs text-muted">{t.playlist.empty}</p>
+                {canEdit ? (
+                  <Link
+                    to="/admin"
+                    hash="music"
+                    className="mt-1 inline-block text-[0.65rem] text-ice underline"
+                    onClick={() => setOpen(false)}
+                  >
+                    {t.playlist.emptyAction}
+                  </Link>
+                ) : (
+                  <p className="mt-1 text-[0.65rem] text-muted">{t.playlist.emptyHint}</p>
+                )}
+              </li>
+            ) : null}
+            {tracks.map((track, i) => {
               const current = track.id === currentId;
               const failed = track.id === failedId;
               return (
@@ -279,10 +384,10 @@ export function MusicPicker() {
                     onClick={() => play(track.id)}
                   >
                     <span className="w-6 flex-none text-right text-[0.65rem] tabular-nums text-muted">
-                      {failed ? "!" : String(i + 1).padStart(2, "0")}
+                      {failed ? "!" : formatInteger(i + 1, locale, 2)}
                     </span>
                     <span className={`music-title${failed ? " text-muted" : ""}`}>
-                      {track.title}
+                      {trackLabel(track)}
                     </span>
                     <span className="flex flex-none items-center gap-2">
                       {current && musicOn ? (
@@ -296,11 +401,11 @@ export function MusicPicker() {
                         <span className="text-[0.65rem] font-bold tracking-[0.12em] text-sun uppercase">
                           {t.playlist.retry}
                         </span>
-                      ) : (
+                      ) : trackDurationLabel(track.seconds) ? (
                         <span className="text-[0.65rem] tabular-nums text-muted">
-                          {fmt(track.seconds)}
+                          {trackDurationLabel(track.seconds, locale)}
                         </span>
-                      )}
+                      ) : null}
                     </span>
                   </button>
                 </li>

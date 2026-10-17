@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Italian copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const it: Dictionary = {
   chrome: {
+    glass: "Vetro",
+    useGlass: "Attiva il vetro delle schede",
+    useSolid: "Disattiva il vetro delle schede",
     music: "Musica",
     dashboard: "Pannello",
     logIn: "Accedi",
@@ -19,7 +22,6 @@ export const it: Dictionary = {
 
   countdown: {
     units: {
-      years: "Anni",
       months: "Mesi",
       days: "Giorni",
       hours: "Ore",
@@ -27,26 +29,32 @@ export const it: Dictionary = {
       seconds: "Secondi",
     },
     ariaLabel: (
-      years: number,
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} anni ${months} mesi ${days} giorni ${hours} ore ${minutes} minuti ${seconds} secondi`,
+      `${months} mesi ${days} giorni ${hours} ore ${minutes} minuti ${seconds} secondi`,
   },
   event: {
+    expected: (year: string | number) => `${year} (previsto)`,
     label: "In arrivo",
     releases: (date: string) => `Esce il ${date}`,
     outNow: "Già disponibile",
-    more: (count: number) => `Altre uscite (${count})`,
+    more: (count: string | number) => `Altre uscite (${count})`,
     less: "Mostra meno",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `${years} anni, ${months} mesi, ${days} giorni, ${hours} ore e ${minutes} minuti all'uscita`,
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
+      `${months} mesi, ${days} giorni, ${hours} ore e ${minutes} minuti all'uscita`,
   },
 
   playlist: {
+    volume: "Volume",
     title: "Playlist",
     play: "Riproduci",
     pause: "Pausa",
@@ -54,12 +62,38 @@ export const it: Dictionary = {
     failed: "Impossibile caricare questo brano",
     retry: "Riprova",
     seek: "Avanza",
-    count: (n: number) => `${n} brani`,
+    count: (n: string | number) => `${n} brani`,
+    empty: "Nessun brano per ora.",
+    emptyHint: "Aggiungi musica nell'editor admin.",
+    emptyAction: "Apri l'editor musicale",
+  },
+
+  music: {
+    title: "Musica",
+    subtitle: "Aggiungi brani alla playlist: carica un file o un link.",
+    empty: "La playlist è vuota. Aggiungi il primo brano qui sotto.",
+    titleLabel: "Titolo",
+    artistLabel: "Artista",
+    upload: "Carica audio",
+    urlLabel: "…oppure incolla un link",
+    add: "Aggiungi brano",
+    save: "Salva",
+    remove: "Elimina",
+    up: "Sposta su",
+    down: "Sposta giù",
+    saved: "Playlist salvata.",
+    saveError: "Impossibile salvare il brano.",
+    tooLarge: "Quel file audio è troppo grande.",
+    badFile: "Scegli un file audio.",
+    fileKinds: "MP3, OGG o WAV fino a 3 MB.",
+    kindFile: "File",
+    kindLink: "Link",
+    limitReached: "La playlist è piena: rimuovi prima un brano.",
   },
 
   home: {
     target: "Obiettivo:",
-    yearComplete: (year: number, pct: string) => `Il ${year} è al ${pct}%`,
+    yearComplete: (year: string | number, pct: string) => `Il ${year} è al ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `Inizia il ${when} · ${timeZone}`,
     loadedIn: (seconds: string) => `Caricato in ${seconds} s`,
     previewFinale: "Anteprima del finale",
@@ -67,18 +101,28 @@ export const it: Dictionary = {
     partyWish: "A un anno brillante.",
     partyGo: "Si parte.",
     partyPeek: "Un assaggio della mezzanotte.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${p(hours)}o ${p(minutes)}m ${p(seconds)}s del ${year} finora`;
     },
     startCountingTo: (year: string) => `Conta fino al ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${days} giorni, ${hours} ore e ${minutes} minuti al ${year}`,
   },
   auth: {
     loginTitle: "Accedi",
     registerTitle: "Crea account",
-    loginSubtitle: "Torna in System Space. La tua orbita è salva.",
+    loginSubtitle: "Torna in Clock Time. La tua orbita è salva.",
     registerSubtitle: "Unisciti come membro. Il primo account diventa proprietario.",
     name: "Nome",
     namePlaceholder: "Il tuo nome",
@@ -118,7 +162,7 @@ export const it: Dictionary = {
     adminBlurb: "Sfondo, sfocatura e vetro.",
     roleTitle: "Ruolo",
     roleBlurb:
-      "I membri esplorano System Space. Gli admin plasmano il cielo. I proprietari tengono le chiavi.",
+      "I membri esplorano Clock Time. Gli admin plasmano il cielo. I proprietari tengono le chiavi.",
   },
   settings: {
     title: "Account",
@@ -150,16 +194,22 @@ export const it: Dictionary = {
     deniedTitle: "Solo admin",
     deniedBlurb: "Chiedi al proprietario di promuovere la tua orbita.",
     title: "Admin",
-    subtitle:
-      "Sfondo, sfocatura e vetro. I valori partono da 0px. Il vetro auto campiona l'immagine.",
+    subtitle: "Sfondo, sfocatura e schede. I valori partono da 0px. Il vetro delle schede si attiva dall'intestazione.",
     background: "Sfondo",
+    shipped: "Immagini incluse",
+    shippedFerricWash: "Lavaggio ferrico",
+    shippedSpaceNebula: "Nebulosa",
+    shippedDefault: "Predefinita",
     uploadImage: "Carica immagine",
     clear: "Cancella",
+    showBackground: "Mostra immagine di sfondo",
+    defaultImage: "Immagine predefinita in uso",
+    noBackground: "Immagine disattivata — solo gradiente",
     backgroundBlur: (px: number) => `Sfocatura sfondo · ${px}px`,
     glassBlur: (px: number) => `Sfocatura vetro · ${px}px`,
     glassFill: (value: number) => `Riempimento vetro · ${value}`,
     glassColor: "Colore vetro",
-    colorAuto: "Vetro automatico",
+    colorAuto: "Il vetro usa il colore del tema",
     imageError: "Immagine non utilizzabile.",
     saved: "Aspetto salvato per tutti.",
     saveError: "Salvataggio non riuscito.",
@@ -180,6 +230,11 @@ export const it: Dictionary = {
     dashboard: "Pannello",
     account: "Account",
     admin: "Admin",
+  },
+  notFound: {
+    title: "Persi nello spazio",
+    message: "Quella pagina è andata alla deriva. Il conto alla rovescia continua.",
+    home: "Torna al conto alla rovescia",
   },
   errorFallback: {
     title: "Qualcosa è andato storto",

@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Spanish copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const es: Dictionary = {
   chrome: {
+    glass: "Cristal",
+    useGlass: "Activar el cristal de las tarjetas",
+    useSolid: "Desactivar el cristal de las tarjetas",
     music: "Música",
     dashboard: "Panel",
     logIn: "Iniciar sesión",
@@ -19,7 +22,6 @@ export const es: Dictionary = {
 
   countdown: {
     units: {
-      years: "Años",
       months: "Meses",
       days: "Días",
       hours: "Horas",
@@ -27,26 +29,32 @@ export const es: Dictionary = {
       seconds: "Segundos",
     },
     ariaLabel: (
-      years: number,
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} años ${months} meses ${days} días ${hours} horas ${minutes} minutos ${seconds} segundos`,
+      `${months} meses ${days} días ${hours} horas ${minutes} minutos ${seconds} segundos`,
   },
   event: {
+    expected: (year: string | number) => `${year} (previsto)`,
     label: "Próximamente",
     releases: (date: string) => `Se lanza el ${date}`,
     outNow: "Ya disponible",
-    more: (count: number) => `Más lanzamientos (${count})`,
+    more: (count: string | number) => `Más lanzamientos (${count})`,
     less: "Mostrar menos",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `${years} años, ${months} meses, ${days} días, ${hours} horas y ${minutes} minutos para el lanzamiento`,
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
+      `${months} meses, ${days} días, ${hours} horas y ${minutes} minutos para el lanzamiento`,
   },
 
   playlist: {
+    volume: "Volumen",
     title: "Lista de reproducción",
     play: "Reproducir",
     pause: "Pausar",
@@ -54,12 +62,38 @@ export const es: Dictionary = {
     failed: "No se pudo cargar esta pista",
     retry: "Reintentar",
     seek: "Avanzar",
-    count: (n: number) => `${n} pistas`,
+    count: (n: string | number) => `${n} pistas`,
+    empty: "Aún no hay pistas.",
+    emptyHint: "Añade música desde el editor de administración.",
+    emptyAction: "Abrir el editor de música",
+  },
+
+  music: {
+    title: "Música",
+    subtitle: "Añade pistas a la lista: sube un archivo o enlaza uno.",
+    empty: "La lista está vacía. Añade la primera pista abajo.",
+    titleLabel: "Título",
+    artistLabel: "Artista",
+    upload: "Subir audio",
+    urlLabel: "…o pegar un enlace",
+    add: "Añadir pista",
+    save: "Guardar",
+    remove: "Eliminar",
+    up: "Subir",
+    down: "Bajar",
+    saved: "Lista guardada.",
+    saveError: "No se pudo guardar la pista.",
+    tooLarge: "Ese archivo de audio es demasiado grande.",
+    badFile: "Elige un archivo de audio.",
+    fileKinds: "MP3, OGG o WAV hasta 3 MB.",
+    kindFile: "Archivo",
+    kindLink: "Enlace",
+    limitReached: "La lista está llena: elimina una pista primero.",
   },
 
   home: {
     target: "Meta:",
-    yearComplete: (year: number, pct: string) => `El ${year} va al ${pct}%`,
+    yearComplete: (year: string | number, pct: string) => `El ${year} va al ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `Comienza el ${when} · ${timeZone}`,
     loadedIn: (seconds: string) => `Cargado en ${seconds} s`,
     previewFinale: "Ver el final",
@@ -67,18 +101,28 @@ export const es: Dictionary = {
     partyWish: "Por un año brillante.",
     partyGo: "Allá vamos.",
     partyPeek: "Un adelanto de la medianoche.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${p(hours)} h ${p(minutes)} min ${p(seconds)} s del ${year}`;
     },
     startCountingTo: (year: string) => `Contar hasta ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${days} días, ${hours} horas y ${minutes} minutos hasta ${year}`,
   },
   auth: {
     loginTitle: "Iniciar sesión",
     registerTitle: "Crear cuenta",
-    loginSubtitle: "Vuelve a System Space. Tu órbita está guardada.",
+    loginSubtitle: "Vuelve a Clock Time. Tu órbita está guardada.",
     registerSubtitle: "Únete como miembro. La primera cuenta será la propietaria.",
     name: "Nombre",
     namePlaceholder: "Tu nombre",
@@ -118,7 +162,7 @@ export const es: Dictionary = {
     adminBlurb: "Fondo, desenfoque y cristal.",
     roleTitle: "Rol",
     roleBlurb:
-      "Los miembros exploran System Space. Los admins dan forma al cielo. Los propietarios tienen las llaves.",
+      "Los miembros exploran Clock Time. Los admins dan forma al cielo. Los propietarios tienen las llaves.",
   },
   settings: {
     title: "Cuenta",
@@ -150,16 +194,22 @@ export const es: Dictionary = {
     deniedTitle: "Solo admins",
     deniedBlurb: "Pide al propietario que ascienda tu órbita.",
     title: "Admin",
-    subtitle:
-      "Fondo, desenfoque y cristal. Los valores empiezan en 0px. El cristal auto muestrea la imagen.",
+    subtitle: "Fondo, desenfoque y tarjetas. Los valores empiezan en 0px. El cristal de las tarjetas se activa desde la cabecera.",
     background: "Fondo",
+    shipped: "Imágenes incluidas",
+    shippedFerricWash: "Lavado férrico",
+    shippedSpaceNebula: "Nebulosa",
+    shippedDefault: "Predeterminada",
     uploadImage: "Subir imagen",
     clear: "Borrar",
+    showBackground: "Mostrar imagen de fondo",
+    defaultImage: "Usando la imagen predeterminada",
+    noBackground: "Imagen desactivada: solo degradado",
     backgroundBlur: (px: number) => `Desenfoque de fondo · ${px}px`,
     glassBlur: (px: number) => `Desenfoque de cristal · ${px}px`,
     glassFill: (value: number) => `Relleno de cristal · ${value}`,
     glassColor: "Color de cristal",
-    colorAuto: "Cristal auto",
+    colorAuto: "El cristal usa el color del tema",
     imageError: "No se pudo usar esa imagen.",
     saved: "Apariencia guardada para todos.",
     saveError: "No se pudo guardar.",
@@ -180,6 +230,11 @@ export const es: Dictionary = {
     dashboard: "Panel",
     account: "Cuenta",
     admin: "Admin",
+  },
+  notFound: {
+    title: "Perdido en el espacio",
+    message: "Esa página se ha desviado. La cuenta atrás sigue en marcha.",
+    home: "Volver a la cuenta atrás",
   },
   errorFallback: {
     title: "Algo salió mal",

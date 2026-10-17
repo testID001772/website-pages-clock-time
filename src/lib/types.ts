@@ -14,6 +14,8 @@ export type Profile = {
 
 export type SiteSettings = {
   backgroundUrl: string | null;
+  /** Admin opt-out: `false` hides the background image entirely. */
+  backgroundEnabled: boolean;
   backgroundBlur: number;
   glassBlur: number;
   glassOpacity: number;
@@ -23,6 +25,7 @@ export type SiteSettings = {
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   backgroundUrl: null,
+  backgroundEnabled: true,
   backgroundBlur: 0,
   glassBlur: 12,
   glassOpacity: 20,
@@ -50,6 +53,12 @@ export function serverErrorText(code: string, t: Dictionary): string | null {
       return t.errors.imageTooLarge;
     case "BACKGROUND_TOO_LARGE":
       return t.errors.backgroundTooLarge;
+    case "MUSIC_BAD_SOURCE":
+      return t.music.badFile;
+    case "MUSIC_TOO_LARGE":
+      return t.music.tooLarge;
+    case "MUSIC_LIMIT_REACHED":
+      return t.music.limitReached;
     default:
       return null;
   }

@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Turkish copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const tr: Dictionary = {
   chrome: {
+    glass: "Cam",
+    useGlass: "Kart camını aç",
+    useSolid: "Kart camını kapat",
     music: "Müzik",
     dashboard: "Panel",
     logIn: "Giriş yap",
@@ -19,7 +22,6 @@ export const tr: Dictionary = {
 
   countdown: {
     units: {
-      years: "Yıl",
       months: "Ay",
       days: "Gün",
       hours: "Saat",
@@ -27,25 +29,31 @@ export const tr: Dictionary = {
       seconds: "Saniye",
     },
     ariaLabel: (
-      years: number,
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
-    ) => `${years} yıl ${months} ay ${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`,
+    ) => `${months} ay ${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`,
   },
   event: {
+    expected: (year: string | number) => `${year} (bekleniyor)`,
     label: "Yakında",
     releases: (date: string) => `${date} tarihinde çıkıyor`,
     outNow: "Şimdi satışta",
-    more: (count: number) => `Daha fazla çıkış (${count})`,
+    more: (count: string | number) => `Daha fazla çıkış (${count})`,
     less: "Daha az göster",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `Yayına ${years} yıl, ${months} ay, ${days} gün, ${hours} saat ve ${minutes} dakika kaldı`,
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
+      `Yayına ${months} ay, ${days} gün, ${hours} saat ve ${minutes} dakika kaldı`,
   },
 
   playlist: {
+    volume: "Ses düzeyi",
     title: "Çalma listesi",
     play: "Oynat",
     pause: "Duraklat",
@@ -53,12 +61,38 @@ export const tr: Dictionary = {
     failed: "Bu parça yüklenemedi",
     retry: "Tekrar dene",
     seek: "Sar",
-    count: (n: number) => `${n} parça`,
+    count: (n: string | number) => `${n} parça`,
+    empty: "Henüz parça yok.",
+    emptyHint: "Yönetici düzenleyicisinden müzik ekleyin.",
+    emptyAction: "Müzik düzenleyicisini aç",
+  },
+
+  music: {
+    title: "Müzik",
+    subtitle: "Çalma listesine parça ekleyin — dosya yükleyin veya bağlantı verin.",
+    empty: "Çalma listesi boş. Aşağıdan ilk parçayı ekleyin.",
+    titleLabel: "Başlık",
+    artistLabel: "Sanatçı",
+    upload: "Ses yükle",
+    urlLabel: "…veya bağlantı yapıştır",
+    add: "Parça ekle",
+    save: "Kaydet",
+    remove: "Sil",
+    up: "Yukarı taşı",
+    down: "Aşağı taşı",
+    saved: "Çalma listesi kaydedildi.",
+    saveError: "Parça kaydedilemedi.",
+    tooLarge: "Bu ses dosyası çok büyük.",
+    badFile: "Bir ses dosyası seçin.",
+    fileKinds: "MP3, OGG veya WAV, en fazla 3 MB.",
+    kindFile: "Dosya",
+    kindLink: "Bağlantı",
+    limitReached: "Çalma listesi dolu — önce bir parça silin.",
   },
 
   home: {
     target: "Hedef:",
-    yearComplete: (year: number, pct: string) => `${year} %${pct} tamamlandı`,
+    yearComplete: (year: string | number, pct: string) => `${year} %${pct} tamamlandı`,
     ringsIn: (when: string, timeZone: string) => `${when} başlıyor · ${timeZone}`,
     loadedIn: (seconds: string) => `${seconds} sn'de yüklendi`,
     previewFinale: "Finali önizle",
@@ -66,18 +100,28 @@ export const tr: Dictionary = {
     partyWish: "Parlak bir yıl olsun.",
     partyGo: "Başlıyoruz.",
     partyPeek: "Gece yarısından bir tat.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${year}'den şu ana kadar ${p(hours)}s ${p(minutes)}dk ${p(seconds)}sn`;
     },
     startCountingTo: (year: string) => `${year}'e kadar say`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${year}'e ${days} gün, ${hours} saat ve ${minutes} dakika kaldı`,
   },
   auth: {
     loginTitle: "Giriş yap",
     registerTitle: "Hesap oluştur",
-    loginSubtitle: "System Space'e dön. Yörüngen kaydedildi.",
+    loginSubtitle: "Clock Time'e dön. Yörüngen kaydedildi.",
     registerSubtitle: "Üye olarak katıl. İlk hesap sahip olur.",
     name: "Ad",
     namePlaceholder: "Adın",
@@ -117,7 +161,7 @@ export const tr: Dictionary = {
     adminBlurb: "Arka plan, bulanıklık ve cam.",
     roleTitle: "Rol",
     roleBlurb:
-      "Üyeler System Space'i keşfeder. Yöneticiler gökyüzünü şekillendirir. Sahipler anahtarları tutar.",
+      "Üyeler Clock Time'i keşfeder. Yöneticiler gökyüzünü şekillendirir. Sahipler anahtarları tutar.",
   },
   settings: {
     title: "Hesap",
@@ -149,16 +193,22 @@ export const tr: Dictionary = {
     deniedTitle: "Yalnızca yöneticiler",
     deniedBlurb: "Yörüngeni yükseltmesi için sahibe sor.",
     title: "Yönetici",
-    subtitle:
-      "Arka plan, bulanıklık ve cam. Değerler 0px'den başlar. Otomatik cam yüklemeyi örnekler.",
+    subtitle: "Arka plan, bulanıklık ve kartlar. Değerler 0px'den başlar. Kart camı başlıktan açılır.",
     background: "Arka plan",
+    shipped: "Hazır görseller",
+    shippedFerricWash: "Demir yıkaması",
+    shippedSpaceNebula: "Uzay bulutsusu",
+    shippedDefault: "Varsayılan",
     uploadImage: "Görsel yükle",
     clear: "Temizle",
+    showBackground: "Arka plan resmini göster",
+    defaultImage: "Varsayılan görsel kullanılıyor",
+    noBackground: "Görsel kapalı — yalnızca degrade",
     backgroundBlur: (px: number) => `Arka plan bulanıklığı · ${px}px`,
     glassBlur: (px: number) => `Cam bulanıklığı · ${px}px`,
     glassFill: (value: number) => `Cam dolgusu · ${value}`,
     glassColor: "Cam rengi",
-    colorAuto: "Otomatik cam rengi",
+    colorAuto: "Cam temanın rengini alır",
     imageError: "Bu görsel kullanılamadı.",
     saved: "Görünüm herkes için kaydedildi.",
     saveError: "Kaydedilemedi.",
@@ -179,6 +229,11 @@ export const tr: Dictionary = {
     dashboard: "Panel",
     account: "Hesap",
     admin: "Yönetici",
+  },
+  notFound: {
+    title: "Uzayda kaybolduk",
+    message: "O sayfa sürüklendi. Geri sayım devam ediyor.",
+    home: "Geri sayıma dön",
   },
   errorFallback: {
     title: "Bir şeyler ters gitti",

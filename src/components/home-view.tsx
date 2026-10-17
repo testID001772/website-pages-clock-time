@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { AppChrome } from "@/components/chrome/app-chrome";
 import { CountdownClock } from "@/components/space/countdown-clock";
 import { EventCountdown } from "@/components/space/event-countdown";
@@ -9,12 +10,13 @@ import {
   formatNow,
   formatTarget,
   nextNewYear,
-  pad2,
   splitRange,
   yearProgress,
 } from "@/lib/countdown";
 import { useLocale } from "@/lib/i18n";
+import { formatDecimal, formatInteger } from "@/lib/numbers";
 import { playSfx } from "@/lib/sfx";
+import { copyFor } from "@/lib/world-clock-copy";
 
 export function HomeView() {
   const { t, locale } = useLocale();
@@ -35,7 +37,10 @@ export function HomeView() {
   const [progress, setProgress] = useState(() => yearProgress(new Date()));
   const [progressLabel, setProgressLabel] = useState(() => {
     const now = new Date();
-    return t.home.yearComplete(now.getFullYear(), yearProgress(now).toFixed(2));
+    return t.home.yearComplete(
+      formatInteger(now.getFullYear(), locale),
+      formatDecimal(yearProgress(now), locale, 2),
+    );
   });
   const [party, setParty] = useState(false);
   const [partySub, setPartySub] = useState("");
@@ -58,15 +63,22 @@ export function HomeView() {
       setFx(true);
       setTrueMidnight(true);
       setPartySub(t.home.partyGo);
-      setNextYearLabel(String(year + 1));
+      setNextYearLabel(formatInteger(year + 1, locale));
       const midnight = new Date(year, 0, 1);
       if (partyTimer.current) window.clearInterval(partyTimer.current);
       partyTimer.current = window.setInterval(() => {
         const s = splitRange(midnight, new Date());
-        setPartySub(t.home.partyElapsed(s.hours, s.minutes, s.seconds, year));
+        setPartySub(
+          t.home.partyElapsed(
+            formatInteger(s.hours, locale, 2),
+            formatInteger(s.minutes, locale, 2),
+            formatInteger(s.seconds, locale, 2),
+            formatInteger(year, locale),
+          ),
+        );
       }, 1000);
     },
-    [t],
+    [t, locale],
   );
 
   useEffect(() => {
@@ -92,11 +104,23 @@ export function HomeView() {
         lastSecond.current = stamp;
         const pct = yearProgress(now);
         setProgress(pct);
-        setProgressLabel(t.home.yearComplete(now.getFullYear(), pct.toFixed(2)));
+        setProgressLabel(
+          t.home.yearComplete(
+            formatInteger(now.getFullYear(), locale),
+            formatDecimal(pct, locale, 2),
+          ),
+        );
         if (p.seconds === 0) {
-          setSr(t.home.srCountdown(p.days, p.hours, p.minutes, targetRef.current.getFullYear()));
+          setSr(
+            t.home.srCountdown(
+              formatInteger(p.days, locale),
+              formatInteger(p.hours, locale, 2),
+              formatInteger(p.minutes, locale, 2),
+              formatInteger(targetRef.current.getFullYear(), locale),
+            ),
+          );
         }
-        document.title = `${p.months}mo ${p.days}d ${pad2(p.hours)}:${pad2(p.minutes)}:${pad2(p.seconds)} · System Space`;
+        document.title = `${formatInteger(p.months, locale)}mo ${formatInteger(p.days, locale)}d ${formatInteger(p.hours, locale, 2)}:${formatInteger(p.minutes, locale, 2)}:${formatInteger(p.seconds, locale, 2)} · Clock Time`;
       }
     };
 
@@ -179,7 +203,9 @@ export function HomeView() {
 
           <div className="mt-6 space-y-2 text-xs tracking-wide text-muted">
             <p>{meta}</p>
-            {readyMs !== null ? <p>{t.home.loadedIn((readyMs / 1000).toFixed(1))}</p> : null}
+            {readyMs !== null ? (
+              <p>{t.home.loadedIn(formatDecimal(readyMs / 1000, locale, 1))}</p>
+            ) : null}
           </div>
 
           {!partyStarted.current ? (
@@ -187,6 +213,11 @@ export function HomeView() {
               {t.home.previewFinale}
             </button>
           ) : null}
+
+          <Link to="/world-clock" className="btn btn-ghost mt-3">
+            {copyFor(locale).title}
+          </Link>
+
         </div>
       </main>
 

@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Russian copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const ru: Dictionary = {
   chrome: {
+    glass: "Стекло",
+    useGlass: "Включить стекло карточек",
+    useSolid: "Выключить стекло карточек",
     music: "Музыка",
     dashboard: "Панель",
     logIn: "Войти",
@@ -19,7 +22,6 @@ export const ru: Dictionary = {
 
   countdown: {
     units: {
-      years: "Лет",
       months: "Месяцев",
       days: "Дней",
       hours: "Часов",
@@ -27,26 +29,32 @@ export const ru: Dictionary = {
       seconds: "Секунд",
     },
     ariaLabel: (
-      years: number,
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} лет ${months} месяцев ${days} дней ${hours} часов ${minutes} минут ${seconds} секунд`,
+      `${months} месяцев ${days} дней ${hours} часов ${minutes} минут ${seconds} секунд`,
   },
   event: {
+    expected: (year: string | number) => `${year} (ожидается)`,
     label: "Скоро",
     releases: (date: string) => `Выходит ${date}`,
     outNow: "Уже вышла",
-    more: (count: number) => `Ещё релизы (${count})`,
+    more: (count: string | number) => `Ещё релизы (${count})`,
     less: "Показать меньше",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `До релиза осталось ${years} г. ${months} мес. ${days} д. ${hours} ч. ${minutes} мин.`,
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
+      `До релиза осталось ${months} мес. ${days} д. ${hours} ч. ${minutes} мин.`,
   },
 
   playlist: {
+    volume: "Громкость",
     title: "Плейлист",
     play: "Играть",
     pause: "Пауза",
@@ -54,12 +62,38 @@ export const ru: Dictionary = {
     failed: "Не удалось загрузить этот трек",
     retry: "Повторить",
     seek: "Перемотка",
-    count: (n: number) => `треков: ${n}`,
+    count: (n: string | number) => `треков: ${n}`,
+    empty: "Треков пока нет.",
+    emptyHint: "Добавьте музыку в админ-редакторе.",
+    emptyAction: "Открыть музыкальный редактор",
+  },
+
+  music: {
+    title: "Музыка",
+    subtitle: "Добавьте треки в плейлист — загрузите файл или укажите ссылку.",
+    empty: "Плейлист пуст. Добавьте первый трек ниже.",
+    titleLabel: "Название",
+    artistLabel: "Исполнитель",
+    upload: "Загрузить аудио",
+    urlLabel: "…или вставьте ссылку",
+    add: "Добавить трек",
+    save: "Сохранить",
+    remove: "Удалить",
+    up: "Вверх",
+    down: "Вниз",
+    saved: "Плейлист сохранён.",
+    saveError: "Не удалось сохранить трек.",
+    tooLarge: "Этот аудиофайл слишком большой.",
+    badFile: "Выберите аудиофайл.",
+    fileKinds: "MP3, OGG или WAV до 3 МБ.",
+    kindFile: "Файл",
+    kindLink: "Ссылка",
+    limitReached: "Плейлист заполнен — сначала удалите трек.",
   },
 
   home: {
     target: "Цель:",
-    yearComplete: (year: number, pct: string) => `${year} год пройден на ${pct}%`,
+    yearComplete: (year: string | number, pct: string) => `${year} год пройден на ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `Начнётся ${when} · ${timeZone}`,
     loadedIn: (seconds: string) => `Загружено за ${seconds} с`,
     previewFinale: "Посмотреть финал",
@@ -67,18 +101,28 @@ export const ru: Dictionary = {
     partyWish: "Яркого года впереди.",
     partyGo: "Поехали.",
     partyPeek: "Глоток полуночи.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${p(hours)} ч ${p(minutes)} мин ${p(seconds)} с ${year} года прошло`;
     },
     startCountingTo: (year: string) => `Считать до ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `До ${year} года: ${days} дней, ${hours} часов и ${minutes} минут`,
   },
   auth: {
     loginTitle: "Войти",
     registerTitle: "Создать аккаунт",
-    loginSubtitle: "С возвращением в System Space. Ваша орбита сохранена.",
+    loginSubtitle: "С возвращением в Clock Time. Ваша орбита сохранена.",
     registerSubtitle: "Станьте участником. Первый аккаунт станет владельцем.",
     name: "Имя",
     namePlaceholder: "Ваше имя",
@@ -117,7 +161,7 @@ export const ru: Dictionary = {
     admin: "Админ",
     adminBlurb: "Фон, размытие и стекло.",
     roleTitle: "Роль",
-    roleBlurb: "Участники исследуют System Space. Админы формируют небо. Владельцы держат ключи.",
+    roleBlurb: "Участники исследуют Clock Time. Админы формируют небо. Владельцы держат ключи.",
   },
   settings: {
     title: "Аккаунт",
@@ -149,15 +193,22 @@ export const ru: Dictionary = {
     deniedTitle: "Только для админов",
     deniedBlurb: "Попросите владельца повысить вашу орбиту.",
     title: "Админ",
-    subtitle: "Фон, размытие и стекло. Значения начинаются с 0px. Автостекло берёт цвет загрузки.",
+    subtitle: "Фон, размытие и карточки. Значения начинаются с 0px. Стекло карточек включается в шапке.",
     background: "Фон",
+    shipped: "Встроенные фоны",
+    shippedFerricWash: "Железный размыв",
+    shippedSpaceNebula: "Туманность",
+    shippedDefault: "По умолчанию",
     uploadImage: "Загрузить изображение",
     clear: "Очистить",
+    showBackground: "Показывать фоновое изображение",
+    defaultImage: "Используется изображение по умолчанию",
+    noBackground: "Изображение выключено — только градиент",
     backgroundBlur: (px: number) => `Размытие фона · ${px}px`,
     glassBlur: (px: number) => `Размытие стекла · ${px}px`,
     glassFill: (value: number) => `Заливка стекла · ${value}`,
     glassColor: "Цвет стекла",
-    colorAuto: "Автоцвет стекла",
+    colorAuto: "Стекло берёт цвет темы",
     imageError: "Это изображение не подойдёт.",
     saved: "Оформление сохранено для всех.",
     saveError: "Не удалось сохранить.",
@@ -178,6 +229,11 @@ export const ru: Dictionary = {
     dashboard: "Панель",
     account: "Аккаунт",
     admin: "Админ",
+  },
+  notFound: {
+    title: "Потерялись в космосе",
+    message: "Эта страница улетела. Отсчёт продолжается.",
+    home: "Вернуться к отсчёту",
   },
   errorFallback: {
     title: "Что-то пошло не так",

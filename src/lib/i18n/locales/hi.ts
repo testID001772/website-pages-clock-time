@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Hindi copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const hi: Dictionary = {
   chrome: {
+    glass: "काँच",
+    useGlass: "कार्ड काँच चालू करें",
+    useSolid: "कार्ड काँच बंद करें",
     music: "संगीत",
     dashboard: "डैशबोर्ड",
     logIn: "लॉग इन",
@@ -19,7 +22,6 @@ export const hi: Dictionary = {
 
   countdown: {
     units: {
-      years: "वर्ष",
       months: "महीने",
       days: "दिन",
       hours: "घंटे",
@@ -27,25 +29,31 @@ export const hi: Dictionary = {
       seconds: "सेकंड",
     },
     ariaLabel: (
-      years: number,
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
-    ) => `${years} वर्ष ${months} महीने ${days} दिन ${hours} घंटे ${minutes} मिनट ${seconds} सेकंड`,
+    ) => `${months} महीने ${days} दिन ${hours} घंटे ${minutes} मिनट ${seconds} सेकंड`,
   },
   event: {
+    expected: (year: string | number) => `${year} (अपेक्षित)`,
     label: "आगामी",
     releases: (date: string) => `${date} को रिलीज़ होगा`,
     outNow: "अभी उपलब्ध",
-    more: (count: number) => `और रिलीज़ (${count})`,
+    more: (count: string | number) => `और रिलीज़ (${count})`,
     less: "कम दिखाएँ",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `रिलीज़ से पहले ${years} वर्ष, ${months} महीने, ${days} दिन, ${hours} घंटे और ${minutes} मिनट शेष`,
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
+      `रिलीज़ से पहले ${months} महीने, ${days} दिन, ${hours} घंटे और ${minutes} मिनट शेष`,
   },
 
   playlist: {
+    volume: "वॉल्यूम",
     title: "प्लेलिस्ट",
     play: "चलाएँ",
     pause: "रोकें",
@@ -53,12 +61,38 @@ export const hi: Dictionary = {
     failed: "यह ट्रैक लोड नहीं हो सका",
     retry: "पुनः प्रयास",
     seek: "आगे बढ़ाएँ",
-    count: (n: number) => `${n} ट्रैक`,
+    count: (n: string | number) => `${n} ट्रैक`,
+    empty: "अभी कोई ट्रैक नहीं।",
+    emptyHint: "एडमिन एडिटर में संगीत जोड़ें।",
+    emptyAction: "संगीत एडिटर खोलें",
+  },
+
+  music: {
+    title: "संगीत",
+    subtitle: "प्लेलिस्ट के लिए ट्रैक जोड़ें — फ़ाइल अपलोड करें या लिंक दें।",
+    empty: "प्लेलिस्ट खाली है। नीचे पहला ट्रैक जोड़ें।",
+    titleLabel: "शीर्षक",
+    artistLabel: "कलाकार",
+    upload: "ऑडियो अपलोड करें",
+    urlLabel: "…या लिंक चिपकाएँ",
+    add: "ट्रैक जोड़ें",
+    save: "सहेजें",
+    remove: "हटाएँ",
+    up: "ऊपर ले जाएँ",
+    down: "नीचे ले जाएँ",
+    saved: "प्लेलिस्ट सहेजी गई।",
+    saveError: "ट्रैक सहेजा नहीं जा सका।",
+    tooLarge: "वह ऑडियो फ़ाइल बहुत बड़ी है।",
+    badFile: "ऑडियो फ़ाइल चुनें।",
+    fileKinds: "MP3, OGG या WAV, 3 MB तक।",
+    kindFile: "फ़ाइल",
+    kindLink: "लिंक",
+    limitReached: "प्लेलिस्ट भर गई है — पहले कोई ट्रैक हटाएँ।",
   },
 
   home: {
     target: "लक्ष्य:",
-    yearComplete: (year: number, pct: string) => `${year} ${pct}% पूरा हुआ`,
+    yearComplete: (year: string | number, pct: string) => `${year} ${pct}% पूरा हुआ`,
     ringsIn: (when: string, timeZone: string) => `${when} को शुरू होगा · ${timeZone}`,
     loadedIn: (seconds: string) => `${seconds} सेकंड में लोड हुआ`,
     previewFinale: "फिनाले देखें",
@@ -66,18 +100,28 @@ export const hi: Dictionary = {
     partyWish: "आने वाला साल शानदार हो।",
     partyGo: "चलिए शुरू करते हैं।",
     partyPeek: "आधी रात की एक झलक।",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${year} के अब तक ${p(hours)}घं ${p(minutes)}मि ${p(seconds)}से`;
     },
     startCountingTo: (year: string) => `${year} तक गिनें`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `${year} तक ${days} दिन, ${hours} घंटे और ${minutes} मिनट`,
   },
   auth: {
     loginTitle: "लॉग इन",
     registerTitle: "खाता बनाएँ",
-    loginSubtitle: "System Space में वापसी। आपकी कक्षा सहेजी है।",
+    loginSubtitle: "Clock Time में वापसी। आपकी कक्षा सहेजी है।",
     registerSubtitle: "सदस्य बनें। पहला खाता स्वामी बनेगा।",
     name: "नाम",
     namePlaceholder: "आपका नाम",
@@ -116,7 +160,7 @@ export const hi: Dictionary = {
     admin: "एडमिन",
     adminBlurb: "पृष्ठभूमि, धुंधलापन और काँच।",
     roleTitle: "भूमिका",
-    roleBlurb: "सदस्य System Space खोजते हैं। एडमिन आसमान सँवारते हैं। स्वामी चाबियाँ रखते हैं।",
+    roleBlurb: "सदस्य Clock Time खोजते हैं। एडमिन आसमान सँवारते हैं। स्वामी चाबियाँ रखते हैं।",
   },
   settings: {
     title: "खाता",
@@ -148,15 +192,22 @@ export const hi: Dictionary = {
     deniedTitle: "केवल एडमिन",
     deniedBlurb: "कक्षा बढ़ाने के लिए स्वामी से कहें।",
     title: "एडमिन",
-    subtitle: "पृष्ठभूमि, धुंधलापन और काँच। मान 0px से शुरू। ऑटो काँच अपलोड से रंग लेता है।",
+    subtitle: "पृष्ठभूमि, धुंधलापन और कार्ड। मान 0px से शुरू। पाठक हेडर से कार्ड काँच चालू करते हैं।",
     background: "पृष्ठभूमि",
+    shipped: "अंतर्निहित चित्र",
+    shippedFerricWash: "लौह-धुलाई",
+    shippedSpaceNebula: "अंतरिक्ष नीहारिका",
+    shippedDefault: "डिफ़ॉल्ट",
     uploadImage: "छवि अपलोड करें",
     clear: "साफ़ करें",
+    showBackground: "पृष्ठभूमि छवि दिखाएँ",
+    defaultImage: "डिफ़ॉल्ट छवि उपयोग में है",
+    noBackground: "छवि बंद — केवल ग्रेडिएंट",
     backgroundBlur: (px: number) => `पृष्ठभूमि धुंधलापन · ${px}px`,
     glassBlur: (px: number) => `काँच धुंधलापन · ${px}px`,
     glassFill: (value: number) => `काँच भराव · ${value}`,
     glassColor: "काँच का रंग",
-    colorAuto: "ऑटो काँच रंग",
+    colorAuto: "काँच थीम रंग लेता है",
     imageError: "यह छवि इस्तेमाल नहीं हो सकी।",
     saved: "सबके लिए रूप सहेजा गया।",
     saveError: "सहेजा नहीं जा सका।",
@@ -177,6 +228,11 @@ export const hi: Dictionary = {
     dashboard: "डैशबोर्ड",
     account: "खाता",
     admin: "एडमिन",
+  },
+  notFound: {
+    title: "अंतरिक्ष में खो गए",
+    message: "वह पेज भटक गया। काउंटडाउन अब भी चल रहा है।",
+    home: "काउंटडाउन पर वापस",
   },
   errorFallback: {
     title: "कुछ गड़बड़ हुई",

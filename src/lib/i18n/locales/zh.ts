@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** Simplified Chinese copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const zh: Dictionary = {
   chrome: {
+    glass: "玻璃",
+    useGlass: "开启卡片玻璃效果",
+    useSolid: "关闭卡片玻璃效果",
     music: "音乐",
     dashboard: "仪表盘",
     logIn: "登录",
@@ -19,7 +22,6 @@ export const zh: Dictionary = {
 
   countdown: {
     units: {
-      years: "年",
       months: "个月",
       days: "天",
       hours: "小时",
@@ -27,25 +29,31 @@ export const zh: Dictionary = {
       seconds: "秒",
     },
     ariaLabel: (
-      years: number,
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
-    ) => `${years}年${months}个月${days}天${hours}小时${minutes}分${seconds}秒`,
+    ) => `${months}个月${days}天${hours}小时${minutes}分${seconds}秒`,
   },
   event: {
+    expected: (year: string | number) => `${year}（预计）`,
     label: "即将到来",
     releases: (date: string) => `将于${date}发售`,
     outNow: "现已推出",
-    more: (count: number) => `更多发售（${count}）`,
+    more: (count: string | number) => `更多发售（${count}）`,
     less: "收起",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `距离发售还有 ${years} 年 ${months} 个月 ${days} 天 ${hours} 小时 ${minutes} 分钟`,
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
+      `距离发售还有 ${months} 个月 ${days} 天 ${hours} 小时 ${minutes} 分钟`,
   },
 
   playlist: {
+    volume: "音量",
     title: "播放列表",
     play: "播放",
     pause: "暂停",
@@ -53,12 +61,38 @@ export const zh: Dictionary = {
     failed: "无法加载此曲目",
     retry: "重试",
     seek: "快进",
-    count: (n: number) => `${n} 首曲目`,
+    count: (n: string | number) => `${n} 首曲目`,
+    empty: "还没有曲目。",
+    emptyHint: "请在管理编辑器中添加音乐。",
+    emptyAction: "打开音乐编辑器",
+  },
+
+  music: {
+    title: "音乐",
+    subtitle: "为播放列表添加曲目——上传文件或填写链接。",
+    empty: "播放列表为空。请在下方添加第一首曲目。",
+    titleLabel: "标题",
+    artistLabel: "艺术家",
+    upload: "上传音频",
+    urlLabel: "…或粘贴链接",
+    add: "添加曲目",
+    save: "保存",
+    remove: "删除",
+    up: "上移",
+    down: "下移",
+    saved: "播放列表已保存。",
+    saveError: "无法保存该曲目。",
+    tooLarge: "该音频文件太大。",
+    badFile: "请选择音频文件。",
+    fileKinds: "MP3、OGG 或 WAV，最大 3 MB。",
+    kindFile: "文件",
+    kindLink: "链接",
+    limitReached: "播放列表已满——请先删除一首曲目。",
   },
 
   home: {
     target: "目标：",
-    yearComplete: (year: number, pct: string) => `${year} 年已过去 ${pct}%`,
+    yearComplete: (year: string | number, pct: string) => `${year} 年已过去 ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `${when} 开始 · ${timeZone}`,
     loadedIn: (seconds: string) => `加载用时 ${seconds} 秒`,
     previewFinale: "预览终章",
@@ -66,18 +100,28 @@ export const zh: Dictionary = {
     partyWish: "愿来年精彩。",
     partyGo: "开始吧。",
     partyPeek: "午夜前瞻。",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${year} 年已过去 ${p(hours)}时${p(minutes)}分${p(seconds)}秒`;
     },
     startCountingTo: (year: string) => `开始倒数 ${year}`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `距离 ${year} 年还有 ${days} 天 ${hours} 小时 ${minutes} 分`,
   },
   auth: {
     loginTitle: "登录",
     registerTitle: "创建账号",
-    loginSubtitle: "回到 System Space，你的轨道已保存。",
+    loginSubtitle: "回到 Clock Time，你的轨道已保存。",
     registerSubtitle: "加入成为成员，首个账号将成为所有者。",
     name: "姓名",
     namePlaceholder: "你的名字",
@@ -116,7 +160,7 @@ export const zh: Dictionary = {
     admin: "管理",
     adminBlurb: "背景、模糊和玻璃。",
     roleTitle: "角色",
-    roleBlurb: "成员探索 System Space，管理员塑造天空，所有者掌管钥匙。",
+    roleBlurb: "成员探索 Clock Time，管理员塑造天空，所有者掌管钥匙。",
   },
   settings: {
     title: "账号",
@@ -148,15 +192,22 @@ export const zh: Dictionary = {
     deniedTitle: "仅限管理",
     deniedBlurb: "请所有者提升你的轨道。",
     title: "管理",
-    subtitle: "背景、模糊和玻璃。数值从 0px 开始，自动玻璃会取样上传的图片。",
+    subtitle: "背景、模糊与卡片。数值从 0px 开始。卡片玻璃效果在页眉中开启。",
     background: "背景",
+    shipped: "内置画面",
+    shippedFerricWash: "铁锈水洗",
+    shippedSpaceNebula: "星云",
+    shippedDefault: "默认",
     uploadImage: "上传图片",
     clear: "清除",
+    showBackground: "显示背景图片",
+    defaultImage: "正在使用默认图片",
+    noBackground: "图片已关闭 — 仅渐变",
     backgroundBlur: (px: number) => `背景模糊 · ${px}px`,
     glassBlur: (px: number) => `玻璃模糊 · ${px}px`,
     glassFill: (value: number) => `玻璃填充 · ${value}`,
     glassColor: "玻璃颜色",
-    colorAuto: "玻璃自动取色",
+    colorAuto: "玻璃使用主题颜色",
     imageError: "该图片无法使用。",
     saved: "外观已保存，所有人可见。",
     saveError: "保存失败。",
@@ -177,6 +228,11 @@ export const zh: Dictionary = {
     dashboard: "仪表盘",
     account: "账号",
     admin: "管理",
+  },
+  notFound: {
+    title: "迷失在太空中",
+    message: "那个页面飘走了，倒计时仍在继续。",
+    home: "返回倒计时",
   },
   errorFallback: {
     title: "出了点问题",

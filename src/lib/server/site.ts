@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
+import { BACKGROUND_HARD_MAX_CHARS } from "@/lib/background";
 import { getSql } from "@/lib/db";
 import { DEFAULT_SETTINGS, type Role, type SiteSettings } from "@/lib/types";
 
@@ -11,19 +12,31 @@ function asBool(v: unknown): boolean {
   return false;
 }
 
-function asSettings(row:
-  | {
-      background_url: string | null;
-      background_blur: number;
-      glass_blur: number;
-      glass_opacity: number;
-      glass_color: string;
-      glass_auto: unknown;
-    }
-  | undefined): SiteSettings {
+/**
+ * The `site_settings` row we read. `background_enabled` is the one column an
+ * older database may not have yet, so an absent value counts as "on" — the
+ * column default, and the behaviour before the column existed.
+ */
+type SettingsRow = {
+  background_url: string | null;
+  background_enabled?: unknown;
+  background_blur: number;
+  glass_blur: number;
+  glass_opacity: number;
+  glass_color: string;
+  glass_auto: unknown;
+};
+
+/** Uploaded images are data URLs; the shipped image is a site-relative path. */
+const IMAGE_URL = /^(data:image\/[a-z0-9.+-]+;base64,[a-z0-9+/=\s]+|\/[A-Za-z0-9._~\-/]+)$/i;
+
+function asSettings(row: SettingsRow | undefined): SiteSettings {
   if (!row) return DEFAULT_SETTINGS;
   return {
     backgroundUrl: row.background_url,
+    // Absent (pre-0007 row) means on.
+    backgroundEnabled:
+      row.background_enabled === undefined ? true : asBool(row.background_enabled),
     backgroundBlur: Number(row.background_blur) || 0,
     glassBlur: Number(row.glass_blur) || 0,
     glassOpacity: Number(row.glass_opacity) || 0,
@@ -35,14 +48,8 @@ function asSettings(row:
 export const getPublicSettings = createServerFn({ method: "GET" }).handler(async () => {
   try {
     const sql = await getSql();
-    const rows = await sql<{
-      background_url: string | null;
-      background_blur: number;
-      glass_blur: number;
-      glass_opacity: number;
-      glass_color: string;
-      glass_auto: unknown;
-    }>`select background_url, background_blur, glass_blur, glass_opacity, glass_color, glass_auto from site_settings where id = 1`;
+    const rows =
+      await sql<SettingsRow>`select background_url, background_enabled, background_blur, glass_blur, glass_opacity, glass_color, glass_auto from site_settings where id = 1`;
     return asSettings(rows[0]);
   } catch {
     return DEFAULT_SETTINGS;
@@ -60,7 +67,9 @@ async function requireStaff(userId: string): Promise<Role> {
 }
 
 const updateSchema = z.object({
+  // `null` means "use the shipped image".
   backgroundUrl: z.string().nullable(),
+  backgroundEnabled: z.boolean(),
   backgroundBlur: z.number().int().min(0).max(40),
   glassBlur: z.number().int().min(0).max(40),
   glassOpacity: z.number().int().min(0).max(40),
@@ -73,13 +82,20 @@ export const updateSiteSettings = createServerFn({ method: "POST" })
   .validator((input: unknown) => updateSchema.parse(input))
   .handler(async ({ context, data }) => {
     await requireStaff(context.userId);
-    if (data.backgroundUrl && data.backgroundUrl.length > 1_800_000) {
-      throw new Error("BACKGROUND_TOO_LARGE");
+    if (data.backgroundUrl) {
+      // Bounded so the URL can be inlined into the SSR HTML of every page.
+      if (data.backgroundUrl.length > BACKGROUND_HARD_MAX_CHARS) {
+        throw new Error("BACKGROUND_TOO_LARGE");
+      }
+      // Defence in depth: only an uploaded image or a site-relative path may
+      // reach the CSS `url()` this value ends up in.
+      if (!IMAGE_URL.test(data.backgroundUrl)) throw new Error("BACKGROUND_INVALID");
     }
     const sql = await getSql();
     await sql`
       update site_settings set
         background_url = ${data.backgroundUrl},
+        background_enabled = ${data.backgroundEnabled},
         background_blur = ${data.backgroundBlur},
         glass_blur = ${data.glassBlur},
         glass_opacity = ${data.glassOpacity},
@@ -90,6 +106,7 @@ export const updateSiteSettings = createServerFn({ method: "POST" })
     `;
     return {
       backgroundUrl: data.backgroundUrl,
+      backgroundEnabled: data.backgroundEnabled,
       backgroundBlur: data.backgroundBlur,
       glassBlur: data.glassBlur,
       glassOpacity: data.glassOpacity,

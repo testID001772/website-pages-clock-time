@@ -3,6 +3,9 @@ import type { Dictionary } from "../index";
 /** German copy — must satisfy the `Dictionary` type (missing keys fail typecheck). */
 export const de: Dictionary = {
   chrome: {
+    glass: "Glas",
+    useGlass: "Kartenglas einschalten",
+    useSolid: "Kartenglas ausschalten",
     music: "Musik",
     dashboard: "Dashboard",
     logIn: "Anmelden",
@@ -19,7 +22,6 @@ export const de: Dictionary = {
 
   countdown: {
     units: {
-      years: "Jahre",
       months: "Monate",
       days: "Tage",
       hours: "Stunden",
@@ -27,26 +29,32 @@ export const de: Dictionary = {
       seconds: "Sekunden",
     },
     ariaLabel: (
-      years: number,
-      months: number,
-      days: number,
+      months: string | number,
+      days: string | number,
       hours: string,
       minutes: string,
       seconds: string,
     ) =>
-      `${years} Jahre ${months} Monaten ${days} Tage ${hours} Stunden ${minutes} Minuten ${seconds} Sekunden`,
+      `${months} Monaten ${days} Tage ${hours} Stunden ${minutes} Minuten ${seconds} Sekunden`,
   },
   event: {
+    expected: (year: string | number) => `${year} (erwartet)`,
     label: "Demnächst",
     releases: (date: string) => `Erscheint am ${date}`,
     outNow: "Jetzt erhältlich",
-    more: (count: number) => `Weitere Releases (${count})`,
+    more: (count: string | number) => `Weitere Releases (${count})`,
     less: "Weniger anzeigen",
-    timerAria: (years: number, months: number, days: number, hours: number, minutes: number) =>
-      `Noch ${years} Jahre, ${months} Monate, ${days} Tage, ${hours} Stunden und ${minutes} Minuten bis zur Veröffentlichung`,
+    timerAria: (
+      months: string | number,
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+    ) =>
+      `Noch ${months} Monate, ${days} Tage, ${hours} Stunden und ${minutes} Minuten bis zur Veröffentlichung`,
   },
 
   playlist: {
+    volume: "Lautstärke",
     title: "Playlist",
     play: "Wiedergabe",
     pause: "Pause",
@@ -54,12 +62,38 @@ export const de: Dictionary = {
     failed: "Titel konnte nicht geladen werden",
     retry: "Erneut versuchen",
     seek: "Spulen",
-    count: (n: number) => `${n} Titel`,
+    count: (n: string | number) => `${n} Titel`,
+    empty: "Noch keine Tracks.",
+    emptyHint: "Musik im Admin-Editor hinzufügen.",
+    emptyAction: "Musik-Editor öffnen",
+  },
+
+  music: {
+    title: "Musik",
+    subtitle: "Tracks für die Playlist hinzufügen — Datei hochladen oder verlinken.",
+    empty: "Die Playlist ist leer. Füge unten den ersten Track hinzu.",
+    titleLabel: "Titel",
+    artistLabel: "Künstler",
+    upload: "Audio hochladen",
+    urlLabel: "…oder Link einfügen",
+    add: "Track hinzufügen",
+    save: "Speichern",
+    remove: "Löschen",
+    up: "Nach oben",
+    down: "Nach unten",
+    saved: "Playlist gespeichert.",
+    saveError: "Track konnte nicht gespeichert werden.",
+    tooLarge: "Diese Audiodatei ist zu groß.",
+    badFile: "Wähle eine Audiodatei.",
+    fileKinds: "MP3, OGG oder WAV bis 3 MB.",
+    kindFile: "Datei",
+    kindLink: "Link",
+    limitReached: "Die Playlist ist voll — entferne zuerst einen Track.",
   },
 
   home: {
     target: "Ziel:",
-    yearComplete: (year: number, pct: string) => `${year} ist zu ${pct}% geschafft`,
+    yearComplete: (year: string | number, pct: string) => `${year} ist zu ${pct}% geschafft`,
     ringsIn: (when: string, timeZone: string) => `Beginnt am ${when} · ${timeZone}`,
     loadedIn: (seconds: string) => `In ${seconds} s geladen`,
     previewFinale: "Finale-Vorschau",
@@ -67,18 +101,28 @@ export const de: Dictionary = {
     partyWish: "Auf ein brillantes Jahr.",
     partyGo: "Los geht's.",
     partyPeek: "Ein Vorgeschmack auf Mitternacht.",
-    partyElapsed: (hours: number, minutes: number, seconds: number, year: number) => {
-      const p = (n: number) => String(n).padStart(2, "0");
+    partyElapsed: (
+      hours: string | number,
+      minutes: string | number,
+      seconds: string | number,
+      year: string | number,
+    ) => {
+      const p = (n: string | number) => String(n).padStart(2, "0");
       return `${p(hours)} Std. ${p(minutes)} Min. ${p(seconds)} Sek. von ${year}`;
     },
     startCountingTo: (year: string) => `Bis ${year} zählen`,
-    srCountdown: (days: number, hours: number, minutes: number, year: number) =>
+    srCountdown: (
+      days: string | number,
+      hours: string | number,
+      minutes: string | number,
+      year: string | number,
+    ) =>
       `Noch ${days} Tage, ${hours} Stunden und ${minutes} Minuten bis ${year}`,
   },
   auth: {
     loginTitle: "Anmelden",
     registerTitle: "Konto erstellen",
-    loginSubtitle: "Willkommen zurück in System Space. Dein Orbit ist gespeichert.",
+    loginSubtitle: "Willkommen zurück in Clock Time. Dein Orbit ist gespeichert.",
     registerSubtitle: "Werde Mitglied. Das erste Konto wird Inhaber.",
     name: "Name",
     namePlaceholder: "Dein Name",
@@ -118,7 +162,7 @@ export const de: Dictionary = {
     adminBlurb: "Hintergrund, Weichzeichner und Glas.",
     roleTitle: "Rolle",
     roleBlurb:
-      "Mitglieder erkunden System Space. Admins formen den Himmel. Inhaber haben die Schlüssel.",
+      "Mitglieder erkunden Clock Time. Admins formen den Himmel. Inhaber haben die Schlüssel.",
   },
   settings: {
     title: "Konto",
@@ -150,16 +194,22 @@ export const de: Dictionary = {
     deniedTitle: "Nur für Admins",
     deniedBlurb: "Bitte den Inhaber, deinen Orbit zu befördern.",
     title: "Admin",
-    subtitle:
-      "Hintergrund, Weichzeichner und Glas. Werte starten bei 0px. Auto-Glas übernimmt den Upload.",
+    subtitle: "Hintergrund, Weichzeichner und Karten. Werte starten bei 0px. Karten-Glas schalten Leser im Kopfbereich ein.",
     background: "Hintergrund",
+    shipped: "Mitgelieferte Motive",
+    shippedFerricWash: "Eisenwäsche",
+    shippedSpaceNebula: "Weltraumnebel",
+    shippedDefault: "Standard",
     uploadImage: "Bild hochladen",
     clear: "Leeren",
+    showBackground: "Hintergrundbild anzeigen",
+    defaultImage: "Standardbild wird verwendet",
+    noBackground: "Bild aus – nur Farbverlauf",
     backgroundBlur: (px: number) => `Hintergrund-Weichzeichner · ${px}px`,
     glassBlur: (px: number) => `Glas-Weichzeichner · ${px}px`,
     glassFill: (value: number) => `Glas-Füllung · ${value}`,
     glassColor: "Glasfarbe",
-    colorAuto: "Glas automatisch färben",
+    colorAuto: "Glas nutzt die Theme-Farbe",
     imageError: "Dieses Bild kann nicht verwendet werden.",
     saved: "Erscheinungsbild für alle gespeichert.",
     saveError: "Speichern fehlgeschlagen.",
@@ -180,6 +230,11 @@ export const de: Dictionary = {
     dashboard: "Dashboard",
     account: "Konto",
     admin: "Admin",
+  },
+  notFound: {
+    title: "Im Weltraum verloren",
+    message: "Diese Seite ist abgedriftet. Der Countdown läuft weiter.",
+    home: "Zurück zum Countdown",
   },
   errorFallback: {
     title: "Etwas ist schiefgelaufen",

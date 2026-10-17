@@ -11,11 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ComingUpRouteImport } from './routes/coming-up'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as WorldClockRouteImport } from './routes/world-clock'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiMusicIdRouteImport } from './routes/api/music.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -25,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComingUpRoute = ComingUpRouteImport.update({
+  id: '/coming-up',
+  path: '/coming-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -47,78 +55,109 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorldClockRoute = WorldClockRouteImport.update({
+  id: '/world-clock',
+  path: '/world-clock',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMusicIdRoute = ApiMusicIdRouteImport.update({
+  id: '/api/music/$id',
+  path: '/api/music/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/coming-up': typeof ComingUpRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
+  '/world-clock': typeof WorldClockRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/music/$id': typeof ApiMusicIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/coming-up': typeof ComingUpRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
+  '/world-clock': typeof WorldClockRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/music/$id': typeof ApiMusicIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/coming-up': typeof ComingUpRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
+  '/world-clock': typeof WorldClockRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/music/$id': typeof ApiMusicIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
+    | '/coming-up'
     | '/dashboard'
     | '/login'
     | '/register'
     | '/settings'
+    | '/world-clock'
     | '/api/auth/$'
+    | '/api/music/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
+    | '/coming-up'
     | '/dashboard'
     | '/login'
     | '/register'
     | '/settings'
+    | '/world-clock'
     | '/api/auth/$'
+    | '/api/music/$id'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/coming-up'
     | '/dashboard'
     | '/login'
     | '/register'
     | '/settings'
+    | '/world-clock'
     | '/api/auth/$'
+    | '/api/music/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  ComingUpRoute: typeof ComingUpRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRoute
+  WorldClockRoute: typeof WorldClockRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiMusicIdRoute: typeof ApiMusicIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -135,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coming-up': {
+      id: '/coming-up'
+      path: '/coming-up'
+      fullPath: '/coming-up'
+      preLoaderRoute: typeof ComingUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -165,11 +211,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/world-clock': {
+      id: '/world-clock'
+      path: '/world-clock'
+      fullPath: '/world-clock'
+      preLoaderRoute: typeof WorldClockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/music/$id': {
+      id: '/api/music/$id'
+      path: '/api/music/$id'
+      fullPath: '/api/music/$id'
+      preLoaderRoute: typeof ApiMusicIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -178,11 +238,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  ComingUpRoute: ComingUpRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRoute,
+  WorldClockRoute: WorldClockRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiMusicIdRoute: ApiMusicIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

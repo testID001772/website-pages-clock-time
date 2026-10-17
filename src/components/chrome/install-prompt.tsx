@@ -1,6 +1,7 @@
 import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n";
+import { appUrl } from "@/lib/base-url";
 import { playSfx } from "@/lib/sfx";
 
 type InstallPromptEvent = Event & {
@@ -22,7 +23,7 @@ export function InstallPrompt() {
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+      void navigator.serviceWorker.register(appUrl("/sw.js")).catch(() => undefined);
     }
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();

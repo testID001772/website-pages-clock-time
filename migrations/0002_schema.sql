@@ -1,4 +1,4 @@
--- System Space profiles + site-wide appearance.
+-- Clock Time profiles + site-wide appearance.
 create table if not exists profiles (
   user_id      text primary key,
   display_name text not null default '',
