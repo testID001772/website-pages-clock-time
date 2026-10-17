@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { eventThumb, eventTrack } from "@/lib/event-media";
+import { useEffect, useState } from "react";
+import { eventThumb } from "@/lib/event-media";
 import { formatTarget, splitRange } from "@/lib/countdown";
 import {
   currentEvent,
@@ -97,49 +97,7 @@ export function EventCountdown({
   const { t, locale } = useLocale();
   const [snap, setSnap] = useState<Snapshot | null>(() => snapshot(new Date()));
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
   const [iconSize, setIconSize] = useState<IconSize>("xl");
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // One release track at a time; stop it when the card unmounts.
-  useEffect(() => {
-    return () => {
-      audioRef.current?.pause();
-      audioRef.current = null;
-    };
-  }, []);
-
-  function togglePlay(id: string) {
-    const current = audioRef.current;
-    if (playingId === id && current) {
-      current.pause();
-      setPlayingId(null);
-      return;
-    }
-    // One element for the whole card, the same way the playlist player does it:
-    // set the source after creating it, and retry once if the first fetch fails.
-    const audio = current ?? new Audio();
-    audio.preload = "none";
-    audio.loop = true;
-    audio.volume = 0.6;
-    audioRef.current = audio;
-    let retried = false;
-    const onError = () => {
-      if (!retried && audioRef.current === audio) {
-        retried = true;
-        window.setTimeout(() => {
-          audio.src = eventTrack(id);
-          void audio.play().catch(() => setPlayingId(null));
-        }, 700);
-        return;
-      }
-      setPlayingId(null);
-    };
-    audio.addEventListener("error", onError, { once: true });
-    audio.src = eventTrack(id);
-    setPlayingId(id);
-    void audio.play().catch(() => setPlayingId(null));
-  }
 
   useEffect(() => {
     const tick = () => setSnap(snapshot(new Date()));
@@ -219,7 +177,9 @@ export function EventCountdown({
                     role="radio"
                     aria-checked={iconSize === size.id}
                     className={`badge transition-colors ${
-                      iconSize === size.id ? "badge-accent" : "text-muted hover:text-ink"
+                      iconSize === size.id
+                        ? "badge-accent"
+                        : "text-muted hover:text-ink"
                     }`}
                     onClick={() => setIconSize(size.id)}
                   >
@@ -231,7 +191,6 @@ export function EventCountdown({
             <ul className="event-list mt-4 space-y-1.5 border-t border-white/10 pt-3 text-left">
               {allGames.map((game) => {
                 const current = game.event.id === selected.event.id;
-                const playing = playingId === game.event.id;
                 return (
                   <li
                     key={game.event.id}
@@ -253,8 +212,6 @@ export function EventCountdown({
                         onClick={() => {
                           if (!current) playSfx("pop");
                           setSelectedId(game.event.id);
-                          if (playingId !== game.event.id)
-                            togglePlay(game.event.id);
                         }}
                       >
                         <span className="min-w-0">
@@ -281,40 +238,6 @@ export function EventCountdown({
                           <span className="tnum flex-none text-xs text-muted">
                             {daysLeft(game.snap.totalDays, locale)}
                           </span>
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-sm flex-none"
-                        aria-label={
-                          playing
-                            ? `Pause ${game.event.title}`
-                            : `Play ${game.event.title}`
-                        }
-                        aria-pressed={playing}
-                        onClick={() => togglePlay(game.event.id)}
-                      >
-                        {playing ? (
-                          <span className="inline-flex items-center gap-1.5">
-                            <span
-                              aria-hidden
-                              className="flex h-3 items-end gap-[2px]"
-                            >
-                              {[0, 1, 2].map((bar) => (
-                                <span
-                                  key={bar}
-                                  className="motion-safe:animate-bounce w-[3px] rounded-full bg-sun"
-                                  style={{
-                                    height: `${[60, 100, 75][bar]}%`,
-                                    animationDelay: `${bar * 150}ms`,
-                                  }}
-                                />
-                              ))}
-                            </span>
-                            Pause
-                          </span>
-                        ) : (
-                          "Play"
                         )}
                       </button>
                     </div>
