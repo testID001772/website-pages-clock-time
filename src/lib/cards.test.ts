@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { hexToRgb } from "./utils.ts";
 import {
   CARD_BASE_ALPHA,
   CARD_RGB,
@@ -38,6 +39,21 @@ describe("card surfaces", () => {
     // which is a deliberate choice rather than the theme default.
     const white = { glassAuto: false, glassColor: "#ffffff", glassOpacity: 20 };
     assert.equal(resolveCardSurface(white, "dark").rgb, "255, 255, 255");
+  });
+
+  it("falls back safely when a legacy desktop bundle has partial glass settings", () => {
+    assert.deepEqual(hexToRgb(undefined), { r: 255, g: 255, b: 255 });
+    assert.deepEqual(resolveCardSurface({}, "dark"), {
+      rgb: CARD_RGB.dark,
+      alpha: CARD_BASE_ALPHA.dark,
+    });
+    assert.deepEqual(
+      resolveCardSurface(
+        { glassAuto: false, glassColor: undefined, glassOpacity: undefined },
+        "light",
+      ),
+      { rgb: "255, 255, 255", alpha: CARD_BASE_ALPHA.light },
+    );
   });
 
   it("treats the fill slider as a delta around the theme's natural card", () => {

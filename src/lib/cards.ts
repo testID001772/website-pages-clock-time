@@ -56,20 +56,24 @@ function clamp(value: number, min: number, max: number): number {
  * Pure, so the resolver can be unit-tested without a DOM.
  */
 export function resolveCardSurface(
-  settings: Pick<SiteSettings, "glassAuto" | "glassColor" | "glassOpacity">,
+  settings: Partial<Pick<SiteSettings, "glassAuto" | "glassColor" | "glassOpacity">>,
   theme: CardTheme,
 ): { rgb: string; alpha: number } {
   // The fill slider is relative to the theme's natural card. A row without a
   // usable number (older/partial payloads) means "the theme's fill".
-  const fill = Number.isFinite(settings.glassOpacity)
-    ? settings.glassOpacity
-    : GLASS_OPACITY_DEFAULT;
+  const fill =
+    typeof settings.glassOpacity === "number" && Number.isFinite(settings.glassOpacity)
+      ? settings.glassOpacity
+      : GLASS_OPACITY_DEFAULT;
   const alpha = clamp(
     CARD_BASE_ALPHA[theme] + (fill - GLASS_OPACITY_DEFAULT) / 100,
     MIN_ALPHA,
     MAX_ALPHA,
   );
-  if (settings.glassAuto) return { rgb: CARD_RGB[theme], alpha };
-  const { r, g, b } = hexToRgb(settings.glassColor);
+  // Partial settings can come from old cached app builds or a failed static
+  // server-function response. Missing `glassAuto` means the safe default (auto),
+  // and an incomplete custom colour falls back to the seeded white.
+  if (settings.glassAuto !== false) return { rgb: CARD_RGB[theme], alpha };
+  const { r, g, b } = hexToRgb(settings.glassColor ?? "#ffffff");
   return { rgb: `${r}, ${g}, ${b}`, alpha };
 }

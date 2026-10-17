@@ -5,8 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  const raw = hex.replace("#", "").trim();
+export function hexToRgb(hex: string | null | undefined): { r: number; g: number; b: number } {
+  // Settings may be partial in an old cached desktop build; never let a missing
+  // color crash the whole app during its first render.
+  const raw = (typeof hex === "string" && hex.trim() ? hex : "#ffffff")
+    .replace("#", "")
+    .trim();
   const full =
     raw.length === 3
       ? raw
