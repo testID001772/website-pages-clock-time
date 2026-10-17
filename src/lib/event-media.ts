@@ -12,5 +12,7 @@ export function eventThumb(id: string): string {
 }
 
 export function eventTrack(id: string): string {
-  return appUrl(`/event/${id}.mp3`);
+  // Change the revision with the generated audio so browsers don't replay a
+  // cached copy of the replaced event mix.
+  return appUrl(`/event/${id}.mp3?v=medium-bass-2`);
 }

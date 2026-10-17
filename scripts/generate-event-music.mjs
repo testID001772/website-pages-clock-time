@@ -16,13 +16,13 @@ import { assertDistinctScores, encodeMp3, renderTrack } from "./generate-music.m
 import { projectRoot } from "./with-app-env.mjs";
 
 export const EVENT_TRACKS = [
-  { id: "gta-vi", seed: 7101, style: "pulse" },
-  { id: "cod-modern-warfare-4", seed: 7102, style: "arp" },
-  { id: "wow-forever", seed: 7103, style: "pad" },
-  { id: "zelda-ocarina-of-time", seed: 7104, style: "arp" },
-  { id: "monster-hunter-wilds-switch-2", seed: 7105, style: "pad" },
-  { id: "attack-on-titan-3", seed: 7106, style: "pulse" },
-  { id: "poppy-playtime-chapter-6", seed: 7107, style: "pad" },
+  { id: "gta-vi", seed: 7101, style: "pulse", bassProfile: "medium" },
+  { id: "cod-modern-warfare-4", seed: 7102, style: "arp", bassProfile: "medium" },
+  { id: "wow-forever", seed: 7103, style: "pad", bassProfile: "medium" },
+  { id: "zelda-ocarina-of-time", seed: 7104, style: "arp", bassProfile: "medium" },
+  { id: "monster-hunter-wilds-switch-2", seed: 7105, style: "pad", bassProfile: "medium" },
+  { id: "attack-on-titan-3", seed: 7106, style: "pulse", bassProfile: "medium" },
+  { id: "poppy-playtime-chapter-6", seed: 7107, style: "pad", bassProfile: "medium" },
 ].map((track) => ({ ...track, seconds: 180 }));
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
