@@ -163,34 +163,30 @@ export function EventCountdown({
     <div
       className={
         variant === "page"
-          ? "glass relative mx-auto w-full max-w-4xl overflow-hidden rounded-[32px] px-8 py-8"
+          ? "glass relative mx-auto w-full max-w-4xl overflow-hidden rounded-[26px] p-6 sm:p-8"
           : variant === "card"
-            ? "glass relative mx-auto w-full max-w-md overflow-hidden rounded-[28px] px-5 py-4"
+            ? "glass relative mx-auto w-full max-w-md overflow-hidden rounded-[22px] px-5 py-4"
             : "relative mx-auto w-full max-w-md overflow-hidden"
       }
     >
       <div className="relative">
-        <p className="text-[0.65rem] font-bold tracking-[0.28em] text-muted uppercase">
-          {t.event.label}
-        </p>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <p className="eyebrow">{t.event.label}</p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-ink">
+            <p className="text-base font-semibold text-ink">
               {selected.event.title}
             </p>
-            <p className="mt-0.5 text-xs text-muted">
+            <p className="mt-1 text-xs text-muted">
               {selected.event.target
                 ? t.event.releases(formatTarget(selected.event.target, locale))
                 : expectedLabel(selected.event, locale, t)}
             </p>
           </div>
           {!main ? null : main.released ? (
-            <p className="rounded-full bg-sun/15 px-3 py-1 text-xs font-bold tracking-[0.12em] text-sun uppercase">
-              {t.event.outNow}
-            </p>
+            <p className="badge badge-sun">{t.event.outNow}</p>
           ) : (
             <p
-              className={`num tabular-nums ${variant === "page" ? "text-4xl sm:text-5xl" : "text-xl"}`}
+              className={`tnum ${variant === "page" ? "text-4xl font-semibold sm:text-5xl" : "text-xl font-medium"}`}
               role="timer"
               aria-label={t.event.timerAria(
                 formatInteger(main.parts.months, locale),
@@ -214,7 +210,7 @@ export function EventCountdown({
               <div
                 role="radiogroup"
                 aria-label="Icon size"
-                className="mt-4 flex flex-wrap gap-2"
+                className="mt-5 flex flex-wrap gap-2"
               >
                 {ICON_SIZES.map((size) => (
                   <button
@@ -222,10 +218,8 @@ export function EventCountdown({
                     type="button"
                     role="radio"
                     aria-checked={iconSize === size.id}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold tracking-wide transition-colors ${
-                      iconSize === size.id
-                        ? "border-white/60 bg-white/20 text-ink"
-                        : "border-white/15 text-muted hover:bg-white/10 hover:text-ink"
+                    className={`badge transition-colors ${
+                      iconSize === size.id ? "badge-accent" : "text-muted hover:text-ink"
                     }`}
                     onClick={() => setIconSize(size.id)}
                   >
@@ -234,14 +228,14 @@ export function EventCountdown({
                 ))}
               </div>
             ) : null}
-            <ul className="event-list mt-3 space-y-1 border-t border-white/10 pt-2 text-left">
+            <ul className="event-list mt-4 space-y-1.5 border-t border-white/10 pt-3 text-left">
               {allGames.map((game) => {
                 const current = game.event.id === selected.event.id;
                 const playing = playingId === game.event.id;
                 return (
                   <li
                     key={game.event.id}
-                    className="relative overflow-hidden rounded-xl"
+                    className="relative overflow-hidden rounded-[16px]"
                   >
                     <div className="relative flex items-center gap-x-2">
                       {variant === "page" ? (
@@ -249,12 +243,12 @@ export function EventCountdown({
                           src={eventThumb(game.event.id)}
                           alt=""
                           loading="lazy"
-                          className={`flex-none rounded-lg object-cover ${ICON_CLASS[iconSize]}`}
+                          className={`flex-none rounded-[12px] object-cover ${ICON_CLASS[iconSize]}`}
                         />
                       ) : null}
                       <button
                         type="button"
-                        className="flex min-w-0 flex-1 items-baseline justify-between gap-x-4 rounded-xl px-2.5 py-1.5 text-left transition-colors hover:bg-white/5"
+                        className="flex min-w-0 flex-1 items-baseline justify-between gap-x-4 rounded-[14px] px-3 py-2 text-left transition-colors hover:bg-white/5"
                         aria-current={current ? "true" : undefined}
                         onClick={() => {
                           if (!current) playSfx("pop");
@@ -280,18 +274,18 @@ export function EventCountdown({
                             {expectedLabel(game.event, locale, t)}
                           </span>
                         ) : game.snap.released ? (
-                          <span className="flex-none text-[0.65rem] font-bold tracking-[0.12em] text-sun uppercase">
+                          <span className="badge badge-sun flex-none">
                             {t.event.outNow}
                           </span>
                         ) : (
-                          <span className="flex-none text-xs tabular-nums text-muted">
+                          <span className="tnum flex-none text-xs text-muted">
                             {daysLeft(game.snap.totalDays, locale)}
                           </span>
                         )}
                       </button>
                       <button
                         type="button"
-                        className="flex-none rounded-full border border-white/15 px-2.5 py-1 text-xs font-semibold text-ink transition-colors hover:bg-white/10"
+                        className="btn btn-ghost btn-sm flex-none"
                         aria-label={
                           playing
                             ? `Pause ${game.event.title}`
@@ -301,7 +295,7 @@ export function EventCountdown({
                         onClick={() => togglePlay(game.event.id)}
                       >
                         {playing ? (
-                          <span className="inline-flex items-center gap-1">
+                          <span className="inline-flex items-center gap-1.5">
                             <span
                               aria-hidden
                               className="flex h-3 items-end gap-[2px]"

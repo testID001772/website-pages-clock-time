@@ -126,9 +126,9 @@ function Admin() {
   if (profile && !isStaff(profile.role)) {
     return (
       <GatePage current="/admin" role={profile.role}>
-        <section className="glass rounded-[32px] p-8">
-          <h1 className="text-2xl font-semibold">{t.admin.deniedTitle}</h1>
-          <p className="mt-2 text-sm text-muted">{t.admin.deniedBlurb}</p>
+        <section className="glass panel">
+          <h1 className="h2">{t.admin.deniedTitle}</h1>
+          <p className="lede mt-2">{t.admin.deniedBlurb}</p>
         </section>
       </GatePage>
     );
@@ -136,11 +136,9 @@ function Admin() {
 
   return (
     <GatePage current="/admin" role={profile?.role ?? null}>
-      <section className="glass rounded-[32px] p-6 sm:p-8">
-        <h1 className="text-3xl font-semibold tracking-tight">{t.admin.title}</h1>
-        <p className="mt-2 text-sm text-muted">
-          {t.admin.subtitle}
-        </p>
+      <section className="glass panel">
+        <h1 className="h1">{t.admin.title}</h1>
+        <p className="lede mt-2">{t.admin.subtitle}</p>
 
         <form className="mt-8 space-y-6" onSubmit={(e) => void onSave(e)}>
           <div>
@@ -174,7 +172,7 @@ function Admin() {
               ) : null}
             </div>
             <div
-              className="mt-4 flex h-28 items-center justify-center overflow-hidden rounded-[22px] bg-cover bg-center"
+              className="mt-4 flex h-32 items-center justify-center overflow-hidden rounded-[20px] bg-cover bg-center shadow-[inset_0_0_0_1px_var(--hairline)]"
               style={
                 preview
                   ? {
@@ -205,7 +203,7 @@ function Admin() {
                       type="button"
                       aria-pressed={selected}
                       onClick={() => patch({ backgroundUrl: url })}
-                      className={`block w-full overflow-hidden rounded-[18px] no-underline transition-shadow ${
+                      className={`block w-full overflow-hidden rounded-[16px] no-underline transition-shadow ${
                         selected
                           ? "shadow-[0_0_0_2px_var(--color-ice)]"
                           : "shadow-[0_0_0_1px_rgb(255_255_255_/_0.12)]"
@@ -294,8 +292,8 @@ function Admin() {
             </label>
           </div>
 
-          {error ? <p className="text-sm text-rose-300">{error}</p> : null}
-          {status ? <p className="text-sm text-ice">{status}</p> : null}
+          {error ? <p className="note note-error">{error}</p> : null}
+          {status ? <p className="note note-ok">{status}</p> : null}
 
           <div className="flex flex-wrap gap-2">
             <button className="btn btn-primary" type="submit" disabled={busy}>
@@ -308,25 +306,23 @@ function Admin() {
         </form>
       </section>
 
-      <section id="music" className="glass mt-4 rounded-[32px] p-6 sm:p-8">
-        <h2 className="text-2xl font-semibold tracking-tight">{t.music.title}</h2>
-        <p className="mt-2 text-sm text-muted">{t.music.subtitle}</p>
+      <section id="music" className="glass panel mt-5">
+        <h2 className="h2">{t.music.title}</h2>
+        <p className="lede mt-2">{t.music.subtitle}</p>
         <MusicEditor />
       </section>
 
-      <section className="glass mt-4 rounded-[32px] p-6 sm:p-8">
-        <h2 className="text-xl font-semibold">{t.admin.members}</h2>
-        <p className="mt-1 text-sm text-muted">
-          {t.admin.membersBlurb}
-        </p>
-        <ul className="mt-6 space-y-3">
+      <section className="glass panel mt-5">
+        <h2 className="h2">{t.admin.members}</h2>
+        <p className="lede mt-2">{t.admin.membersBlurb}</p>
+        <ul className="mt-6 space-y-2">
           {members.map((m) => (
-            <li key={m.userId} className="flex flex-wrap items-center gap-3 rounded-[18px] bg-white/5 p-3">
-              <div className="size-10 overflow-hidden rounded-full bg-white/10">
+            <li key={m.userId} className="row">
+              <div className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-white/10">
                 {m.avatarUrl ? (
                   <img src={m.avatarUrl} alt="" className="size-full object-cover" />
                 ) : (
-                  <div className="grid size-full place-items-center text-sm">
+                  <div className="grid size-full place-items-center text-sm font-semibold">
                     {m.displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -337,7 +333,7 @@ function Admin() {
               </div>
               {profile?.role === "owner" ? (
                 <select
-                  className="min-h-11 rounded-xl bg-black/30 px-3 text-sm"
+                  className="min-h-11 rounded-[14px] bg-white/5 px-3 text-sm shadow-[inset_0_0_0_1px_var(--hairline)]"
                   value={m.role}
                   onChange={(e) => void changeRole(m.userId, e.target.value as Role)}
                 >
@@ -346,7 +342,7 @@ function Admin() {
                   <option value="owner">{t.admin.roles.owner}</option>
                 </select>
               ) : (
-                <span className="text-xs tracking-[0.16em] uppercase text-muted">{m.role}</span>
+                <span className="badge">{m.role}</span>
               )}
             </li>
           ))}

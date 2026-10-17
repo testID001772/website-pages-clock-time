@@ -16,6 +16,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { isMainModule } from "./with-app-env.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = join(root, "public");
@@ -97,8 +98,12 @@ async function check() {
   console.log("icons: every file present at the declared sizes");
 }
 
-if (process.argv.includes("--check")) {
-  await check();
-} else {
-  await write();
+/* Guarded so `generate-app-icons.mjs` can import `squareSvg` without this
+ * module rewriting the web icons as a side effect of being imported. */
+if (isMainModule(import.meta.url)) {
+  if (process.argv.includes("--check")) {
+    await check();
+  } else {
+    await write();
+  }
 }

@@ -37,6 +37,7 @@ export const tr: Dictionary = {
     ) => `${months} ay ${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`,
   },
   event: {
+    title: "Yaklaşan sürümler",
     expected: (year: string | number) => `${year} (bekleniyor)`,
     label: "Yakında",
     releases: (date: string) => `${date} tarihinde çıkıyor`,
@@ -91,6 +92,7 @@ export const tr: Dictionary = {
   },
 
   home: {
+    eyebrow: "Yeni yıl geri sayımı",
     target: "Hedef:",
     yearComplete: (year: string | number, pct: string) => `${year} %${pct} tamamlandı`,
     ringsIn: (when: string, timeZone: string) => `${when} başlıyor · ${timeZone}`,
@@ -223,6 +225,24 @@ export const tr: Dictionary = {
       admin: "yönetici",
       owner: "sahip",
     },
+  },
+  download: {
+    title: "Uygulamayı indir",
+    subtitle: "Tek geri sayım, üç farklı yol. Her kopya aynı uygulamadır ve kurulduktan sonra çevrimdışı çalışır.",
+    windows: "Windows",
+    windowsBlurb: "64 bit Windows 10 ve sonrası için yükleyici.",
+    windowsAction: "Windows için indir",
+    android: "Android",
+    androidBlurb: "Android 8 ve sonrası için APK.",
+    androidAction: "APK'yı indir",
+    pwa: "Tarayıcı",
+    pwaBlurb: "İndirilecek dosya yok — Clock Time'ı ana ekranınıza veya masaüstünüze ekleyin.",
+    pwaAction: "Uygulama olarak kur",
+    pwaHowTo: "Bu tarayıcı bir kurulum düğmesi sunmuyor. Menüsünü kullanın: iPhone ve iPad'de Ana Ekrana Ekle, masaüstünde Uygulamayı yükle.",
+    unsigned: "İki dosya da imzasız: Windows SmartScreen bir kez uyarır, Android ise bilinmeyen kaynaklara izin vermenizi ister.",
+    version: (version: string) => `Sürüm ${version}`,
+    rebuilt: "Bu siteyle aynı commit'ten derlendi ve sürüm dosyaları olarak yayımlandı.",
+    footer: "İndir",
   },
   nav: {
     home: "Ana Sayfa",

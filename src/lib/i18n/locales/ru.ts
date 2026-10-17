@@ -38,6 +38,7 @@ export const ru: Dictionary = {
       `${months} месяцев ${days} дней ${hours} часов ${minutes} минут ${seconds} секунд`,
   },
   event: {
+    title: "Ближайшие релизы",
     expected: (year: string | number) => `${year} (ожидается)`,
     label: "Скоро",
     releases: (date: string) => `Выходит ${date}`,
@@ -92,6 +93,7 @@ export const ru: Dictionary = {
   },
 
   home: {
+    eyebrow: "Обратный отсчёт до Нового года",
     target: "Цель:",
     yearComplete: (year: string | number, pct: string) => `${year} год пройден на ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `Начнётся ${when} · ${timeZone}`,
@@ -223,6 +225,24 @@ export const ru: Dictionary = {
       admin: "админ",
       owner: "владелец",
     },
+  },
+  download: {
+    title: "Скачать приложение",
+    subtitle: "Один обратный отсчёт — три способа его получить. Все копии — одно и то же приложение, и после установки работают без сети.",
+    windows: "Windows",
+    windowsBlurb: "Установщик для 64-разрядной Windows 10 и новее.",
+    windowsAction: "Скачать для Windows",
+    android: "Android",
+    androidBlurb: "APK для Android 8 и новее.",
+    androidAction: "Скачать APK",
+    pwa: "Браузер",
+    pwaBlurb: "Скачивать ничего не нужно — добавьте Clock Time на главный экран или рабочий стол.",
+    pwaAction: "Установить как приложение",
+    pwaHowTo: "Этот браузер не показывает кнопку установки. Откройте его меню: «На экран „Домой“» на iPhone и iPad, «Установить приложение» на компьютере.",
+    unsigned: "Оба файла не подписаны: SmartScreen предупредит один раз, а Android попросит разрешить установку из неизвестных источников.",
+    version: (version: string) => `Версия ${version}`,
+    rebuilt: "Собрано из того же коммита, что и этот сайт, и опубликовано как файлы релиза.",
+    footer: "Скачать",
   },
   nav: {
     home: "Главная",

@@ -37,6 +37,7 @@ export const hi: Dictionary = {
     ) => `${months} महीने ${days} दिन ${hours} घंटे ${minutes} मिनट ${seconds} सेकंड`,
   },
   event: {
+    title: "आगामी रिलीज़",
     expected: (year: string | number) => `${year} (अपेक्षित)`,
     label: "आगामी",
     releases: (date: string) => `${date} को रिलीज़ होगा`,
@@ -91,6 +92,7 @@ export const hi: Dictionary = {
   },
 
   home: {
+    eyebrow: "नए साल की उलटी गिनती",
     target: "लक्ष्य:",
     yearComplete: (year: string | number, pct: string) => `${year} ${pct}% पूरा हुआ`,
     ringsIn: (when: string, timeZone: string) => `${when} को शुरू होगा · ${timeZone}`,
@@ -222,6 +224,24 @@ export const hi: Dictionary = {
       admin: "एडमिन",
       owner: "स्वामी",
     },
+  },
+  download: {
+    title: "ऐप डाउनलोड करें",
+    subtitle: "एक उलटी गिनती, तीन तरीके। हर कॉपी वही ऐप है और इंस्टॉल होने के बाद ऑफ़लाइन काम करती है।",
+    windows: "विंडोज़",
+    windowsBlurb: "64-बिट विंडोज़ 10 और बाद के संस्करणों के लिए इंस्टॉलर।",
+    windowsAction: "विंडोज़ के लिए डाउनलोड करें",
+    android: "एंड्रॉइड",
+    androidBlurb: "एंड्रॉइड 8 और बाद के संस्करणों के लिए APK।",
+    androidAction: "APK डाउनलोड करें",
+    pwa: "ब्राउज़र",
+    pwaBlurb: "कोई फ़ाइल डाउनलोड नहीं करनी — Clock Time को होम स्क्रीन या डेस्कटॉप पर जोड़ें।",
+    pwaAction: "ऐप के रूप में इंस्टॉल करें",
+    pwaHowTo: "यह ब्राउज़र इंस्टॉल बटन नहीं देता। इसका मेनू खोलें: iPhone और iPad पर «होम स्क्रीन पर जोड़ें», डेस्कटॉप पर «ऐप इंस्टॉल करें»।",
+    unsigned: "दोनों फ़ाइलें अहस्ताक्षरित हैं: विंडोज़ SmartScreen एक बार चेतावनी देगा, और एंड्रॉइड अज्ञात स्रोतों की अनुमति माँगेगा।",
+    version: (version: string) => `संस्करण ${version}`,
+    rebuilt: "इस साइट वाले ही कमिट से बनाया गया, और रिलीज़ फ़ाइलों के रूप में प्रकाशित।",
+    footer: "डाउनलोड",
   },
   nav: {
     home: "होम",

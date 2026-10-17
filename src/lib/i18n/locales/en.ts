@@ -40,6 +40,7 @@ export const en = {
       `${months} months ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`,
   },
   event: {
+    title: "Upcoming releases",
     expected: (year: string | number) => `${year} (expected)`,
     label: "Coming up",
     releases: (date: string) => `Releases ${date}`,
@@ -93,6 +94,7 @@ export const en = {
   },
 
   home: {
+    eyebrow: "New Year countdown",
     target: "Target:",
     yearComplete: (year: string | number, pct: string) => `${year} is ${pct}% complete`,
     ringsIn: (when: string, timeZone: string) => `Rings in ${when} · ${timeZone}`,
@@ -224,6 +226,24 @@ export const en = {
       admin: "admin",
       owner: "owner",
     },
+  },
+  download: {
+    title: "Get the app",
+    subtitle: "One countdown, three ways to keep it. Every copy is the same app, and it works offline once installed.",
+    windows: "Windows",
+    windowsBlurb: "Installer for 64-bit Windows 10 and later.",
+    windowsAction: "Download for Windows",
+    android: "Android",
+    androidBlurb: "APK for Android 8 and later.",
+    androidAction: "Download the APK",
+    pwa: "Browser",
+    pwaBlurb: "No file to download — add Clock Time to your home screen or desktop.",
+    pwaAction: "Install as an app",
+    pwaHowTo: "This browser offers no install button. Use its menu instead: Add to Home Screen on iPhone and iPad, Install app on a desktop.",
+    unsigned: "Both files are unsigned: Windows SmartScreen warns once, and Android asks you to allow installs from unknown sources.",
+    version: (version: string) => `Version ${version}`,
+    rebuilt: "Built from the same commit as this site and published as release files.",
+    footer: "Download",
   },
   nav: {
     home: "Home",

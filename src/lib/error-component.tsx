@@ -12,11 +12,11 @@ export function AppErrorComponent({ error }: ErrorComponentProps) {
   const { t } = useLocale();
   return (
     <main className="flex min-h-screen items-center justify-center bg-void px-6 text-ink">
-      <div className="glass flex max-w-md flex-col items-center gap-3 rounded-[32px] p-8 text-center">
+      <div className="glass panel flex max-w-md flex-col items-center gap-3 text-center">
         <span className="text-sun" aria-hidden="true">
           <TriangleAlert className="size-10" strokeWidth={2} />
         </span>
-        <h1 className="text-lg font-semibold">{t.errorFallback.title}</h1>
+        <h1 className="h2">{t.errorFallback.title}</h1>
         <p className="max-w-md text-sm break-words text-muted">
           {errorMessage(error, t.errorFallback.message)}
         </p>
@@ -37,11 +37,11 @@ export function AppNotFoundComponent() {
   const { t } = useLocale();
   return (
     <main className="flex min-h-screen items-center justify-center bg-void px-6 text-ink">
-      <div className="glass flex max-w-md flex-col items-center gap-3 rounded-[32px] p-8 text-center">
+      <div className="glass panel flex max-w-md flex-col items-center gap-3 text-center">
         <span className="text-ice" aria-hidden="true">
           <Compass className="size-10" strokeWidth={2} />
         </span>
-        <h1 className="text-lg font-semibold">{t.notFound.title}</h1>
+        <h1 className="h2">{t.notFound.title}</h1>
         <p className="max-w-md text-sm text-muted">{t.notFound.message}</p>
         <Link to="/" className="btn btn-primary no-underline">
           {t.notFound.home}

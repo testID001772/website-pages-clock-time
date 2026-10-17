@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ComingUpRouteImport } from './routes/coming-up'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -38,6 +39,11 @@ const ComingUpRoute = ComingUpRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/coming-up': typeof ComingUpRoute
   '/dashboard': typeof DashboardRoute
+  '/download': typeof DownloadRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/coming-up': typeof ComingUpRoute
   '/dashboard': typeof DashboardRoute
+  '/download': typeof DownloadRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/coming-up': typeof ComingUpRoute
   '/dashboard': typeof DashboardRoute
+  '/download': typeof DownloadRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/coming-up'
     | '/dashboard'
+    | '/download'
     | '/login'
     | '/register'
     | '/settings'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/coming-up'
     | '/dashboard'
+    | '/download'
     | '/login'
     | '/register'
     | '/settings'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/coming-up'
     | '/dashboard'
+    | '/download'
     | '/login'
     | '/register'
     | '/settings'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ComingUpRoute: typeof ComingUpRoute
   DashboardRoute: typeof DashboardRoute
+  DownloadRoute: typeof DownloadRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ComingUpRoute: ComingUpRoute,
   DashboardRoute: DashboardRoute,
+  DownloadRoute: DownloadRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRoute,

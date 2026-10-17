@@ -78,5 +78,5 @@ test("the Pages build stamps the cache version from the built HTML", () => {
 test("the shipped worker still matches what the build rewrites", () => {
   // `stampServiceWorker` rewrites this exact line; if the worker is refactored
   // without it, the build throws — assert that here so it is caught locally.
-  assert.match(SW, /const VERSION = "clock-time-v7";/);
+  assert.match(SW, /const VERSION = "clock-time-v2";/);
 });

@@ -37,6 +37,7 @@ export const zh: Dictionary = {
     ) => `${months}个月${days}天${hours}小时${minutes}分${seconds}秒`,
   },
   event: {
+    title: "即将发布",
     expected: (year: string | number) => `${year}（预计）`,
     label: "即将到来",
     releases: (date: string) => `将于${date}发售`,
@@ -91,6 +92,7 @@ export const zh: Dictionary = {
   },
 
   home: {
+    eyebrow: "新年倒计时",
     target: "目标：",
     yearComplete: (year: string | number, pct: string) => `${year} 年已过去 ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `${when} 开始 · ${timeZone}`,
@@ -222,6 +224,24 @@ export const zh: Dictionary = {
       admin: "管理",
       owner: "所有者",
     },
+  },
+  download: {
+    title: "下载应用",
+    subtitle: "一个倒计时，三种安装方式。每个版本都是同一个应用，安装后即可离线使用。",
+    windows: "Windows",
+    windowsBlurb: "适用于 64 位 Windows 10 及更高版本的安装程序。",
+    windowsAction: "下载 Windows 版",
+    android: "Android",
+    androidBlurb: "适用于 Android 8 及更高版本的 APK。",
+    androidAction: "下载 APK",
+    pwa: "浏览器",
+    pwaBlurb: "无需下载文件 —— 把 Clock Time 添加到主屏幕或桌面。",
+    pwaAction: "作为应用安装",
+    pwaHowTo: "此浏览器没有提供安装按钮。请打开它的菜单：iPhone 和 iPad 选择「添加到主屏幕」，桌面端选择「安装应用」。",
+    unsigned: "两个文件均未签名：Windows SmartScreen 会提示一次，Android 会要求允许安装未知来源的应用。",
+    version: (version: string) => `版本 ${version}`,
+    rebuilt: "与本站同一个提交构建，并作为发布文件提供。",
+    footer: "下载",
   },
   nav: {
     home: "首页",

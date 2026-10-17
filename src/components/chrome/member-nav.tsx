@@ -2,40 +2,35 @@ import { Link } from "@tanstack/react-router";
 import { UserButton } from "@/lib/auth/gates";
 import { useLocale } from "@/lib/i18n";
 import { isStaff, type Role } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
+/**
+ * Member area navigation. v2 renders it as one segmented control on a card:
+ * the active tab is lit, the rest read as text until hovered.
+ */
 export function MemberNav({ role, current }: { role: Role | null; current: string }) {
   const { t } = useLocale();
   const links = [
     { to: "/", label: t.nav.home },
     { to: "/dashboard", label: t.nav.dashboard },
     { to: "/settings", label: t.nav.account },
+    ...(isStaff(role) ? [{ to: "/admin", label: t.nav.admin }] : []),
   ] as const;
   return (
-    <nav className="glass flex flex-wrap items-center gap-1 rounded-[22px] p-2">
+    <nav className="glass segmented">
       {links.map((l) => (
         <Link
           key={l.to}
           to={l.to}
-          className={cn(
-            "rounded-xl px-3 py-2 text-sm font-medium transition-colors",
-            current === l.to ? "bg-white/12 text-ink" : "text-muted hover:text-ink",
-          )}
+          className="segment"
+          // Without `exact`, TanStack treats the `/` link as active on every
+          // member page (its path is a prefix of all of them) and stamps
+          // `aria-current="page"` on it — which lit the Home tab everywhere.
+          activeOptions={{ exact: true }}
+          aria-current={current === l.to ? "page" : undefined}
         >
           {l.label}
         </Link>
       ))}
-      {isStaff(role) ? (
-        <Link
-          to="/admin"
-          className={cn(
-            "rounded-xl px-3 py-2 text-sm font-medium transition-colors",
-            current === "/admin" ? "bg-white/12 text-ink" : "text-muted hover:text-ink",
-          )}
-        >
-          {t.nav.admin}
-        </Link>
-      ) : null}
       <div className="ms-auto ps-2 text-sm [&_button]:text-muted [&_button]:no-underline hover:[&_button]:text-ink">
         <UserButton />
       </div>

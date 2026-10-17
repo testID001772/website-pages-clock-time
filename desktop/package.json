@@ -1,0 +1,63 @@
+{
+  "name": "clock-time-desktop",
+  "productName": "Clock Time",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Clock Time \u2014 a cinematic New Year countdown, as an installable desktop app.",
+  "main": "main.cjs",
+  "author": "Clock Time",
+  "license": "UNLICENSED",
+  "scripts": {
+    "sync": "node scripts/sync-web.mjs",
+    "start": "npm run sync && electron .",
+    "dist": "npm run sync && electron-builder",
+    "dist:win": "npm run sync && electron-builder --win",
+    "dist:linux": "npm run sync && electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "app.clocktime.desktop",
+    "productName": "Clock Time",
+    "artifactName": "${productName}-${version}-${os}-${arch}-setup.${ext}",
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "web/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "buildResources"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "buildResources/icon.ico",
+      "artifactName": "ClockTime-windows-setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Clock Time"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility",
+      "artifactName": "ClockTime-linux-${arch}.${ext}"
+    }
+  }
+}

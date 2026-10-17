@@ -22,3 +22,8 @@ node_modules/
 .DS_Store
 *.log
 .vercel/
+
+# Installable-app shells (the wrapped site is generated; the shells are source)
+desktop/web/
+desktop/dist/
+android/app/src/main/assets/public/

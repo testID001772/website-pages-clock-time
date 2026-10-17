@@ -38,6 +38,7 @@ export const fr: Dictionary = {
       `${months} mois ${days} jours ${hours} heures ${minutes} minutes ${seconds} secondes`,
   },
   event: {
+    title: "Prochaines sorties",
     expected: (year: string | number) => `${year} (prévu)`,
     label: "À venir",
     releases: (date: string) => `Sort le ${date}`,
@@ -92,6 +93,7 @@ export const fr: Dictionary = {
   },
 
   home: {
+    eyebrow: "Compte à rebours du nouvel an",
     target: "Cible :",
     yearComplete: (year: string | number, pct: string) => `${year} est à ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `Ça commence le ${when} · ${timeZone}`,
@@ -224,6 +226,24 @@ export const fr: Dictionary = {
       admin: "admin",
       owner: "propriétaire",
     },
+  },
+  download: {
+    title: "Télécharger l'application",
+    subtitle: "Un compte à rebours, trois façons de l'emporter. Chaque copie est la même application et fonctionne hors ligne une fois installée.",
+    windows: "Windows",
+    windowsBlurb: "Installeur pour Windows 10 64 bits et versions ultérieures.",
+    windowsAction: "Télécharger pour Windows",
+    android: "Android",
+    androidBlurb: "APK pour Android 8 et versions ultérieures.",
+    androidAction: "Télécharger l'APK",
+    pwa: "Navigateur",
+    pwaBlurb: "Aucun fichier à télécharger : ajoutez Clock Time à votre écran d'accueil ou à votre bureau.",
+    pwaAction: "Installer comme application",
+    pwaHowTo: "Ce navigateur ne propose pas de bouton d'installation. Utilisez son menu : Sur l'écran d'accueil sur iPhone et iPad, Installer l'application sur ordinateur.",
+    unsigned: "Les deux fichiers ne sont pas signés : SmartScreen avertit une fois et Android demande d'autoriser les sources inconnues.",
+    version: (version: string) => `Version ${version}`,
+    rebuilt: "Construit depuis le même commit que ce site et publié en tant que fichiers de version.",
+    footer: "Télécharger",
   },
   nav: {
     home: "Accueil",

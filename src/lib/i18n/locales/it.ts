@@ -38,6 +38,7 @@ export const it: Dictionary = {
       `${months} mesi ${days} giorni ${hours} ore ${minutes} minuti ${seconds} secondi`,
   },
   event: {
+    title: "Prossime uscite",
     expected: (year: string | number) => `${year} (previsto)`,
     label: "In arrivo",
     releases: (date: string) => `Esce il ${date}`,
@@ -92,6 +93,7 @@ export const it: Dictionary = {
   },
 
   home: {
+    eyebrow: "Conto alla rovescia per Capodanno",
     target: "Obiettivo:",
     yearComplete: (year: string | number, pct: string) => `Il ${year} è al ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `Inizia il ${when} · ${timeZone}`,
@@ -224,6 +226,24 @@ export const it: Dictionary = {
       admin: "admin",
       owner: "proprietario",
     },
+  },
+  download: {
+    title: "Scarica l'app",
+    subtitle: "Un conto alla rovescia, tre modi per averlo. Ogni copia è la stessa app e funziona offline una volta installata.",
+    windows: "Windows",
+    windowsBlurb: "Programma di installazione per Windows 10 a 64 bit e versioni successive.",
+    windowsAction: "Scarica per Windows",
+    android: "Android",
+    androidBlurb: "APK per Android 8 e versioni successive.",
+    androidAction: "Scarica l'APK",
+    pwa: "Browser",
+    pwaBlurb: "Nessun file da scaricare: aggiungi Clock Time alla schermata Home o al desktop.",
+    pwaAction: "Installa come app",
+    pwaHowTo: "Questo browser non offre un pulsante di installazione. Usa il suo menu: Aggiungi alla schermata Home su iPhone e iPad, Installa app su desktop.",
+    unsigned: "Entrambi i file non sono firmati: SmartScreen avvisa una volta e Android chiede di consentire le origini sconosciute.",
+    version: (version: string) => `Versione ${version}`,
+    rebuilt: "Compilato dallo stesso commit di questo sito e pubblicato come file di rilascio.",
+    footer: "Scarica",
   },
   nav: {
     home: "Home",

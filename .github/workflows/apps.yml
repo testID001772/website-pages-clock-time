@@ -1,0 +1,143 @@
+# Build the installable apps: an Android APK and a Windows installer.
+#
+# The web app is a static build (see pages.yml), so both packages are thin
+# native shells around the same prerendered bundle — no server, no database,
+# no network after install. Building them needs toolchains a container should
+# not carry (a JDK plus the Android SDK, and the Electron binaries), which is
+# exactly what GitHub's runners already have. That is why the artifacts are
+# produced here rather than committed.
+#
+# Nothing is signed for distribution: the APK uses Gradle's debug key and the
+# Windows installer is unsigned, so Windows SmartScreen will warn on first run.
+# See INSTALL.md for adding a release keystore and a code-signing certificate.
+name: Build installers
+
+on:
+  # Installers are built on demand: they take minutes and only matter when
+  # someone wants a file to hand to a device.
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  # Release publishing, on a tag push. Everything else only needs the artifact.
+  contents: write
+
+concurrency:
+  group: installers-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      # Capacitor 7 builds against JDK 21; the runner has one, but pinning it
+      # keeps the APK reproducible when the image's default moves.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the static site and sync it into the native project
+        run: npm run app:sync
+
+      - name: Assemble the APK
+        run: node scripts/gradle.mjs assembleDebug --no-daemon
+
+      # Gradle always calls its output `app-debug.apk`. The download page links
+      # at one fixed name, so the file is renamed here rather than the link
+      # chasing a build number.
+      - name: Name the artifact
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk ClockTime-android.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClockTime-android-apk
+          path: ClockTime-android.apk
+          if-no-files-found: error
+
+      - name: Publish to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Two jobs publish two files to one release; whichever arrives second
+        # finds it already there and uploads into it.
+        run: |
+          gh release create "$GITHUB_REF_NAME" ClockTime-android.apk \
+            --title "Clock Time $GITHUB_REF_NAME" \
+            --notes "Installers built from ${GITHUB_SHA:0:7}." \
+            --verify-tag \
+          || gh release upload "$GITHUB_REF_NAME" ClockTime-android.apk --clobber
+
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the static site
+        run: npm run build:pages
+
+      # electron-builder needs an .ico; it is generated from the same vector
+      # master as the web icons rather than kept as a hand-made binary.
+      - name: Build the installer icon
+        run: npm run app:icons
+
+      - name: Install the desktop shell
+        working-directory: desktop
+        run: npm ci
+
+      - name: Package the installer
+        working-directory: desktop
+        env:
+          # No certificate is configured, so do not go looking for one: the
+          # build must produce an unsigned installer, not fail on a missing key.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run dist:win
+
+      - name: Report the artifact
+        working-directory: desktop/dist
+        run: Get-ChildItem -Filter *.exe | Select-Object Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClockTime-windows-installer
+          # A fixed name, not a glob: the download page links at exactly this.
+          path: desktop/dist/ClockTime-windows-setup.exe
+          if-no-files-found: error
+
+      - name: Publish to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: desktop/dist
+        # bash, not the runner's default pwsh: `$GITHUB_REF_NAME` and the
+        # `${VAR:0:7}` slice are shell syntax, and under PowerShell they would
+        # expand to nothing and publish an untitled release.
+        shell: bash
+        run: |
+          gh release create "$GITHUB_REF_NAME" ClockTime-windows-setup.exe \
+            --title "Clock Time $GITHUB_REF_NAME" \
+            --notes "Installers built from ${GITHUB_SHA:0:7}." \
+            --verify-tag \
+          || gh release upload "$GITHUB_REF_NAME" ClockTime-windows-setup.exe --clobber

@@ -38,6 +38,7 @@ export const es: Dictionary = {
       `${months} meses ${days} días ${hours} horas ${minutes} minutos ${seconds} segundos`,
   },
   event: {
+    title: "Próximos lanzamientos",
     expected: (year: string | number) => `${year} (previsto)`,
     label: "Próximamente",
     releases: (date: string) => `Se lanza el ${date}`,
@@ -92,6 +93,7 @@ export const es: Dictionary = {
   },
 
   home: {
+    eyebrow: "Cuenta atrás para Año Nuevo",
     target: "Meta:",
     yearComplete: (year: string | number, pct: string) => `El ${year} va al ${pct}%`,
     ringsIn: (when: string, timeZone: string) => `Comienza el ${when} · ${timeZone}`,
@@ -224,6 +226,24 @@ export const es: Dictionary = {
       admin: "admin",
       owner: "propietario",
     },
+  },
+  download: {
+    title: "Descargar la aplicación",
+    subtitle: "Una cuenta atrás, tres formas de tenerla. Cada copia es la misma aplicación y funciona sin conexión una vez instalada.",
+    windows: "Windows",
+    windowsBlurb: "Instalador para Windows 10 de 64 bits o posterior.",
+    windowsAction: "Descargar para Windows",
+    android: "Android",
+    androidBlurb: "APK para Android 8 o posterior.",
+    androidAction: "Descargar el APK",
+    pwa: "Navegador",
+    pwaBlurb: "Sin archivos que descargar: añade Clock Time a tu pantalla de inicio o al escritorio.",
+    pwaAction: "Instalar como aplicación",
+    pwaHowTo: "Este navegador no ofrece botón de instalación. Usa su menú: Añadir a la pantalla de inicio en iPhone y iPad, Instalar aplicación en el escritorio.",
+    unsigned: "Ninguno de los dos archivos está firmado: SmartScreen avisa una vez y Android pide permitir orígenes desconocidos.",
+    version: (version: string) => `Versión ${version}`,
+    rebuilt: "Compilado desde el mismo commit que este sitio y publicado como archivos de la versión.",
+    footer: "Descargar",
   },
   nav: {
     home: "Inicio",

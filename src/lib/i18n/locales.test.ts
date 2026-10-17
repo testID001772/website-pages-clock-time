@@ -89,6 +89,7 @@ describe("locales", () => {
       "admin.backgroundBlur": [4],
       "admin.glassBlur": [8],
       "admin.glassFill": [12],
+      "download.version": ["v2"],
     };
     for (const [tag, dict] of Object.entries(locales)) {
       for (const [path, a] of Object.entries(args)) {

@@ -27,8 +27,6 @@ export interface WorldClockCopy {
   moveLater: (city: string) => string;
   remove: string;
   removeCity: (city: string) => string;
-  lightMode: string;
-  darkMode: string;
 }
 
 const en: WorldClockCopy = {
@@ -65,8 +63,6 @@ const en: WorldClockCopy = {
   moveLater: (city) => `Move ${city} later`,
   remove: "Remove",
   removeCity: (city) => `Remove ${city}`,
-  lightMode: "Light mode",
-  darkMode: "Dark mode",
 };
 
 const ar: WorldClockCopy = {
@@ -103,8 +99,6 @@ const ar: WorldClockCopy = {
   moveLater: (city) => `نقل ${city} إلى الموضع التالي`,
   remove: "إزالة",
   removeCity: (city) => `إزالة ${city}`,
-  lightMode: "الوضع الفاتح",
-  darkMode: "الوضع الداكن",
 };
 
 const es: WorldClockCopy = {
@@ -141,8 +135,6 @@ const es: WorldClockCopy = {
   moveLater: (city) => `Mover ${city} hacia delante`,
   remove: "Quitar",
   removeCity: (city) => `Quitar ${city}`,
-  lightMode: "Modo claro",
-  darkMode: "Modo oscuro",
 };
 
 const fr: WorldClockCopy = {
@@ -179,8 +171,6 @@ const fr: WorldClockCopy = {
   moveLater: (city) => `Déplacer ${city} vers le bas`,
   remove: "Retirer",
   removeCity: (city) => `Retirer ${city}`,
-  lightMode: "Mode clair",
-  darkMode: "Mode sombre",
 };
 
 const COPY: Partial<Record<string, WorldClockCopy>> = { en, ar, es, fr };

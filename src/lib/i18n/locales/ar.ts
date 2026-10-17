@@ -38,6 +38,7 @@ export const ar: Dictionary = {
       `${months} أشهر ${days} أيام ${hours} ساعات ${minutes} دقائق ${seconds} ثوانٍ`,
   },
   event: {
+    title: "الإصدارات القادمة",
     expected: (year: string | number) => `${year} (متوقع)`,
     label: "الحدث القادم",
     releases: (date: string) => `يصدر بتاريخ ${date}`,
@@ -92,6 +93,7 @@ export const ar: Dictionary = {
   },
 
   home: {
+    eyebrow: "العد التنازلي للعام الجديد",
     target: "الهدف:",
     yearComplete: (year: string | number, pct: string) => `اكتمل ${pct}% من ${year}`,
     ringsIn: (when: string, timeZone: string) => `يبدأ ${when} · ${timeZone}`,
@@ -223,6 +225,24 @@ export const ar: Dictionary = {
       admin: "مشرف",
       owner: "مالك",
     },
+  },
+  download: {
+    title: "حمّل التطبيق",
+    subtitle: "عدّ تنازلي واحد بثلاث طرق. كل نسخة هي التطبيق نفسه، وتعمل دون اتصال بعد التثبيت.",
+    windows: "ويندوز",
+    windowsBlurb: "مثبّت لنظام ويندوز 10 بمعمارية 64 بت فأحدث.",
+    windowsAction: "التنزيل لنظام ويندوز",
+    android: "أندرويد",
+    androidBlurb: "ملف APK لأندرويد 8 فأحدث.",
+    androidAction: "تنزيل ملف APK",
+    pwa: "المتصفح",
+    pwaBlurb: "لا ملف للتنزيل — أضف Clock Time إلى شاشتك الرئيسية أو سطح المكتب.",
+    pwaAction: "التثبيت كتطبيق",
+    pwaHowTo: "هذا المتصفح لا يوفّر زر تثبيت. استخدم قائمته: «الإضافة إلى الشاشة الرئيسية» على آيفون وآيباد، و«تثبيت التطبيق» على سطح المكتب.",
+    unsigned: "الملفان غير موقّعين: يحذّرك SmartScreen مرة واحدة، ويطلب أندرويد السماح بالتثبيت من مصادر غير معروفة.",
+    version: (version: string) => `الإصدار ${version}`,
+    rebuilt: "مبني من الالتزام نفسه الذي بُني منه هذا الموقع، ومنشور كملفات إصدار.",
+    footer: "التنزيل",
   },
   nav: {
     home: "الرئيسية",

@@ -38,6 +38,7 @@ export const de: Dictionary = {
       `${months} Monaten ${days} Tage ${hours} Stunden ${minutes} Minuten ${seconds} Sekunden`,
   },
   event: {
+    title: "Kommende Veröffentlichungen",
     expected: (year: string | number) => `${year} (erwartet)`,
     label: "Demnächst",
     releases: (date: string) => `Erscheint am ${date}`,
@@ -92,6 +93,7 @@ export const de: Dictionary = {
   },
 
   home: {
+    eyebrow: "Countdown zum neuen Jahr",
     target: "Ziel:",
     yearComplete: (year: string | number, pct: string) => `${year} ist zu ${pct}% geschafft`,
     ringsIn: (when: string, timeZone: string) => `Beginnt am ${when} · ${timeZone}`,
@@ -224,6 +226,24 @@ export const de: Dictionary = {
       admin: "Admin",
       owner: "Inhaber",
     },
+  },
+  download: {
+    title: "App herunterladen",
+    subtitle: "Ein Countdown, drei Wege. Jede Variante ist dieselbe App und läuft offline, sobald sie installiert ist.",
+    windows: "Windows",
+    windowsBlurb: "Installer für 64-Bit-Windows 10 und neuer.",
+    windowsAction: "Für Windows herunterladen",
+    android: "Android",
+    androidBlurb: "APK für Android 8 und neuer.",
+    androidAction: "APK herunterladen",
+    pwa: "Browser",
+    pwaBlurb: "Keine Datei nötig — Clock Time zum Startbildschirm oder Desktop hinzufügen.",
+    pwaAction: "Als App installieren",
+    pwaHowTo: "Dieser Browser bietet keinen Installations-Button. Nutzen Sie stattdessen das Menü: Zum Home-Bildschirm auf iPhone und iPad, App installieren auf dem Desktop.",
+    unsigned: "Beide Dateien sind unsigniert: Windows SmartScreen warnt einmal, und Android fragt nach der Erlaubnis für unbekannte Quellen.",
+    version: (version: string) => `Version ${version}`,
+    rebuilt: "Aus demselben Commit wie diese Seite gebaut und als Release-Dateien veröffentlicht.",
+    footer: "Download",
   },
   nav: {
     home: "Start",
