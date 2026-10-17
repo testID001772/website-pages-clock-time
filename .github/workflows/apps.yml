@@ -77,7 +77,7 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" ClockTime-android.apk \
             --title "Clock Time $GITHUB_REF_NAME" \
-            --notes "Installers built from ${GITHUB_SHA:0:7}." \
+            --notes "Installers built from ${GITHUB_SHA:0:7}. Legacy Windows 7 packages use end-of-life Electron 22 / Chromium 108 and receive no security fixes." \
             --verify-tag \
           || gh release upload "$GITHUB_REF_NAME" ClockTime-android.apk --clobber
 
@@ -138,7 +138,7 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" ClockTime-windows-setup.exe \
             --title "Clock Time $GITHUB_REF_NAME" \
-            --notes "Installers built from ${GITHUB_SHA:0:7}." \
+            --notes "Installers built from ${GITHUB_SHA:0:7}. Legacy Windows 7 packages use end-of-life Electron 22 / Chromium 108 and receive no security fixes." \
             --verify-tag \
           || gh release upload "$GITHUB_REF_NAME" ClockTime-windows-setup.exe --clobber
 

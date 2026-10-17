@@ -243,7 +243,7 @@ export const tr: Dictionary = {
     pwaBlurb: "İndirilecek dosya yok — Clock Time'ı ana ekranınıza veya masaüstünüze ekleyin.",
     pwaAction: "Uygulama olarak kur",
     pwaHowTo: "Bu tarayıcı bir kurulum düğmesi sunmuyor. Menüsünü kullanın: iPhone ve iPad'de Ana Ekrana Ekle, masaüstünde Uygulamayı yükle.",
-    unsigned: "İki dosya da imzasız: Windows SmartScreen bir kez uyarır, Android ise bilinmeyen kaynaklara izin vermenizi ister.",
+    unsigned: "Tüm yükleyici dosyaları imzasızdır: Windows SmartScreen bir kez uyarır, Android ise bilinmeyen kaynaklardan yüklemeye izin vermenizi ister.",
     version: (version: string) => `Sürüm ${version}`,
     rebuilt: "Bu siteyle aynı commit'ten derlendi ve sürüm dosyaları olarak yayımlandı.",
     footer: "İndir",

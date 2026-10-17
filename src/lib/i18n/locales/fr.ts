@@ -244,7 +244,7 @@ export const fr: Dictionary = {
     pwaBlurb: "Aucun fichier à télécharger : ajoutez Clock Time à votre écran d'accueil ou à votre bureau.",
     pwaAction: "Installer comme application",
     pwaHowTo: "Ce navigateur ne propose pas de bouton d'installation. Utilisez son menu : Sur l'écran d'accueil sur iPhone et iPad, Installer l'application sur ordinateur.",
-    unsigned: "Les deux fichiers ne sont pas signés : SmartScreen avertit une fois et Android demande d'autoriser les sources inconnues.",
+    unsigned: "Tous les fichiers d’installation ne sont pas signés : SmartScreen avertit une fois et Android demande l’autorisation des sources inconnues.",
     version: (version: string) => `Version ${version}`,
     rebuilt: "Construit depuis le même commit que ce site et publié en tant que fichiers de version.",
     footer: "Télécharger",

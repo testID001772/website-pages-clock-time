@@ -244,7 +244,7 @@ export const de: Dictionary = {
     pwaBlurb: "Keine Datei nötig — Clock Time zum Startbildschirm oder Desktop hinzufügen.",
     pwaAction: "Als App installieren",
     pwaHowTo: "Dieser Browser bietet keinen Installations-Button. Nutzen Sie stattdessen das Menü: Zum Home-Bildschirm auf iPhone und iPad, App installieren auf dem Desktop.",
-    unsigned: "Beide Dateien sind unsigniert: Windows SmartScreen warnt einmal, und Android fragt nach der Erlaubnis für unbekannte Quellen.",
+    unsigned: "Alle Installationsdateien sind unsigniert: Windows SmartScreen warnt einmal, und Android fragt nach der Erlaubnis für unbekannte Quellen.",
     version: (version: string) => `Version ${version}`,
     rebuilt: "Aus demselben Commit wie diese Seite gebaut und als Release-Dateien veröffentlicht.",
     footer: "Download",
