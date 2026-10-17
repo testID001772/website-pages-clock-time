@@ -242,6 +242,7 @@ export const zh: Dictionary = {
     pwaBlurb: "无需下载文件 —— 把 Clock Time 添加到主屏幕或桌面。",
     pwaAction: "作为应用安装",
     pwaHowTo: "此浏览器没有提供安装按钮。请打开它的菜单：iPhone 和 iPad 选择「添加到主屏幕」，桌面端选择「安装应用」。",
+    browserInstallers: "下载浏览器",
     unsigned: "所有安装文件均未签名：Windows SmartScreen 会提示一次，Android 会要求允许安装未知来源的应用。",
     version: (version: string) => `版本 ${version}`,
     rebuilt: "与本站同一个提交构建，并作为发布文件提供。",

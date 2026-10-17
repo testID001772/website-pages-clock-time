@@ -243,6 +243,7 @@ export const pt: Dictionary = {
     pwaBlurb: "Nada para baixar — adicione o Clock Time à tela inicial ou à área de trabalho.",
     pwaAction: "Instalar como aplicativo",
     pwaHowTo: "Este navegador não oferece botão de instalação. Use o menu dele: Adicionar à Tela de Início no iPhone e iPad, Instalar aplicativo no computador.",
+    browserInstallers: "Baixar um navegador",
     unsigned: "Todos os instaladores não são assinados: o SmartScreen avisa uma vez e o Android pede para permitir instalações de fontes desconhecidas.",
     version: (version: string) => `Versão ${version}`,
     rebuilt: "Compilado a partir do mesmo commit deste site e publicado como arquivos da versão.",

@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AppWindow, Download, Monitor, ShieldAlert, Smartphone } from "lucide-react";
+import {
+  AppWindow,
+  Download,
+  Monitor,
+  ShieldAlert,
+  Smartphone,
+} from "lucide-react";
 import { AppChrome } from "@/components/chrome/app-chrome";
 import { SiteFooter } from "@/components/chrome/site-footer";
 import { SpaceStage } from "@/components/space/space-stage";
@@ -15,6 +21,12 @@ import { useInstallPrompt } from "@/lib/use-install-prompt";
 import { playSfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/download")({ component: DownloadPage });
+
+const BROWSER_INSTALLERS = [
+  { name: "Google Chrome", url: "https://www.google.com/chrome/" },
+  { name: "Mozilla Firefox", url: "https://www.mozilla.org/firefox/new/" },
+  { name: "Microsoft Edge", url: "https://www.microsoft.com/edge/download" },
+] as const;
 
 /**
  * Where the installers are handed over.
@@ -62,7 +74,9 @@ function DownloadPage() {
               {t.download.windowsAction}
             </a>
             <div className="mt-5 border-t border-white/10 pt-4">
-              <h3 className="text-sm font-semibold text-ink">{t.download.windowsLegacy}</h3>
+              <h3 className="text-sm font-semibold text-ink">
+                {t.download.windowsLegacy}
+              </h3>
               <p className="micro mt-2 leading-relaxed normal-case tracking-normal text-sun">
                 {t.download.windowsLegacyBlurb}
               </p>
@@ -127,6 +141,26 @@ function DownloadPage() {
                 {t.download.pwaHowTo}
               </p>
             )}
+            <div className="mt-5 border-t border-white/10 pt-4">
+              <p className="micro mb-2 normal-case tracking-normal">
+                {t.download.browserInstallers}
+              </p>
+              <div className="grid gap-2">
+                {BROWSER_INSTALLERS.map((browser) => (
+                  <a
+                    key={browser.name}
+                    href={browser.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-ghost w-full justify-between"
+                    aria-label={`Get ${browser.name} from its official download page`}
+                  >
+                    <span>{browser.name}</span>
+                    <Download className="size-4" aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            </div>
           </section>
         </div>
 

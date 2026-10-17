@@ -244,6 +244,7 @@ export const en = {
     pwaBlurb: "No file to download — add Clock Time to your home screen or desktop.",
     pwaAction: "Install as an app",
     pwaHowTo: "This browser offers no install button. Use its menu instead: Add to Home Screen on iPhone and iPad, Install app on a desktop.",
+    browserInstallers: "Get a browser",
     unsigned: "All installer files are unsigned: Windows SmartScreen warns once, and Android asks you to allow installs from unknown sources.",
     version: (version: string) => `Version ${version}`,
     rebuilt: "Built from the same commit as this site and published as release files.",

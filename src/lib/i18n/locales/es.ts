@@ -244,6 +244,7 @@ export const es: Dictionary = {
     pwaBlurb: "Sin archivos que descargar: añade Clock Time a tu pantalla de inicio o al escritorio.",
     pwaAction: "Instalar como aplicación",
     pwaHowTo: "Este navegador no ofrece botón de instalación. Usa su menú: Añadir a la pantalla de inicio en iPhone y iPad, Instalar aplicación en el escritorio.",
+    browserInstallers: "Descargar un navegador",
     unsigned: "Todos los instaladores no están firmados: SmartScreen avisa una vez y Android pide permitir instalaciones de orígenes desconocidos.",
     version: (version: string) => `Versión ${version}`,
     rebuilt: "Compilado desde el mismo commit que este sitio y publicado como archivos de la versión.",
