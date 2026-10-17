@@ -113,7 +113,7 @@ test("every file the packaged app needs is in the bundle", (t) => {
     }
   };
   walk(webRoot);
-  for (const name of ["manifest.webmanifest", "icon-512.png", "favicon.svg", "music" /* dir */]) {
+  for (const name of ["manifest.webmanifest", "icon-512.png", "favicon.svg", "favicon-32.png", "music" /* dir */]) {
     assert.ok(flat.includes(name) || existsSync(join(webRoot, name)), `${name} is packaged`);
   }
   // The catalogue the static build ships, and the artwork it references.

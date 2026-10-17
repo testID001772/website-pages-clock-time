@@ -36,6 +36,7 @@ const SHELL = [
   `${BASE}icon-192.png`,
   `${BASE}icon-512.png`,
   `${BASE}favicon.svg`,
+  `${BASE}favicon-32.png`,
 ];
 /**
  * The hashed stylesheet and client bundles of the build this worker shipped
