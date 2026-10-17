@@ -63,6 +63,12 @@ paths, and `http://` keeps `fetch` and the router behaving exactly as they do in
 a browser. It ships no service worker: the files are already on disk, and a
 worker holding the previous release would keep serving it after an update.
 
+**Supported desktop target: Windows 10/11, 64-bit (x64).** Windows 7/8/8.1
+and 32-bit Windows are not supported by this installer. We use a current,
+maintained Electron runtime rather than shipping an obsolete Chromium runtime
+just to support end-of-life Windows versions. For unsupported systems, open the
+website in a compatible browser and use its install option where available.
+
 Same as Android, the `Build installers` workflow will produce the `.exe` on a
 `windows-latest` runner if you would rather not install the toolchain.
 
