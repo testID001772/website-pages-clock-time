@@ -11,6 +11,12 @@ const { isFile, resolveInside, startStaticServer } = require("./static-server.cj
 const here = fileURLToPath(new URL(".", import.meta.url));
 const webRoot = join(here, "web");
 
+test("Electron package includes the main-process server dependency", () => {
+  const manifest = JSON.parse(readFileSync(join(here, "package.json"), "utf8"));
+  assert.ok(manifest.build.files.includes("main.cjs"));
+  assert.ok(manifest.build.files.includes("static-server.cjs"));
+});
+
 // The shell serves the copied static build; without it there is nothing to
 // assert against, and "no files" must not read as a pass.
 const hasBundle = existsSync(join(webRoot, "index.html"));

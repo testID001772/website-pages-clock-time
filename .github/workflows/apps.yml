@@ -156,6 +156,16 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: npm run dist:win
 
+      - name: Verify packaged main-process files
+        working-directory: desktop
+        run: |
+          $asar = Join-Path $PWD "node_modules/.bin/asar.cmd"
+          $files = & $asar list "dist/win-unpacked/resources/app.asar"
+          if ($LASTEXITCODE -ne 0) { throw "Could not inspect the packaged app.asar" }
+          if (-not ($files -match 'static-server[.]cjs$')) {
+            throw "static-server.cjs is missing from the Windows app bundle"
+          }
+
       - name: Report the artifact
         working-directory: desktop/dist
         run: Get-ChildItem -Filter *.exe | Select-Object Name, Length

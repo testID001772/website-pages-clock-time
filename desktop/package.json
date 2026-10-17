@@ -1,7 +1,7 @@
 {
   "name": "clock-time-desktop",
   "productName": "Clock Time",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "description": "Clock Time \u2014 a cinematic New Year countdown, as an installable desktop app.",
   "main": "main.cjs",
@@ -25,6 +25,7 @@
     "files": [
       "main.cjs",
       "preload.cjs",
+      "static-server.cjs",
       "web/**/*",
       "package.json"
     ],
