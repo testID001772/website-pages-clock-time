@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { eventThumb } from "@/lib/event-media";
+import { useEffect, useRef, useState } from "react";
+import { eventThumb, eventTrack } from "@/lib/event-media";
 import { formatTarget, splitRange } from "@/lib/countdown";
 import {
   currentEvent,
@@ -98,6 +98,34 @@ export function EventCountdown({
   const [snap, setSnap] = useState<Snapshot | null>(() => snapshot(new Date()));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [iconSize, setIconSize] = useState<IconSize>("xl");
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, []);
+
+  function toggleMusic() {
+    let audio = audioRef.current;
+    if (audio && !audio.paused) {
+      audio.pause();
+      setPlaying(false);
+      return;
+    }
+    if (!audio) {
+      audio = new Audio(eventTrack());
+      audio.preload = "none";
+      audio.loop = true;
+      audio.volume = 0.6;
+      audio.onerror = () => setPlaying(false);
+      audioRef.current = audio;
+    }
+    setPlaying(true);
+    void audio.play().catch(() => setPlaying(false));
+  }
 
   useEffect(() => {
     const tick = () => setSnap(snapshot(new Date()));
@@ -160,6 +188,19 @@ export function EventCountdown({
               {formatInteger(main.parts.seconds, locale, 2)}
             </p>
           )}
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm flex-none"
+            aria-label={
+              playing
+                ? "Pause Coming Up medium-bass music"
+                : "Play Coming Up medium-bass music"
+            }
+            aria-pressed={playing}
+            onClick={toggleMusic}
+          >
+            {playing ? "Pause music" : "Play music"}
+          </button>
         </div>
 
         {allGames.length > 1 ? (
