@@ -17,8 +17,14 @@ import { playSfx } from "@/lib/sfx";
 
 export const Route = createFileRoute("/download")({ component: DownloadPage });
 
-/** The native platform builds are listed as coming later until files exist. */
-function ComingLaterRow({ label, status }: { label: string; status: string }) {
+/** A compact status row for native platform targets. */
+function DownloadStatusRow({
+  label,
+  status,
+}: {
+  label: string;
+  status: string;
+}) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
       <span className="text-sm text-ink">{label}</span>
@@ -60,22 +66,18 @@ function DownloadPage() {
                 {t.download.windowsLegacy}
               </h3>
               <div className="mt-2 grid gap-2">
-                <ComingLaterRow
+                <DownloadStatusRow
                   label={t.download.windowsLegacyX64Action}
-                  status={t.download.comingLater}
-                />
-                <ComingLaterRow
-                  label={t.download.windowsLegacyX86Action}
-                  status={t.download.comingLater}
+                  status={t.download.done}
                 />
               </div>
             </div>
             <div className="mt-4 grid gap-2">
-              <ComingLaterRow
+              <DownloadStatusRow
                 label={`${t.download.windows} 10 · x64`}
                 status={t.download.comingLater}
               />
-              <ComingLaterRow
+              <DownloadStatusRow
                 label={`${t.download.windows} 11 · x64`}
                 status={t.download.comingLater}
               />
@@ -92,7 +94,7 @@ function DownloadPage() {
             <h2 className="h2 mt-4">{t.download.android}</h2>
             <p className="lede mt-2 flex-1">{t.download.androidBlurb}</p>
             <div className="mt-auto pt-5">
-              <ComingLaterRow
+              <DownloadStatusRow
                 label={`${t.download.android} 8+`}
                 status={t.download.comingLater}
               />
@@ -105,7 +107,10 @@ function DownloadPage() {
             </span>
             <h2 className="h2 mt-4">iPhone</h2>
             <div className="mt-auto pt-5">
-              <ComingLaterRow label="iPhone" status={t.download.comingLater} />
+              <DownloadStatusRow
+                label="iPhone"
+                status={t.download.comingLater}
+              />
             </div>
           </section>
 
@@ -115,7 +120,7 @@ function DownloadPage() {
             </span>
             <h2 className="h2 mt-4">iPad</h2>
             <div className="mt-auto pt-5">
-              <ComingLaterRow label="iPad" status={t.download.comingLater} />
+              <DownloadStatusRow label="iPad" status={t.download.comingLater} />
             </div>
           </section>
 

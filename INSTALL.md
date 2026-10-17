@@ -5,19 +5,19 @@ Three ways to get Clock Time onto a device, cheapest first. All three ship the
 plus a client bundle). It has no server, no database and no sign-in, so an
 installed app works with no network at all.
 
-| Path | What you get | Needs |
-| --- | --- | --- |
-| PWA install | an app icon and a standalone window | a browser. Nothing to build |
-| Android APK | `app-debug.apk` | JDK 21 + the Android SDK, or CI |
-| Windows installer | `ClockTime-<version>-windows-setup.exe` | Windows (or CI) |
+| Path              | What you get                            | Needs                           |
+| ----------------- | --------------------------------------- | ------------------------------- |
+| PWA install       | an app icon and a standalone window     | a browser. Nothing to build     |
+| Android APK       | `app-debug.apk`                         | JDK 21 + the Android SDK, or CI |
+| Windows installer | `ClockTime-<version>-windows-setup.exe` | Windows (or CI)                 |
 
 ---
 
 ## 1. PWA install — no build step
 
 This already works on the deployed site. Desktop Chrome/Edge show **Install
-app** in the header chip; Android Chrome offers *Add to Home screen*; iOS uses
-Share → *Add to Home Screen* (Apple never fires the install event, so the chip
+app** in the header chip; Android Chrome offers _Add to Home screen_; iOS uses
+Share → _Add to Home Screen_ (Apple never fires the install event, so the chip
 stays hidden there and the share sheet is the path).
 
 The service worker makes it work offline after the first visit.
@@ -41,7 +41,7 @@ cd android && ./gradlew assembleDebug
 ```
 
 **Without the SDK on your machine**, run the `Build installers` workflow
-(Actions tab → *Run workflow*) and download `ClockTime-android-apk` from the run.
+(Actions tab → _Run workflow_) and download `ClockTime-android-apk` from the run.
 That is the recommended path: the runner has a pinned JDK 21, and the APK is
 built from a clean checkout rather than whatever is on your laptop.
 
@@ -74,11 +74,10 @@ Same as Android, the `Build installers` workflow will produce the `.exe` on a
 
 ### Legacy Windows 7 installers (unsupported runtime)
 
-The workflow also builds separate x64 and x86 installers with Electron 22.3.27
-for Windows 7-era devices:
+The workflow builds one x64 installer with Electron 22.3.27 for Windows 7-era
+devices:
 
 - `ClockTime-windows-legacy-x64-setup.exe`
-- `ClockTime-windows-legacy-ia32-setup.exe`
 
 **Security warning:** Electron 22 / Chromium 108 reached end of support in 2023
 and receives no security fixes. Keep these legacy builds offline or use them
@@ -88,39 +87,30 @@ separate so the two variants do not overwrite one another.
 
 ---
 
-## 4. What the website's download page links at
+## 4. Download page availability
 
-`src/routes/download.tsx` links at two fixed file names:
+The download page marks native builds as **Coming later** until a real installer
+is published. The Windows 7 x64 row is marked **Done** per the requested plan,
+but its installer has not yet been published, so there is no download link yet.
+The Windows 7 x86 target has been removed.
 
-| Install | Name the site links at |
-| --- | --- |
-| Windows 10/11 x64 | `ClockTime-windows-setup.exe` |
-| Legacy Windows 7 x64 | `ClockTime-windows-legacy-x64-setup.exe` |
-| Legacy Windows 7 x86 | `ClockTime-windows-legacy-ia32-setup.exe` |
-| Android | `ClockTime-android.apk` |
+| Target               | Planned build artifact                   | Current page status      |
+| -------------------- | ---------------------------------------- | ------------------------ |
+| Windows 7 legacy x64 | `ClockTime-windows-legacy-x64-setup.exe` | Done; file not published |
+| Windows 10/11 x64    | `ClockTime-windows-setup.exe`            | Coming later             |
+| Android 8+           | `ClockTime-android.apk`                  | Coming later             |
+| iPhone and iPad      | App Store distribution                   | Coming later             |
+| Browser              | PWA / add to home screen                 | Available now            |
 
-Both are resolved through GitHub's release endpoint,
-`https://github.com/<owner>/<repo>/releases/latest/download/<file>`, so the page
-never needs editing when a new build ships — but it does need a release to exist
-before those links resolve. Both jobs publish to a release only when the run is
-triggered by a tag:
+The Windows and Android workflows publish release assets only when configured
+and run for a release tag. A manual build can provide run artifacts without
+making a public download. Once files are published, the page can link to the
+stable GitHub release asset names; no placeholder link should be shown before
+then.
 
-```bash
-git tag v2.0.0 && git push origin v2.0.0
-```
-
-A manual run builds the same files and leaves them as artifacts on the run page
-without a release, so the page keeps pointing at the last tagged build.
-
-Because the endpoint matches on an exact file name, both names above are
-deliberately free of a version number: the electron-builder `artifactName` in
-`desktop/package.json` is fixed, and the workflow renames Gradle's
-`app-debug.apk` to `ClockTime-android.apk`. Add a version to either name and the
-page's links start 404ing.
-
-The page's third option needs no file at all — it is the browser install, driven
-by `useInstallPrompt` (`src/lib/use-install-prompt.ts`), with the menu
-instructions shown instead where a browser offers no install prompt.
+The browser option is already usable and needs no separate file. Its install
+prompt is handled by `useInstallPrompt` (`src/lib/use-install-prompt.ts`), with
+manual menu instructions where the browser does not offer a prompt.
 
 ---
 
@@ -137,12 +127,12 @@ Neither package is signed for distribution.
 
 ## What is source and what is generated
 
-| Path | Status |
-| --- | --- |
-| `capacitor.config.ts`, `android/` (Gradle project) | source |
-| `desktop/main.cjs`, `static-server.cjs`, `preload.cjs`, `package.json` | source |
-| `desktop/buildResources/icon.{ico,png}`, `android/**/mipmap-*/*.png` | generated by `npm run app:icons`, committed like `public/icon-512.png` |
-| `desktop/web/`, `android/app/src/main/assets/public/` | generated by `npm run app:sync`, gitignored |
+| Path                                                                   | Status                                                                 |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `capacitor.config.ts`, `android/` (Gradle project)                     | source                                                                 |
+| `desktop/main.cjs`, `static-server.cjs`, `preload.cjs`, `package.json` | source                                                                 |
+| `desktop/buildResources/icon.{ico,png}`, `android/**/mipmap-*/*.png`   | generated by `npm run app:icons`, committed like `public/icon-512.png` |
+| `desktop/web/`, `android/app/src/main/assets/public/`                  | generated by `npm run app:sync`, gitignored                            |
 
 `desktop/static-server.test.mjs` boots the shell's server against
 `desktop/web` and asserts what a packaged app actually serves, so regenerate the
